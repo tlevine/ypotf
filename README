@@ -45,16 +45,25 @@ People can send the following sorts of emails to the email account.
 * Subscription requests
 * Unsubscription requests
 * Responses to confirmation emails
-* Messages to the list's members
 * Requests for documentation on using the mailing list
-* Invalid messages, which are mostly treated as requests for
-  documentation.
+* Messages to the list's members
 
 The type of email is specified in the subject line of the email;
 here are the subject line formats associated with each sort of email.
 
-..csv-table ::
+.. csv-table ::
   
+    Type of email,Subject line
+    Subscription request,"subscribe" (case-insensitive)
+    Unsubscription request,"unsubscribe" (case-insensitive)
+    Response to confirmation email,"confirm"\, followed by a message-id
+    Request for documentation,"help" (case-insensitive)
+    Messages to the list members,Anything else
+
+Some of these make sense only if you have a certain status; for example,
+subscription requests make sense only if you are subscribed. If you try
+to send something that doesn't make sense, it is mostly treated as a
+documentation request.
 
 Now let's discuss what each of these sorts of emails do.
 
