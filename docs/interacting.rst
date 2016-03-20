@@ -29,10 +29,10 @@ Subscription requests
 A subscription request is a request for one email address to receive
 messages that are sent to list members.
 
-If ypotf was run with the ``--private`` flag, the
+If ypotf was run with the ``--private`` flag, the subscription request
+is held until the person running the list approves it.
 
-
-In either case, ypotf sends a confirmation message. If the
+Then ypotf sends a confirmation message. If the
 **confirmation process** suceeds,
 the email address is added to **list members**.
 
