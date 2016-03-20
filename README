@@ -69,3 +69,10 @@ Now let's discuss what each of these sorts of emails do.
 
 Subscription requests
 ^^^^^^^^^^^^^^^^^^^^^
+A subscription request is a request for one email address to receive
+messages that are sent to list members. In response to such a request,
+ypotf sends a confirmation message
+
+
+Message type flow
+^^^^^^^^^^^^^^^^^
