@@ -42,11 +42,12 @@ Interacting with a mailing list
 -------------------------------
 People can send the following sorts of emails to the email account.
 
-* Documentation requests
 * Subscription requests
 * Unsubscription requests
 * Responses to confirmation emails
 * Messages to the list's members
+* Requests for documentation on using the mailing list
+* Invalid messages, which are mostly treated as requests for
+  documentation.
 
-If the email account receives something ypotf does not recognize,
-the message is treated as a request for documentation.
+Now let's discuss what each of these sorts of emails do.
