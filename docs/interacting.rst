@@ -51,6 +51,21 @@ the email address is removed from the **list members**.
 
 Messages to the list members
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Messages to list members are the whole point of ypotf, of course.
+In response to a message to list members, ypotf sends a confirmation
+email. If the confirmation succeeds, the original email gets sent to
+all members of the list with the following email headers.
+
+From
+    The address that sent the email
+To
+    The mailing list email address
+Reply-To
+    The mailing list email address
+
+People can send messages to the list regardless of whether they are
+subscribed as list members; subscription determines only whether people
+receive emails.
 
 Note that ypotf does not allow you to send messages with the following
 subject lines, case-insensitive.
