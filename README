@@ -56,7 +56,7 @@ here are the subject line formats associated with each sort of email.
     Type of email,Subject line
     Subscription request,"subscribe" (case-insensitive)
     Unsubscription request,"unsubscribe" (case-insensitive)
-    Response to confirmation email,"confirm"\, followed by a message-id
+    Response to confirmation email,"ytotf-confirm"\, followed by an identifier
     Request for documentation,"help" (case-insensitive)
     Messages to the list members,Anything else
 
@@ -73,6 +73,20 @@ A subscription request is a request for one email address to receive
 messages that are sent to list members. In response to such a request,
 ypotf sends a confirmation message
 
+Messages to the list members
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Note that ypotf does not allow you to send messages with the following
+subject lines, case-insensitive.
+
+* "unsubscribe"
+* "subscribe"
+* "ypotf-confirm", followed by anything
+* "help"
+
+These subjects are vague anyway, so I don't care to support them;
+if you want to send a message with any of the above subject lines,
+change the subject, or just add a meaningless word like "please".
 
 Message type flow
 ^^^^^^^^^^^^^^^^^
