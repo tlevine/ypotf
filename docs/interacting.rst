@@ -30,8 +30,14 @@ Now let's discuss what each of these sorts of emails do.
 Subscription requests
 ^^^^^^^^^^^^^^^^^^^^^
 A subscription request is a request for one email address to receive
-messages that are sent to list members. In response to such a request,
-ypotf sends a confirmation message
+messages that are sent to list members.
+
+If ypotf was run with the ``--private`` flag, the
+
+
+In either case, ypotf sends a confirmation message. If the
+**confirmation process** suceeds,
+the email address is added to **list members**.
 
 Messages to the list members
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
