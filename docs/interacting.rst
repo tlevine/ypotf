@@ -1,22 +1,19 @@
 Interacting with a mailing list
 -------------------------------
-People can send the following sorts of emails to the email account.
+To send an email to list members, you pretty much just send an email to
+the mailing list email address. To otherwise interact with the mailing
+list, like to subscribe to the list, you need to specify the type in the
+subject line.
 
-* Subscription requests
-* Unsubscription requests
-* Responses to confirmation emails
-* Requests for documentation on using the mailing list
-* Messages to the list's members
-
-The type of email is specified in the subject line of the email;
-here are the subject line formats associated with each sort of email.
+Here are the subject line formats associated with each sort of email.
 
 .. csv-table ::
   
     Type of email,Subject line
     Subscription request,"subscribe" (case-insensitive)
     Unsubscription request,"unsubscribe" (case-insensitive)
-    Response to confirmation email,"ytotf-confirm"\, followed by an identifier
+    Response to confirmation email,"list-confirm"\, followed by an identifier
+    View list archives,"list-archive"\, followed by a query
     Request for documentation,"help" (case-insensitive)
     Messages to the list members,Anything else
 
@@ -47,7 +44,6 @@ subject lines, case-insensitive.
 
 * "unsubscribe"
 * "subscribe"
-* "ypotf-confirm", followed by anything
 * "help"
 
 These subjects are vague anyway, so I don't care to support them;
