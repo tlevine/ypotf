@@ -12,7 +12,7 @@ Here are the subject line formats associated with each sort of email.
     Type of email,Subject line
     Subscription request,"subscribe" (case-insensitive)
     Unsubscription request,"unsubscribe" (case-insensitive)
-    Response to confirmation email,"list-confirm"\, followed by an identifier
+    Response to confirmation email,a valid confirmation identifier
     View list archives,"list-archive"\, followed by a query
     Request for documentation,"help" (case-insensitive)
     Messages to the list members,Anything else
@@ -37,7 +37,7 @@ Otherwise, ypotf sends a confirmation message. If the
 the email address is added to the **list members**.
 
 Unsubscription requests
-^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
 An unsubscription request is a request for one email address to stop
 receiving messages that are sent to list members.
 
@@ -62,6 +62,25 @@ subject lines, case-insensitive.
 These subjects are vague anyway, so I don't care to support them;
 if you want to send a message with any of the above subject lines,
 change the subject, or just add a meaningless word like "please".
+
+Response to confirmation email
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Confirmation emails exist to protect against email spoofing attacks.
+
+Every particular confirmation email corresponds to a particular
+subscribe request, unsubscribe request, or message to list members.
+The confirmation email directs the recipient to reply to the email,
+as this composes an email with the appropriate subject.
+After the confirmation is returned, the original request is processed.
+
+View list archives
+^^^^^^^^^^^^^^^^^^
+This feature has not been implemented.
+
+Request for documentation
+^^^^^^^^^^^^^^^^^^^^^^^^^
+When a documentation is requested, ypotf replies with a summary of the
+commands that you can send, similar to the present documentation.
 
 Message type flow
 ^^^^^^^^^^^^^^^^^
