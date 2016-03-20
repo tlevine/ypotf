@@ -11,7 +11,8 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-
+   running
+   interacting
 
 Indices and tables
 ==================
