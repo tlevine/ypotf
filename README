@@ -50,4 +50,13 @@ People can send the following sorts of emails to the email account.
 * Invalid messages, which are mostly treated as requests for
   documentation.
 
+The type of email is specified in the subject line of the email;
+here are the subject line formats associated with each sort of email.
+
+..csv-table ::
+  
+
 Now let's discuss what each of these sorts of emails do.
+
+Subscription requests
+^^^^^^^^^^^^^^^^^^^^^
