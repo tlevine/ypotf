@@ -1,0 +1,7 @@
+digraph foo {
+    "subscribe" -> "confirm" -> "add address to list members"
+    "unsubscribe" -> "confirm" -> "remove address from list members"
+    "message" -> "confirm" -> "send message to list members"
+    "archive" -> "send old emails"
+    "help" -> "email with documentation"
+}

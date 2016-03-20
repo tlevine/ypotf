@@ -107,5 +107,7 @@ commands that you can send, similar to the present documentation.
 
 Message type flow
 ^^^^^^^^^^^^^^^^^
+All requests to the list lead to something else happening; here's the
+whole net work of it all.
 
-(Make a graphviz thing.)
+.. graphviz:: flow.dot
