@@ -29,12 +29,25 @@ Subscription requests
 A subscription request is a request for one email address to receive
 messages that are sent to list members.
 
-If ypotf was run with the ``--private`` flag, the subscription request
-is held until the person running the list approves it.
+If the email address is already on the list, ypotf replies with an error
+message explaning that the address is already on the list.
 
-Then ypotf sends a confirmation message. If the
+Otherwise, ypotf sends a confirmation message. If the
 **confirmation process** suceeds,
-the email address is added to **list members**.
+the email address is added to the **list members**.
+
+Unsubscription requests
+^^^^^^^^^^^^^^^^^^^^^
+An unsubscription request is a request for one email address to stop
+receiving messages that are sent to list members.
+
+If the email address is not already on the list, ypotf replies with an
+error message explaning that the address isn't subscribed and thus can't
+be removed from the list.
+
+Otherwise, ypotf sends a confirmation message. If the
+**confirmation process** suceeds,
+the email address is removed from the **list members**.
 
 Messages to the list members
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
