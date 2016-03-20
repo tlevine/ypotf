@@ -1,1 +1,18 @@
+ypotf
+=========
 Mailing list software that runs as an IMAP and SMTP client.
+
+Running a mailing list
+----------------------
+Install from PyPI. ::
+
+    pip install ypotf
+
+Make an email account, and run ypotf with the appropriate credentials.
+
+    ypotf --username=ypotf@thomaslevine.com --password=acbeusar \
+      --imap-host=mail.messagingengine.com:992 \
+      --smtp-host=mail.messagingengine.com:465
+
+Interacting with a mailing list
+-------------------------------
