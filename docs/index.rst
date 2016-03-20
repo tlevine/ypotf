@@ -13,6 +13,7 @@ Contents:
 
    running
    interacting
+   options
 
 Indices and tables
 ==================
