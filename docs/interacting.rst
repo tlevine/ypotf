@@ -12,7 +12,7 @@ Here are the subject line formats associated with each sort of email.
     Type of email,Subject line
     Subscription request,"subscribe" (case-insensitive)
     Unsubscription request,"unsubscribe" (case-insensitive)
-    Response to confirmation email,a valid confirmation identifier
+    Response to confirmation email,a confirmation identifier
     View list archives,"list-archive"\, followed by a query
     Request for documentation,"help" (case-insensitive)
     Messages to the list members,Anything else
@@ -87,6 +87,14 @@ subscribe request, unsubscribe request, or message to list members.
 The confirmation email directs the recipient to reply to the email,
 as this composes an email with the appropriate subject.
 After the confirmation is returned, the original request is processed.
+
+The subject of the response email contains a confirmation identifier
+of the following format
+
+    list-confirm-$identifier
+
+where "identifier" is a long string that should be hard to type by
+accident.
 
 View list archives
 ^^^^^^^^^^^^^^^^^^
