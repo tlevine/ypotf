@@ -111,3 +111,19 @@ All requests to the list lead to something else happening; here's the
 whole network of it all.
 
 .. graphviz:: flow.dot
+
+ypotf stores all of its mailing list information in email messages.
+Requests arrive as emails in the "inbox" folder and are moved to the
+"archive" folder after initial processing.
+
+The processing of archive requests, help requests, and erroneous
+messages results in an email and then ends here.
+
+Requests to subscribe, unsubscribe, or send a message, and confirmations
+for these requests, require temporary information to be stored on the
+server in the following IMAP folders.
+
+* Confirmations
+* Queued messages
+
+Maybe I'll explain more details later.
