@@ -1,8 +1,19 @@
 digraph foo {
-    rankdir="LR"
-    "subscribe" -> "confirm" -> "add address to list members"
-    "unsubscribe" -> "confirm" -> "remove address from list members"
-    "message" -> "confirm" -> "send message to list members"
-    "archive" -> "send old emails"
-    "help" -> "email with documentation"
+    rankdir=LR
+    subscribe [shape=note];
+    unsubscribe [shape=note];
+    message [shape=note];
+    archive [shape=note];
+    help [shape=note];
+    subgraph cluster_0 {
+      style=dashed;
+      label=ypotf;
+      confirm, "simple reply", "queue operation" [shape=diamond];
+      confirm -> "queue operation"
+    }
+    subscribe -> confirm -> "add address to list members";
+    unsubscribe -> confirm -> "remove address from list members";
+    message -> confirm -> "send message to list members";
+    archive -> "simple reply" -> "send old emails";
+    help -> "simple reply" -> "email with documentation";
 }
