@@ -10,11 +10,11 @@ Here are the subject line formats associated with each sort of email.
 .. csv-table ::
   
     Type of email,Subject line
-    Subscription request,"subscribe" (case-insensitive)
-    Unsubscription request,"unsubscribe" (case-insensitive)
+    Subscription request,\"subscribe\" (case-insensitive)
+    Unsubscription request,\"unsubscribe\" (case-insensitive)
     Response to confirmation email,a confirmation identifier
-    View list archives,"list-archive"\, followed by a query
-    Request for documentation,"help" (case-insensitive)
+    View list archives,\"list-archive\"\, followed by a query
+    Request for documentation,\"help\" (case-insensitive)
     Messages to the list members,Anything else
 
 Some of these make sense only if you have a certain status; for example,
