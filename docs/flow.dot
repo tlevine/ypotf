@@ -1,19 +1,42 @@
-digraph foo {
+digraph ypotf {
     rankdir=LR
-    subscribe [shape=note];
-    unsubscribe [shape=note];
-    message [shape=note];
-    archive [shape=note];
-    help [shape=note];
+
+    subscribe, unsubscribe, message [shape=note];
+    "Error message" [shape=note];
     subgraph cluster_0 {
-      style=dashed;
-      label=ypotf;
-      confirm, "simple reply", "queue operation" [shape=diamond];
-      confirm -> "queue operation"
+      label="Requires confirmation";
+
+      subscribe -> "Already a member?"
+      "Already a member?" -> "Error message" [label=Yes];
+      "Already a member?" -> "Queue addition to list" [label=No];
+
+      "Queue addition to list" -> "Subscription confirmation";
+      "Subscription confirmation" -> "Add to list members";
+      "Queue addition to list" -> "Add to list members";
+
+      unsubscribe -> "Already a member?"
+      "Already a member?" -> "Queue removal from list" [label=Yes];
+      "Already a member?" -> "Error message" [label=No];
+
+      "Queue removal from list" -> "Subscription confirmation";
+      "Subscription confirmation" -> "Remove from list members";
+      "Queue removal from list" -> "Remove from list members";
+
+      "Queue addition to list", "Queue removal from list",
+        "Remove from list members", "Add to list members"
+        [shape=diamond];
+
+      "Queue addition to list", "Queue removal from list" [shape=diamond];
+      unsubscribe -> confirm -> "remove address from list members";
+      message -> confirm -> "send message to list members";
+      "Subscription confirmation" [shape=note];
     }
-    subscribe -> confirm -> "add address to list members";
-    unsubscribe -> confirm -> "remove address from list members";
-    message -> confirm -> "send message to list members";
-    archive -> "simple reply" -> "send old emails";
-    help -> "simple reply" -> "email with documentation";
+
+    archive, help [shape=note];
+    subgraph cluster_1 {
+      label="Simple reply";
+      "Hard-coded documentation", "List history" [shape=box];
+      archive -> "List history" -> "Forward old emails";
+      help -> "Hard-coded documentation" -> "Send documentation";
+    }
 }
