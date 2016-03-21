@@ -1,15 +1,22 @@
 digraph ypotf {
     rankdir=LR
+    rank="max"
+
+    subscribe, unsubscribe, message, confirm, archive, help [shape=rarrow];
+    "Error message", "Subscription confirmation", "Forward old emails",
+      "Send documentation", "Unsubscription confirmation",
+      "Message confirmation" [shape=larrow];
 
     subgraph cluster_0 {
       label="Requires confirmation";
-      subscribe, unsubscribe, message, "Error message" [shape=note];
+
+      "Subscription confirmation" -> "Error message" [style=invis];
 
       subscribe -> "Error message" [label="Already a member"];
       subscribe -> "Subscription confirmation" -> confirm;
 
       unsubscribe -> "Error message" [label="Not a member"];
-      subscribe -> "Unsubscription confirmation" -> confirm;
+      unsubscribe -> "Unsubscription confirmation" -> confirm;
 
       confirm -> "Process the request, finally.";
       "Process the request, finally." [shape=diamond];
@@ -17,7 +24,6 @@ digraph ypotf {
       message -> "Message confirmation" -> confirm;
     }
 
-    archive, help, "Forward old emails", "Send documentation" [shape=note];
     subgraph cluster_1 {
       label="Simple reply";
       archive -> "Forward old emails";
