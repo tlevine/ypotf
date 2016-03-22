@@ -3,7 +3,6 @@ import imaplib
 * Confirmations
 * Queued messages
 
-
 def confirm(confirmation_code):
     '''
     Based on a confirmation code, determine what action to take next.
@@ -12,17 +11,20 @@ def confirm(confirmation_code):
     :rtype: Action
     :returns: Action to take based on the confirmation code
     '''
+    M.select('confirmations')
 
+def subscribe(M, email_address):
+    M.select('ypotf-list')
 
-class Folder(object):
-    def __init__(self, name):
-        self.name = name
-        
-        M.select('INBOX')
+def unsubscribe(M, email_address):
+    M.select('ypotf-list')
 
-    def close(self):
-        self.M.close()
-        self.M.logout()
+def send_message(M, message_id):
+    M.select('ypotf-queue')
+
+def queue_message(M, message_id):
+    M.select('ypotf-queue')
+
 
     def peek(self) -> Tuple[bytes,bytes]:
         'Look at an arbitrary email.'
