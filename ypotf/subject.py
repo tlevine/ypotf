@@ -5,11 +5,11 @@ MATCHERS = [(k, re.compile(v, flags=re.IGNORECASE)) for (k,v) in [
     ('unsubscribe', r'^unsubscribe$'),
     ('confirm', r'list-confirm-[a-z0-9]{32}'),
     ('archive', r'^list-archive'),
-    ('help', r'help$'),
+    ('help', r'^help$'),
 ]]
 
 def categorize(subject):
     for cat, expr in MATCHERS:
-        if re.match(expr, subject):
+        if re.search(expr, subject):
             return cat
     return 'message'
