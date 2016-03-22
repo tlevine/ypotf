@@ -5,7 +5,7 @@ MATCHERS = [(k: re.compile(v, flags=re.IGNORECASE)) for k,v in [
     'unsubscribe': r'^unsubscribe$',
     'confirm': r'list-confirm-[a-z0-9]{32}',
     'archive': r'^list-archive'
-    'help': r'help',
+    'help': r'help$',
 ]]
 
 def categorize(subject):
