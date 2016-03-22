@@ -1,3 +1,5 @@
+import pytest
+
 from .. import subject
 
 testcases_categorize = [
