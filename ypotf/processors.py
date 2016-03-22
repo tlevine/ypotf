@@ -23,6 +23,7 @@ def send_message(M, message_id):
     M.select('ypotf-queue')
 
 def queue_message(M, message_id):
+    M.select('INBOX')
     M.select('ypotf-queue')
 
 
@@ -33,8 +34,5 @@ def _messages(M):
 
     for num in nums:
         typ, data = M.fetch(num, '(RFC822)')
-
         # Email is ASCII http://en.wikipedia.org/wiki/MIME
-        return num, data[0][1]
-
-    print(data[0][1].decode('ascii'))
+        yield num, email.message_from_bytes(data[0][1])
