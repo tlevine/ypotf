@@ -8,7 +8,10 @@ Action = namedtuple('Action', ['type', 'argument'])
 
 def factory(type_, argument):
     if type_ in TYPES:
-        pass
+        if not '@' in argument:
+            tpl = 'Invalid email address or message-id: %s'
+            raise ValueError(tpl % argument)
+        return Action(type_, argument)
     else:
         raise ValueError('Bad type: %s' % type_)
 
