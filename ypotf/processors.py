@@ -26,17 +26,15 @@ def queue_message(M, message_id):
     M.select('ypotf-queue')
 
 
-    def peek(self) -> Tuple[bytes,bytes]:
-        'Look at an arbitrary email.'
-        typ, data = self.M.search(None, 'ALL')
-        nums = data[0].split()
 
-        # Read the first one if it's available.
-        if nums == []:
-            return None, None
-        else:
-            num = nums[0]
-            typ, data = self.M.fetch(num, '(RFC822)')
+def _messages(M):
+    typ, data = M.search(None, 'ALL')
+    nums = data[0].split()
 
-            # Email is ASCII http://en.wikipedia.org/wiki/MIME
-            return num, data[0][1]
+    for num in nums:
+        typ, data = M.fetch(num, '(RFC822)')
+
+        # Email is ASCII http://en.wikipedia.org/wiki/MIME
+        return num, data[0][1]
+
+    print(data[0][1].decode('ascii'))
