@@ -13,10 +13,12 @@ def confirm(confirmation_code):
     '''
     M.select('confirmations')
 
-def subscribe(M, email_address):
-    M.select('ypotf-list')
+def subscribe(M, num):
+    _message(num)['from']
+    M.append('ypotf-list', flags, date_time, message)
 
-def unsubscribe(M, email_address):
+def unsubscribe(M, num):
+    _message(num)['from']
     M.select('ypotf-list')
 
 def send_message(M, message_id):
@@ -37,5 +39,8 @@ def _messages(M):
 
     for num in nums:
         typ, data = M.fetch(num, '(RFC822)')
-        # Email is ASCII http://en.wikipedia.org/wiki/MIME
         yield num, email.message_from_bytes(data[0][1])
+
+def _message(M, num):
+    typ, data = M.fetch(num, '(RFC822)')
+    return email.message_from_bytes(data[0][1])
