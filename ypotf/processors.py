@@ -21,12 +21,15 @@ def unsubscribe(M, email_address):
 
 def send_message(M, message_id):
     M.select('ypotf-queue')
+    for num, msg in _messages(M):
+        if msg['message-id'] == message_id:
+            raise NotImplementedError('Send the message with SMTP')
+            M.copy(num, 'Sent')
+            M.expunge()
 
-def queue_message(M, message_id):
-    M.select('INBOX')
-    M.select('ypotf-queue')
-
-
+def queue_message(M, num):
+    M.copy(num, 'ypotf-queue')
+    M.expunge()
 
 def _messages(M):
     typ, data = M.search(None, 'ALL')
