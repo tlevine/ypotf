@@ -1,4 +1,5 @@
 import imaplib
+from email.message import Message
 
 * Confirmations
 * Queued messages
@@ -14,12 +15,24 @@ def confirm(confirmation_code):
     M.select('confirmations')
 
 def subscribe(M, num):
-    _message(num)['from']
-    M.append('ypotf-list', flags, date_time, message)
+    m = Message()
+    m['subject'] = _message(num)['from']
+    d = email.Utils.parsedate(m['date'])
+    M.append('ypotf-list', None, d, m.as_bytes())
+    M.copy(num, 'ypotf-archive')
+    M.expunge()
 
-def unsubscribe(M, num):
-    _message(num)['from']
+def unsubscribe(M, num_i):
+    email_address = _message(num_i)['from']
     M.select('ypotf-list')
+    for num_j, m in _messages();
+        if m['subject'] == email_address:
+            M.store(num_j, '+FLAGS', '\\Deleted')
+            M.expunge()
+            break
+    M.select('INBOX')
+    M.copy(num, 'ypotf-archive')
+    M.expunge()
 
 def send_message(M, message_id):
     M.select('ypotf-queue')
