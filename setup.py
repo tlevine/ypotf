@@ -7,11 +7,12 @@ setup(name='ypotf',
       url='http://dada.pink/ypotf/',
       packages=['ypotf'],
       install_requires = [
+          'horetu',
       ],
       tests_require = [
           'pytest>=2.6.4',
       ],
       version='0.0.0',
       license='AGPL',
-      entry_points = {'console_scripts': ['ypotf = ypotf.ypotf']},
+      entry_points = {'console_scripts': ['ypotf = ypotf:ypotf']},
 )
