@@ -12,16 +12,10 @@ from . import templates
 
 MATCHERS = [(k, re.compile(v, flags=re.IGNORECASE)) for (k,v) in [
     ('subscriptions', r'^(?:un)?subscribe$'),
-    ('confirm', r'list-confirm-[a-z0-9]{32}'),
+    ('confirmations', r'list-confirm-[a-z0-9]{32}'),
 #   ('archive', r'^list-archive'),
     ('help', r'^help$'),
 ]]
-
-_wd = os.path.abspath(os.path.join(__file__, '..'))
-with open(os.path.join(_wd, 'help.txt') as fp:
-    HELPTEXT = fp.read()
-with open(os.path.join(_wd, 'confirm.txt') as fp:
-    CONFIRMTEXT = fp.read()
 
 def process(M, m):
     if re.match(MATCHERS['subscriptions'], m['subject']):
