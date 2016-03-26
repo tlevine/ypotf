@@ -19,31 +19,27 @@ MATCHERS = [(k, re.compile(v, flags=re.IGNORECASE)) for (k,v) in [
 ]]
 
 def process(M, m):
-    db = storage.Confirmations(M)
+    confirmations = storage.Confirmations(M)
     if re.match(MATCHERS['subscriptions'], m['subject']):
-        return add_confirmation(db, m['message-id'],
+        return add_confirmation(confirmations, m['message-id'],
                                 m['subject'], m['from'])
     elif re.match(MATCHERS['help'], subject):
         return templates.help(date = m['date'])
     elif re.match(MATCHERS['confirmations'], subject)
         code = re.match(MATCHERS['confirmations'], subject).group(1)
-        return process_confirmation(db, code)
+        action, argument = confirmations[code].partition(' ')
+        if action == 'message':
+            storage.send_message(argument)
+        elif action == 'subscribe':
+        elif action == 'unsubscribe':
+        else:
+            raise ValueError
     else:
-        return add_confirmation(db, m['message-id'],
-                                'message', m['message-id'])
-
-def add_confirmation(db, message_id, action, argument):
-    confirmation_code = bytes(random.randint(32, 126) for _ in range(32))
-    db[confirmation_code] = '%s %s' % (action, argument)
-    return templates.confirmation(
-        references=message_id,
-        subject='Re: ' + subject.strip()
-        confirmation_code=confirmation_code,
-    )
-
-def process_confirmation(db, confirmation_code):
-    action, argument = db[confirmation_code].partition(' ')
-    if action == 'message':
-        storage.send_message(argument)
-    else:
-        raise ValueError
+        code = bytes(random.randint(32, 126) \
+                                  for _ in range(32))
+        confirmations[code] = '%s %s' % ('message', m['message-id'])
+        return templates.confirmation(
+            references=m['message-id'],
+            subject='Re: ' + m['subject'].strip()
+            confirmation_code=code,
+        )
