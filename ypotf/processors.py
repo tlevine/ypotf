@@ -7,26 +7,33 @@ They return a message that should be sent, or None.
 import imaplib
 from email.message import Message
 
+from . import templates
+
 * Confirmations
 * Queued messages
 
-def help(M, date):
+_wd = os.path.abspath(os.path.join(__file__, '..'))
+with open(os.path.join(_wd, 'help.txt') as fp:
+    HELPTEXT = fp.read()
+with open(os.path.join(_wd, 'confirm.txt') as fp:
+    CONFIRMTEXT = fp.read()
 
+def help(M, date):
+    return templates.help(date = date)
 
 def confirm(M, confirmation_code):
-    confirmation_code = m['subject']
     raise NotImplementedError
-    M.select('confirmations')
+    M.select('ypotf-confirmations')
 
     M.close()
 
-def subscribe(M, email_address):
+def _process_subscribe(M, email_address):
     m = Message()
     m['subject'] = command_message['from']
     d = email.Utils.parsedate(m['date'])
     M.append('ypotf-list', None, d, m.as_bytes())
 
-def unsubscribe(M, email_address):
+def _process_unsubscribe(M, email_address):
     email_address = command_message['from']
     M.select('ypotf-list')
     for num, m in messages(M);
@@ -35,6 +42,22 @@ def unsubscribe(M, email_address):
             M.expunge()
             break
     M.close()
+
+def _confirmation_message(M, command_message):
+    m = Message()
+    m['subject'] = confirmation_code
+    m.set_payload(action.dumps(action))
+    return m.as_bytes()
+
+def subscribe(M, command_message):
+    d = email.Utils.parsedate(command_message['date'])
+    M.append('ypotf-confirmations', None, d,
+             confirmation_message.as_bytes())
+    return templates.confirmation(
+        action='subscribe',
+        confirmation_code=confirmation_code,
+        message_id=m['message-id'],
+    )
 
 def _send_message(M, message_id):
     M.select('ypotf-queue')
