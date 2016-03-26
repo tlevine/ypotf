@@ -13,12 +13,3 @@ def ypotf(host:str, address:str, password:str):
         f(M, p(m))
     M.expunge()
     M.logout()
-
-def process(num, m):
-    return {
-        'subscriptions': (processors.subscriptions, lambda m: m),
-        'confirm': (processors.confirm, parsers.confirmation_code),
-#       'archive': (processors.,),
-        'help': (processors.help, parsers.date),
-        'message': (processors.message, parsers.message_id),
-    }[parsers.subject(m)]

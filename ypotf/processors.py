@@ -26,13 +26,16 @@ def receive_confirm(M, m):
     c = Confirmations(M)
     raise NotImplementedError
 
-def send_confirm(M, m):
-    if re.match(r'^(?:un)?subscribe$', m['subject']):
-        action = m['subject']
-        argument = m['from']
+def route(M, m):
+    subject = m['subject'].strip().lower()
+    if re.match(r'^(?:un)?subscribe$', subject):
+        return subscriptions, m['from']
+    elif subject == 'help':
+        return documentation, None
     else:
-        action = 'message'
-        argument = m['message-id']
+        return message, m['message-id']
+
+def 
     db = storage.Confirmations(M)
     confirmation_code = bytes(random.randint(32, 126) for _ in range(32))
     db[confirmation_code] = '%s %s' % (action, action)
