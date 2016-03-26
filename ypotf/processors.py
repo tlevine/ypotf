@@ -4,10 +4,6 @@ Processors take a mailbox with the +INBOX folder selected.
 They return a message that should be sent, or None.
 '''
 
-import imaplib
-from email.Utils import parsedate
-from email.message import Message
-
 from . import templates
 from . import storage
 
