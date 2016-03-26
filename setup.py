@@ -14,5 +14,5 @@ setup(name='ypotf',
       ],
       version='0.0.0',
       license='AGPL',
-      entry_points = {'console_scripts': ['ypotf = ypotf:ypotf']},
+      entry_points = {'console_scripts': ['ypotf = ypotf:cli']},
 )

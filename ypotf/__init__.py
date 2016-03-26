@@ -1,4 +1,7 @@
+import os
+
 from .main import ypotf
 def cli():
-    import horetu
-    horetu.horetu(ypotf)
+    ypotf('mail.gandi.net', '_@dada.pink', os.environ['PASSWORD'])
+#   import horetu
+#   horetu.horetu(ypotf)
