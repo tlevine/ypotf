@@ -43,16 +43,20 @@ def _process_unsubscribe(M, email_address):
             break
     M.close()
 
-def _confirmation_message(M, command_message):
+def _confirmation_code():
+    return bytes(random.randint(32, 126) for _ in range(32))
+
+def _confirmation_message(confirmation_code, action):
     m = Message()
     m['subject'] = confirmation_code
     m.set_payload(action.dumps(action))
-    return m.as_bytes()
+    return m
+
+def _
+    d = email.Utils.parsedate(command_message['date'])
+    M.append('ypotf-confirmations', None, d, m.as_bytes())
 
 def subscribe(M, command_message):
-    d = email.Utils.parsedate(command_message['date'])
-    M.append('ypotf-confirmations', None, d,
-             confirmation_message.as_bytes())
     return templates.confirmation(
         action='subscribe',
         confirmation_code=confirmation_code,
