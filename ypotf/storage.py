@@ -61,7 +61,7 @@ class Folder(object):
             raise KeyError(msg % (key, self.name))
         M.close()
 
-class List(Folder):
+class Subscribers(Folder):
     name = 'ypotf-list'
 
 class Confirmations(Folder):

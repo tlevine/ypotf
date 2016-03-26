@@ -20,6 +20,7 @@ MATCHERS = [(k, re.compile(v, flags=re.IGNORECASE)) for (k,v) in [
 
 def process(M, m):
     confirmations = storage.Confirmations(M)
+    subscribers = storage.Subscribers(M)
     if re.match(MATCHERS['subscriptions'], m['subject']):
         return add_confirmation(confirmations, m['message-id'],
                                 m['subject'], m['from'])
@@ -31,12 +32,13 @@ def process(M, m):
         if action == 'message':
             storage.send_message(argument)
         elif action == 'subscribe':
+            subscribers[argument] = ''
         elif action == 'unsubscribe':
+            del(subscribers[argument])
         else:
             raise ValueError
     else:
-        code = bytes(random.randint(32, 126) \
-                                  for _ in range(32))
+        code = bytes(random.randint(32, 126) for _ in range(32))
         confirmations[code] = '%s %s' % ('message', m['message-id'])
         return templates.confirmation(
             references=m['message-id'],
