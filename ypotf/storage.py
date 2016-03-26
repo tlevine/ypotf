@@ -20,6 +20,7 @@ class Folder(object):
         M.select(self.name)
         for num, m in list_messages(self.M):
             yield m['subject'], m.get_payload()
+        M.close()
 
     def __setitem__(self, key, value):
         d = datetime.datetime.now().timetuple()
