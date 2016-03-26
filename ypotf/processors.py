@@ -22,23 +22,11 @@ with open(os.path.join(_wd, 'confirm.txt') as fp:
 def help(M, date):
     return templates.help(date = date)
 
-def confirm(M, m):
+def receive_confirm(M, m):
     c = Confirmations(M)
     raise NotImplementedError
-    M.select('ypotf-confirmations')
 
-    M.close()
-
-def subscriptions(M, m):
-    db = storage.Confirmations(M)
-    confirmation_code = bytes(random.randint(32, 126) for _ in range(32))
-    db[confirmation_code] = '%s %s' % (m['subject'], m['message-id'])
-    return templates.confirmation(
-        subject=m['subject'],
-        confirmation_code=confirmation_code,
-    )
-
-def message(M, m):
+def send_confirm(M, m):
     if re.match(r'^(?:un)?subscribe$', m['subject']):
         action = m['subject']
         argument = m['from']
