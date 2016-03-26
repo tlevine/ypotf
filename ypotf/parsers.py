@@ -1,12 +1,5 @@
 import re
 
-MATCHERS = [(k, re.compile(v, flags=re.IGNORECASE)) for (k,v) in [
-    ('subscriptions', r'^(?:un)?subscribe$'),
-    ('confirm', r'list-confirm-[a-z0-9]{32}'),
-#   ('archive', r'^list-archive'),
-    ('help', r'^help$'),
-]]
-
 def date(m):
     return m['Date']
 

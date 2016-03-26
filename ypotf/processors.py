@@ -10,8 +10,12 @@ from email.message import Message
 
 from . import templates
 
-* Confirmations
-* Queued messages
+MATCHERS = [(k, re.compile(v, flags=re.IGNORECASE)) for (k,v) in [
+    ('subscriptions', r'^(?:un)?subscribe$'),
+    ('confirm', r'list-confirm-[a-z0-9]{32}'),
+#   ('archive', r'^list-archive'),
+    ('help', r'^help$'),
+]]
 
 _wd = os.path.abspath(os.path.join(__file__, '..'))
 with open(os.path.join(_wd, 'help.txt') as fp:
@@ -27,11 +31,13 @@ def receive_confirm(M, m):
     raise NotImplementedError
 
 def route(M, m):
-    subject = m['subject'].strip().lower()
-    if re.match(r'^(?:un)?subscribe$', subject):
+    subject = m['subject'].strip()
+    if re.match(MATCHERS['subscriptions'], subject):
         return subscriptions, m['from']
-    elif subject == 'help':
-        return documentation, None
+    elif re.match(MATCHERS['help'], subject):
+        return documentation,
+    elif re.match(MATCHERS['confirmations'], subject)
+        return confirmations, m.get_payload()
     else:
         return message, m['message-id']
 
