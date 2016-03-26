@@ -1,5 +1,7 @@
 '''
-Most actions take a mailbox with a folder selected, usually +INBOX.
+Processors take a mailbox with the +INBOX folder selected.
+
+They return a message that should be sent, or None.
 '''
 
 import imaplib
@@ -8,14 +10,10 @@ from email.message import Message
 * Confirmations
 * Queued messages
 
-def confirm(M, confirmation_code):
-    '''
-    Based on a confirmation code, determine what action to take next.
+def help(M, date):
 
-    :param str confirmation_code: Confirmation code from email
-    :rtype: Action
-    :returns: Action to take based on the confirmation code
-    '''
+
+def confirm(M, confirmation_code):
     confirmation_code = m['subject']
     raise NotImplementedError
     M.select('confirmations')
@@ -38,7 +36,7 @@ def unsubscribe(M, email_address):
             break
     M.close()
 
-def send_message(M, message_id):
+def _send_message(M, message_id):
     M.select('ypotf-queue')
     for num, msg in messages(M):
         if msg['message-id'] == message_id:
@@ -50,11 +48,11 @@ def send_message(M, message_id):
         raise ValueError('No such message in the queue')
     M.close()
 
-def queue_message(M, num):
+def _queue_message(M, num):
     M.copy(num, 'ypotf-queue')
     M.expunge()
 
-def messages(M):
+def list_messages(M):
     typ, data = M.search(None, 'ALL')
     nums = data[0].split()
 
