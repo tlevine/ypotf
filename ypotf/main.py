@@ -10,16 +10,15 @@ def ypotf(host:str, address:str, password:str):
         M.select('INBOX')
         M.copy(num, 'ypotf-archive')
         f, p = process(num, m)
-        f(M, p(num))
+        f(M, p(m))
     M.expunge()
     M.logout()
 
 def process(num, m):
     return {
-        'subscribe': (processors.subscribe, parsers.email_address),
-        'unsubscribe': (processors.unsubscribe, parsers.email_address),
+        'subscriptions': (processors.subscriptions, lambda m: m),
         'confirm': (processors.confirm, parsers.confirmation_code),
 #       'archive': (processors.,),
         'help': (processors.help, parsers.date),
-        'message': (processors.send_message, parsers.message_id),
+        'message': (processors.message, parsers.message_id),
     }[parsers.subject(m)]
