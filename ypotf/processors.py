@@ -31,21 +31,28 @@ def receive_confirm(M, m):
     raise NotImplementedError
 
 def route(M, m):
-    subject = m['subject'].strip()
-    if re.match(MATCHERS['subscriptions'], subject):
-        return subscriptions, m['from']
+    if re.match(MATCHERS['subscriptions'], m['subject']):
+        return add_confirmation(M, m['message-id'],
+                                 m['subject'], m['from'])
     elif re.match(MATCHERS['help'], subject):
-        return documentation,
+        return documentation(M)
     elif re.match(MATCHERS['confirmations'], subject)
-        return confirmations, m.get_payload()
+        code = re.match(MATCHERS['confirmations'], subject).group(1)
+        return process_confirmation(M, code)
     else:
-        return message, m['message-id']
+        return add_confirmation(M, m['message-id'],
+                                 'message', m['message-id'])
 
-def 
+def add_confirmation(M, message_id, action, argument):
     db = storage.Confirmations(M)
     confirmation_code = bytes(random.randint(32, 126) for _ in range(32))
-    db[confirmation_code] = '%s %s' % (action, action)
+    db[confirmation_code] = '%s %s' % (action, argument)
     return templates.confirmation(
-        subject=m['subject']
+        references=message_id,
+        subject='Re: ' + subject.strip()
         confirmation_code=confirmation_code,
     )
+
+def process_confirmation(M, confirmation_code):
+    db = storage.Confirmations(M)
+    action, argument = db[confirmation_code].partition(' ')
