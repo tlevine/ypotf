@@ -1,10 +1,11 @@
 from email.messages import Message
 
-def list_messages(M):
+def message_nums(M):
     typ, data = M.search(None, 'ALL')
-    nums = data[0].split()
+    return data[0].split()
 
-    for num in nums:
+def _list_messages(M):
+    for num in _message_nums(M):
         typ, data = M.fetch(num, '(RFC822)')
         yield num, email.message_from_bytes(data[0][1])
 
@@ -17,12 +18,12 @@ class Folder(object):
 
     def items(self):
         M.select(self.name)
-        for num, m in list_messages(self.M):
+        for num, m in _list_messages(self.M):
             yield m['subject'], m.get_payload()
         M.close()
 
     def __getitem__(self, key):
-        for num, m in list_messages(M):
+        for num, m in _list_messages(M):
             if m['Subject'] == key:
                 return m.get_payload()
 
@@ -34,7 +35,7 @@ class Folder(object):
 
     def __delitem__(self, key):
         M.select(self.name)
-        for num, m in list_messages(M):
+        for num, m in _list_messages(M):
             if m['Subject'] == key:
                 M.store(num, '+FLAGS', '\\Deleted')
                 M.expunge()

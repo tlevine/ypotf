@@ -1,13 +1,17 @@
 import imaplib
 
 from . import processors
-from . import parsers
 
 def ypotf(host:str, address:str, password:str):
     M = imaplib.IMAP4_SSL(host)
     M.login(address, password)
-    for num, m in processors.list_messages(M):
+    while True:
         M.select('INBOX')
-        process(M, num, m)
-    M.expunge()
+        nums = processors.message_nums(M)
+        if len(nums) > 0:
+            processors.process(M, nums[0], m)
+            M.close()
+        else:
+            M.close()
+            break
     M.logout()
