@@ -30,34 +30,12 @@ def confirm(M, confirmation_code):
     M.close()
 
 def subscriptions(M, m):
-
-    def new(self, direction):
-        if direction not in {'subscribe', 'unsubscribe'}:
-            raise ValueError('direction must be "subscribe" or "unsubscribe"')
-        code = bytes(random.randint(32, 126) for _ in range(32))
-        self[code] = direction
-        return code
-
-    confirmation_code = storage.Confirmations(M).new(m['subject'])
+    db = storage.Confirmations(M)
+    confirmation_code = bytes(random.randint(32, 126) for _ in range(32))
+    db[confirmation_code] = '%s %s' % (direction, m['message-id'])
     return templates.confirmation(
         subject=m['subject'],
         confirmation_code=confirmation_code,
         message_id=m['message-id'],
     )
-
-def _send_message(M, message_id):
-    M.select('ypotf-queue')
-    for num, msg in messages(M):
-        if msg['message-id'] == message_id:
-            raise NotImplementedError('Send the message with SMTP')
-            M.copy(num, 'Sent')
-            M.expunge()
-            break
-    else:
-        raise ValueError('No such message in the queue')
-    M.close()
-
-def _queue_message(M, num):
-    M.copy(num, 'ypotf-queue')
-    M.expunge()
 
