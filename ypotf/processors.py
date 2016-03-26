@@ -18,10 +18,11 @@ MATCHERS = [(k, re.compile(v, flags=re.IGNORECASE)) for (k,v) in [
     ('help', r'^help$'),
 ]]
 
-def process(M, m):
+def process(M, num, m):
     confirmations = storage.Confirmations(M)
     subscribers = storage.Subscribers(M)
     if re.match(MATCHERS['subscriptions'], m['subject']):
+        storage.archive_message(M, num)
         code = _confirmation_code()
         confirmations[code] = '%s %s' % (m['subject'], m['from'])
         return templates.confirmation(
@@ -29,7 +30,8 @@ def process(M, m):
             subject='Re: Your %s request' % m['subject'].strip().lower()
             confirmation_code=code,
         )
-    elif re.match(MATCHERS['confirmations'], subject)
+    elif re.match(MATCHERS['confirmations'], subject):
+        storage.archive_message(M, num)
         code = re.match(MATCHERS['confirmations'], subject).group(1)
         action, argument = confirmations[code].partition(' ')
         if action == 'message':
@@ -41,8 +43,10 @@ def process(M, m):
         else:
             raise ValueError
     elif re.match(MATCHERS['help'], subject):
+        storage.archive_message(M, num)
         return templates.help(date = m['date'])
     else:
+        storage.queue_message(M, num)
         code = _confirmation_code()
         confirmations[code] = '%s %s' % ('message', m['message-id'])
         return templates.confirmation(
@@ -50,6 +54,4 @@ def process(M, m):
             subject='Re: ' + m['subject'].strip()
             confirmation_code=code,
         )
-        
-def _confirmation_code():
-    return bytes(random.randint(32, 126) for _ in range(32))
+

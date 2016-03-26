@@ -8,23 +8,6 @@ def list_messages(M):
         typ, data = M.fetch(num, '(RFC822)')
         yield num, email.message_from_bytes(data[0][1])
 
-def send_message(M, message_id):
-    M.select('ypotf-queue')
-    for num, msg in messages(M):
-        if msg['message-id'] == message_id:
-            raise NotImplementedError('Send the message with SMTP')
-            M.copy(num, 'Sent')
-            M.expunge()
-            break
-    else:
-        raise ValueError('No such message in the queue')
-    M.close()
-
-def queue_message(M, num):
-    M.copy(num, 'ypotf-queue')
-    M.expunge()
-
-
 class Folder(object):
     '''
     >>> Folder(imaplib.IMAP4('foo.bar'), 'baz')
@@ -66,3 +49,26 @@ class Subscribers(Folder):
 
 class Confirmations(Folder):
     name = 'ypotf-confirmations'
+
+def archive_message(M, num):
+    M.copy(num, 'ypotf-archive')
+    M.expunge()
+
+def queue_message(M, num):
+    M.copy(num, 'ypotf-queue')
+    M.expunge()
+
+def send_message(M, message_id):
+    M.select('ypotf-queue')
+    for num, msg in messages(M):
+        if msg['message-id'] == message_id:
+            raise NotImplementedError('Send the message with SMTP')
+            M.copy(num, 'ypotf-sent')
+            M.expunge()
+            break
+    else:
+        raise ValueError('No such message in the queue')
+    M.close()
+
+def _confirmation_code():
+    return bytes(random.randint(32, 126) for _ in range(32))
