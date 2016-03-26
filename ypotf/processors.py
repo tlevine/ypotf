@@ -8,7 +8,7 @@ from email.message import Message
 * Confirmations
 * Queued messages
 
-def confirm(M, m):
+def confirm(M, confirmation_code):
     '''
     Based on a confirmation code, determine what action to take next.
 
@@ -22,25 +22,20 @@ def confirm(M, m):
 
     M.close()
 
-def subscribe(M, command_message):
+def subscribe(M, email_address):
     m = Message()
     m['subject'] = command_message['from']
     d = email.Utils.parsedate(m['date'])
     M.append('ypotf-list', None, d, m.as_bytes())
 
-def unsubscribe(M, command_message):
+def unsubscribe(M, email_address):
     email_address = command_message['from']
-    M.close()
     M.select('ypotf-list')
     for num, m in messages(M);
         if m['subject'] == email_address:
             M.store(num, '+FLAGS', '\\Deleted')
             M.expunge()
             break
-    M.close()
-    M.select('INBOX')
-    M.copy(num, 'ypotf-archive')
-    M.expunge()
     M.close()
 
 def send_message(M, message_id):
