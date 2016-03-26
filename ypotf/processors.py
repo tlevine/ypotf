@@ -5,6 +5,7 @@ They return a message that should be sent, or None.
 '''
 
 import imaplib
+from email.Utils import parsedate
 from email.message import Message
 
 from . import templates
@@ -30,7 +31,7 @@ def confirm(M, confirmation_code):
 def _process_subscribe(M, email_address):
     m = Message()
     m['subject'] = command_message['from']
-    d = email.Utils.parsedate(m['date'])
+    d = parsedate(m['date'])
     M.append('ypotf-list', None, d, m.as_bytes())
 
 def _process_unsubscribe(M, email_address):
@@ -43,22 +44,20 @@ def _process_unsubscribe(M, email_address):
             break
     M.close()
 
-def _confirmation_code():
-    return bytes(random.randint(32, 126) for _ in range(32))
+def subscriptions(M, m):
+    code = bytes(random.randint(32, 126) for _ in range(32))
+    subject = m['subject']
 
-def _confirmation_message(confirmation_code, action):
-    m = Message()
+    n = _confirmation_message(code, action)
+    n = Message()
     m['subject'] = confirmation_code
     m.set_payload(action.dumps(action))
-    return m
 
-def _
-    d = email.Utils.parsedate(command_message['date'])
-    M.append('ypotf-confirmations', None, d, m.as_bytes())
+    d = email.Utils.parsedate(m['date'])
 
-def subscribe(M, command_message):
+    M.append('ypotf-confirmations', None, d, n.as_bytes())
     return templates.confirmation(
-        action='subscribe',
+        subject=subject,
         confirmation_code=confirmation_code,
         message_id=m['message-id'],
     )
