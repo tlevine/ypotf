@@ -8,7 +8,7 @@ from email.message import Message
 * Confirmations
 * Queued messages
 
-def confirm(M, num, confirmation_code):
+def confirm(M, m):
     '''
     Based on a confirmation code, determine what action to take next.
 
@@ -16,6 +16,8 @@ def confirm(M, num, confirmation_code):
     :rtype: Action
     :returns: Action to take based on the confirmation code
     '''
+    confirmation_code = m['subject']
+    raise NotImplementedError
     M.select('confirmations')
 
     M.close()
@@ -25,8 +27,6 @@ def subscribe(M, command_message):
     m['subject'] = command_message['from']
     d = email.Utils.parsedate(m['date'])
     M.append('ypotf-list', None, d, m.as_bytes())
-    M.copy(num, 'ypotf-archive')
-    M.expunge()
 
 def unsubscribe(M, command_message):
     email_address = command_message['from']
