@@ -1,4 +1,5 @@
 import imaplib
+import os
 
 from . import processors
 
@@ -15,3 +16,8 @@ def ypotf(host:str, address:str, password:str):
             M.close()
             break
     M.logout()
+
+def cli():
+    ypotf('mail.gandi.net', '_@dada.pink', os.environ['PASSWORD'])
+#   import horetu
+#   horetu.horetu(ypotf)
