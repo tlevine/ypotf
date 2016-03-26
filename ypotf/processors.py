@@ -78,10 +78,3 @@ def _queue_message(M, num):
     M.copy(num, 'ypotf-queue')
     M.expunge()
 
-def list_messages(M):
-    typ, data = M.search(None, 'ALL')
-    nums = data[0].split()
-
-    for num in nums:
-        typ, data = M.fetch(num, '(RFC822)')
-        yield num, email.message_from_bytes(data[0][1])
