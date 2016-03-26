@@ -23,41 +23,24 @@ def help(M, date):
     return templates.help(date = date)
 
 def confirm(M, confirmation_code):
+    c = Confirmations(M)
     raise NotImplementedError
     M.select('ypotf-confirmations')
 
     M.close()
 
-def _process_subscribe(M, email_address):
-    m = Message()
-    m['subject'] = command_message['from']
-    d = parsedate(m['date'])
-    M.append('ypotf-list', None, d, m.as_bytes())
-
-def _process_unsubscribe(M, email_address):
-    email_address = command_message['from']
-    M.select('ypotf-list')
-    for num, m in messages(M);
-        if m['subject'] == email_address:
-            M.store(num, '+FLAGS', '\\Deleted')
-            M.expunge()
-            break
-    M.close()
-
 def subscriptions(M, m):
-    code = bytes(random.randint(32, 126) for _ in range(32))
-    subject = m['subject']
 
-    n = _confirmation_message(code, action)
-    n = Message()
-    m['subject'] = confirmation_code
-    m.set_payload(action.dumps(action))
+    def new(self, direction):
+        if direction not in {'subscribe', 'unsubscribe'}:
+            raise ValueError('direction must be "subscribe" or "unsubscribe"')
+        code = bytes(random.randint(32, 126) for _ in range(32))
+        self[code] = direction
+        return code
 
-    d = email.Utils.parsedate(m['date'])
-
-    M.append('ypotf-confirmations', None, d, n.as_bytes())
+    confirmation_code = storage.Confirmations(M).new(m['subject'])
     return templates.confirmation(
-        subject=subject,
+        subject=m['subject'],
         confirmation_code=confirmation_code,
         message_id=m['message-id'],
     )

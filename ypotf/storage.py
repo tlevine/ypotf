@@ -12,9 +12,8 @@ class Folder(object):
     '''
     >>> Folder(imaplib.IMAP4('foo.bar'), 'baz')
     '''
-    def __init__(self, M, name):
+    def __init__(self, M):
         self.M = M
-        self.name = name
 
     def items(self):
         M.select(self.name)
@@ -22,14 +21,21 @@ class Folder(object):
             yield m['subject'], m.get_payload()
         M.close()
 
+    def __getitem__(self, key):
+        for num, m in list_messages(M):
+            if m['Subject'] == key:
+                return m.get_payload()
+
     def __setitem__(self, key, value):
         d = datetime.datetime.now().timetuple()
+        m['Subject'] = key
+        m.set_payload(value)
         M.append(self.name, None, d, m.as_bytes())
 
     def __delitem__(self, key):
         M.select(self.name)
         for num, m in list_messages(M):
-            if m['subject'] == key:
+            if m['Subject'] == key:
                 M.store(num, '+FLAGS', '\\Deleted')
                 M.expunge()
                 break
@@ -37,3 +43,9 @@ class Folder(object):
             msg = 'Key "%s" is not in folder "%s"'
             raise KeyError(msg % (key, self.name))
         M.close()
+
+class List(Folder):
+    name = 'ypotf-list'
+
+class Confirmations(Folder):
+    name = 'ypotf-confirmations'
