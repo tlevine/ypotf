@@ -8,8 +8,6 @@ def ypotf(host:str, address:str, password:str):
     M.login(address, password)
     for num, m in processors.list_messages(M):
         M.select('INBOX')
-        M.copy(num, 'ypotf-archive')
-        f, p = process(num, m)
-        f(M, p(m))
+        process(M, num, m)
     M.expunge()
     M.logout()
