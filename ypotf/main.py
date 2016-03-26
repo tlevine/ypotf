@@ -20,6 +20,6 @@ def process(num, m):
         'unsubscribe': (processors.unsubscribe, parsers.email_address),
         'confirm': (processors.confirm, parsers.confirmation_code),
 #       'archive': (processors.,),
-#       'help': (processors.,),
+        'help': (processors.help, parsers.date),
         'message': (processors.send_message, parsers.message_id),
     }[parsers.subject(m)]
