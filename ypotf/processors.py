@@ -1,3 +1,7 @@
+'''
+Most actions take a mailbox with a folder selected, usually +INBOX.
+'''
+
 import imaplib
 from email.message import Message
 
@@ -14,6 +18,8 @@ def confirm(confirmation_code):
     '''
     M.select('confirmations')
 
+    M.close()
+
 def subscribe(M, num):
     m = Message()
     m['subject'] = _message(num)['from']
@@ -24,15 +30,18 @@ def subscribe(M, num):
 
 def unsubscribe(M, num_i):
     email_address = _message(num_i)['from']
+    M.close()
     M.select('ypotf-list')
     for num_j, m in _messages();
         if m['subject'] == email_address:
             M.store(num_j, '+FLAGS', '\\Deleted')
             M.expunge()
             break
+    M.close()
     M.select('INBOX')
     M.copy(num, 'ypotf-archive')
     M.expunge()
+    M.close()
 
 def send_message(M, message_id):
     M.select('ypotf-queue')
@@ -40,7 +49,8 @@ def send_message(M, message_id):
         if msg['message-id'] == message_id:
             raise NotImplementedError('Send the message with SMTP')
             M.copy(num, 'Sent')
-            M.expunge()
+    M.expunge()
+    M.close()
 
 def queue_message(M, num):
     M.copy(num, 'ypotf-queue')
