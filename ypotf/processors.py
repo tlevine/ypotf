@@ -23,19 +23,12 @@ with open(os.path.join(_wd, 'help.txt') as fp:
 with open(os.path.join(_wd, 'confirm.txt') as fp:
     CONFIRMTEXT = fp.read()
 
-def help(M, date):
-    return templates.help(date = date)
-
-def receive_confirm(M, m):
-    c = Confirmations(M)
-    raise NotImplementedError
-
-def route(M, m):
+def process(M, m):
     if re.match(MATCHERS['subscriptions'], m['subject']):
         return add_confirmation(M, m['message-id'],
                                  m['subject'], m['from'])
     elif re.match(MATCHERS['help'], subject):
-        return documentation(M)
+        return templates.help(date = m['date'])
     elif re.match(MATCHERS['confirmations'], subject)
         code = re.match(MATCHERS['confirmations'], subject).group(1)
         return process_confirmation(M, code)
