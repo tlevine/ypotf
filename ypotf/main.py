@@ -22,4 +22,4 @@ def process(num, m):
 #       'archive': (processors.,),
 #       'help': (processors.,),
         'message': (processors.send_message, parsers.message_id),
-    }[parsers.subject(m['subject'])]
+    }[parsers.subject(m)]
