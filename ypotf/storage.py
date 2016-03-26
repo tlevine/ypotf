@@ -1,3 +1,4 @@
+from email import message_from_bytes
 from email.messages import Message
 
 def message_nums(M):
@@ -7,7 +8,7 @@ def message_nums(M):
 def _list_messages(M):
     for num in _message_nums(M):
         typ, data = M.fetch(num, '(RFC822)')
-        yield num, email.message_from_bytes(data[0][1])
+        yield num, message_from_bytes(data[0][1])
 
 class Folder(object):
     '''
@@ -29,6 +30,7 @@ class Folder(object):
 
     def __setitem__(self, key, value):
         d = datetime.datetime.now().timetuple()
+        m = Message()
         m['Subject'] = key
         m.set_payload(value)
         M.append(self.name, None, d, m.as_bytes())
