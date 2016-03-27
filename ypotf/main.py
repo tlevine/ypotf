@@ -1,14 +1,14 @@
 import imaplib
 import os
 
-from . import processors
+from .storage import message_nums
 
 def ypotf(host:str, address:str, password:str):
     M = imaplib.IMAP4_SSL(host)
     M.login(address, password)
     while True:
         M.select('INBOX')
-        nums = processors.message_nums(M)
+        nums = message_nums(M)
         if len(nums) > 0:
             processors.process(M, nums[0], m)
             M.close()
