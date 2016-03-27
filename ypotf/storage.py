@@ -1,5 +1,5 @@
 from email import message_from_bytes
-from email.messages import Message
+from email.message import Message
 
 def message_nums(M):
     typ, data = M.search(None, 'ALL')

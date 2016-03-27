@@ -3,6 +3,7 @@ Processors take a mailbox with the +INBOX folder selected.
 
 They return a message that should be sent, or None.
 '''
+import re
 
 from . import templates
 from . import storage
@@ -21,9 +22,10 @@ def process(M, num, m):
         storage.archive_message(M, num)
         code = _confirmation_code()
         confirmations[code] = '%s %s' % (m['subject'], m['from'])
+        subject = 'Re: Your %s request' % m['subject'].strip().lower()
         return templates.confirmation(
             references=m['message-id'],
-            subject='Re: Your %s request' % m['subject'].strip().lower()
+            subject=subject,
             confirmation_code=code,
         )
     elif re.match(MATCHERS['confirmations'], subject):
@@ -47,7 +49,7 @@ def process(M, num, m):
         confirmations[code] = '%s %s' % ('message', m['message-id'])
         return templates.confirmation(
             references=m['message-id'],
-            subject='Re: ' + m['subject'].strip()
+            subject='Re: ' + m['subject'].strip(),
             confirmation_code=code,
         )
 

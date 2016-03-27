@@ -1,4 +1,5 @@
-from email.messages import Message
+import os
+from email.message import Message
 
 from jinja2 import Template
 
