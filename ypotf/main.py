@@ -1,8 +1,11 @@
 import imaplib
 import os
+import logging
 
 from .storage import first_message, MAILBOXES
 from .processors import process
+
+logger = logging.getLogger(__name__)
 
 IGNORE_MISSING_HEADERS = \
     'Ignoring a message because it lacks the right headers'
@@ -18,7 +21,7 @@ def ypotf(host:str, address:str, password:str):
         M.select('INBOX')
         num, m = first_message(M)
         if m:
-            if not {'from', 'message-id'}.issubset(m):
+            if not 'from' in m and 'message-id' in m:
                 logger.warning(IGNORE_MISSING_HEADERS)
             elif m['from'].rstrip('> \n\r').endswith(address):
                 logger.warning(IGNORE_FROM_SELF % m)
