@@ -18,6 +18,8 @@ def first_message(M):
         num = nums[0]
         typ, data = M.fetch(num, '(RFC822)')
         return num, message_from_bytes(data[0][1])
+    else:
+        return None, None
 
 class Folder(object):
     '''
@@ -77,10 +79,12 @@ class Confirmations(Folder):
 
 def archive_message(M, num):
     M.copy(num, MAILBOXES['archive'])
+    M.store(num, '+FLAGS', '\\Deleted')
     M.expunge()
 
 def queue_message(M, num):
     M.copy(num, MAILBOXES['queue'])
+    M.store(num, '+FLAGS', '\\Deleted')
     M.expunge()
 
 def send_message(M, message_id):
@@ -89,6 +93,7 @@ def send_message(M, message_id):
         if msg['message-id'] == message_id:
             raise NotImplementedError('Send the message with SMTP')
             M.copy(num, MAILBOXES['sent'])
+            M.store(num, '+FLAGS', '\\Deleted')
             M.expunge()
             break
     else:
