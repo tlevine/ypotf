@@ -8,7 +8,7 @@ def message_nums(M):
     return data[0].split()
 
 def _list_messages(M):
-    for num in _message_nums(M):
+    for num in message_nums(M):
         typ, data = M.fetch(num, '(RFC822)')
         yield num, message_from_bytes(data[0][1])
 

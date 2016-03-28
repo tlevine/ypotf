@@ -21,15 +21,16 @@ def configure(recipient, subject, references, to_address,
     m.set_payload(TEMPLATE.render(**kwargs))
     return m
 
-def send(mailing_list_address, subscribers, m):
+def send(host, mailing_list_address, subscribers, m):
     if 'From' in m and 'To' not in m:
         m['To'] = mailing_list_address
-        send_to = subscribers
+        to_addrs = subscribers
     elif 'To' in m and 'From' not in m:
         m['Reply-To'] = m['From'] = mailing_list_address
-        send_to = [m['To']]
+        to_addrs = [m['To']]
     else:
         msg = 'Exactly one of "From" or "To" header should be set.'
         raise ValueError(msg)
-
-    raise NotImplementedError('Send the message with SMTP')
+    with SMTP(host) as smtp:
+        smtp.send_message(msg=m, from_addr=mailing_list_address,
+                          to_addrs=to_addrs)
