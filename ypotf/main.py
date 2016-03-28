@@ -27,9 +27,8 @@ def ypotf(host:str, address:str, password:str):
                 logger.warning(IGNORE_FROM_SELF % m)
             else:
                 process(M, num, m)
-            M.close()
+                assert M.state == 'AUTH', M.state
         else:
-            M.close()
             break
     M.logout()
 
