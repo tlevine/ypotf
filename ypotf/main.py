@@ -1,7 +1,6 @@
 import imaplib
 import os
 import logging
-from smtplib import SMTP
 
 from .storage import first_message, MAILBOXES, Subscribers
 from .processors import process
@@ -31,7 +30,8 @@ def ypotf(host:str, address:str, password:str):
                 next_msg = process(M, num, m)
                 assert M.state == 'AUTH', M.state
                 if next_msg:
-                    send(host, address, list(Subscribers(M)), m)
+                   #send(host, address, list(Subscribers(M)), m)
+                    send(host, address, [], next_msg)
         else:
             break
     M.logout()
