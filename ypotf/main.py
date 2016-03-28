@@ -4,6 +4,11 @@ import os
 from .storage import first_message, MAILBOXES
 from .processors import process
 
+IGNORE_MISSING_HEADERS = \
+    'Ignoring a message because it lacks the right headers'
+IGNORE_FROM_SELF = '''Ignoring message %(message-id)s
+because it was sent from %(from)s'''
+
 def ypotf(host:str, address:str, password:str):
     M = imaplib.IMAP4_SSL(host)
     M.login(address, password)
@@ -13,7 +18,12 @@ def ypotf(host:str, address:str, password:str):
         M.select('INBOX')
         num, m = first_message(M)
         if m:
-            process(M, num, m)
+            if not {'from', 'message-id'}.issubset(m):
+                logger.warning(IGNORE_MISSING_HEADERS)
+            elif m['from'].rstrip('> \n\r').endswith(address):
+                logger.warning(IGNORE_FROM_SELF % m)
+            else:
+                process(M, num, m)
             M.close()
         else:
             M.close()
