@@ -55,4 +55,5 @@ def process(M, num, m):
         )
 
 def _confirmation_code():
-    return bytes(random.randint(32, 126) for _ in range(32))
+    return bytes(random.randint(32, 126) for _ in range(32)).decode('ascii')
+           

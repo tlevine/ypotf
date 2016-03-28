@@ -38,7 +38,7 @@ class Folder(object):
                 return m.get_payload()
 
     def __setitem__(self, key, value):
-        d = datetime.datetime.now().timetuple()
+        d = tuple(datetime.datetime.now().timetuple())
         m = Message()
         m['Subject'] = key
         m.set_payload(value)
