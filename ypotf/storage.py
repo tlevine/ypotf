@@ -23,7 +23,7 @@ def first_message(M):
 
 class Folder(object):
     '''
-    >>> Folder(imaplib.IMAP4('foo.bar'), 'baz')
+    >>> Folder(imaplib.IMAP4('foo.bar'))
     '''
     def __init__(self, M):
         self.M = M
