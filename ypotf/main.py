@@ -31,7 +31,8 @@ def ypotf(host:str, address:str, password:str):
                 assert M.state == 'AUTH', M.state
                 if next_msg:
                    #send(host, address, list(Subscribers(M)), m)
-                    send(host, address, [], next_msg)
+                    send(address, [], next_msg,
+                         host=host, user=address, password=password)
         else:
             break
     M.logout()

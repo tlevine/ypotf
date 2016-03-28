@@ -1,6 +1,6 @@
 import os
 from email.message import Message
-from smtplib import SMTP
+from smtplib import SMTP_SSL
 
 from jinja2 import Template
 
@@ -22,7 +22,13 @@ def configure(recipient, subject, references, to_address,
     m.set_payload(TEMPLATE.render(**kwargs))
     return m
 
-def send(host, mailing_list_address, subscribers, m):
+def send(mailing_list_address, subscribers, m,
+         host=None, user=None, password=None):
+    if not host:
+        host=mailing_list_address.split('@')[1]
+    if not user:
+        user=mailing_list_address
+
     if 'From' in m and 'To' not in m:
         m['To'] = mailing_list_address
         to_addrs = subscribers
@@ -32,9 +38,8 @@ def send(host, mailing_list_address, subscribers, m):
     else:
         msg = 'Exactly one of "From" or "To" header should be set.'
         raise ValueError(msg)
-    print(1)
-    with SMTP(host) as smtp:
-        print(2)
-        smtp.send_message(msg=m, from_addr=mailing_list_address,
-                          to_addrs=to_addrs)
-    print(3)
+
+    smtp = SMTP_SSL(host)
+    smtp.login(user, password)
+    smtp.send_message(msg=m, from_addr=mailing_list_address,
+                      to_addrs=to_addrs)
