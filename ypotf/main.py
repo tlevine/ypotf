@@ -1,16 +1,19 @@
 import imaplib
 import os
 
-from .storage import message_nums
+from .storage import first_message, MAILBOXES
+from .processors import process
 
 def ypotf(host:str, address:str, password:str):
     M = imaplib.IMAP4_SSL(host)
     M.login(address, password)
+    for name in MAILBOXES.values():
+        M.create(name)
     while True:
         M.select('INBOX')
-        nums = message_nums(M)
-        if len(nums) > 0:
-            processors.process(M, nums[0], m)
+        num, m = first_message(M)
+        if m:
+            process(M, num, m)
             M.close()
         else:
             M.close()

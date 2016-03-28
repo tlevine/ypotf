@@ -10,6 +10,13 @@ def _list_messages(M):
         typ, data = M.fetch(num, '(RFC822)')
         yield num, message_from_bytes(data[0][1])
 
+def first_message(M):
+    nums = message_nums(M)
+    if len(nums) > 0:
+        num = nums[0]
+        typ, data = M.fetch(num, '(RFC822)')
+        return num, message_from_bytes(data[0][1])
+
 class Folder(object):
     '''
     >>> Folder(imaplib.IMAP4('foo.bar'), 'baz')
@@ -47,26 +54,34 @@ class Folder(object):
             raise KeyError(msg % (key, self.name))
         M.close()
 
+MAILBOXES = {
+    'list': 'ypotf-list',
+    'confirmations': 'ypotf-confirmations',
+    'archive': 'ypotf-archive',
+    'queue': 'ypotf-queue',
+    'sent': 'ypotf-sent',
+}
+
 class Subscribers(Folder):
-    name = 'ypotf-list'
+    name = MAILBOXES['list']
 
 class Confirmations(Folder):
-    name = 'ypotf-confirmations'
+    name = MAILBOXES['confirmations']
 
 def archive_message(M, num):
-    M.copy(num, 'ypotf-archive')
+    M.copy(num, MAILBOXES['archive'])
     M.expunge()
 
 def queue_message(M, num):
-    M.copy(num, 'ypotf-queue')
+    M.copy(num, MAILBOXES['queue'])
     M.expunge()
 
 def send_message(M, message_id):
-    M.select('ypotf-queue')
+    M.select(MAILBOXES['queue'])
     for num, msg in messages(M):
         if msg['message-id'] == message_id:
             raise NotImplementedError('Send the message with SMTP')
-            M.copy(num, 'ypotf-sent')
+            M.copy(num, MAILBOXES['sent'])
             M.expunge()
             break
     else:
