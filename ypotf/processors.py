@@ -6,7 +6,7 @@ They return a message that should be sent, or None.
 import random
 import re
 
-from . import templates
+from . import template
 from . import storage
 
 MATCHERS = {k: re.compile(v, flags=re.IGNORECASE) for (k,v) in [
@@ -24,7 +24,7 @@ def process(M, num, m):
         code = _confirmation_code()
         confirmations[code] = '%s %s' % (m['subject'], m['from'])
         subject = 'Re: Your %s request' % m['subject'].strip().lower()
-        return templates.confirmation(
+        return template.render(
             references=m['message-id'],
             subject=subject,
             confirmation_code=code,
@@ -43,12 +43,16 @@ def process(M, num, m):
             raise ValueError
     elif re.match(MATCHERS['help'], m['subject']):
         storage.archive_message(M, num)
-        return templates.help(date = m['date'])
+        return template.render(
+            subject='Re: ' + m['subject'].strip(),
+            references=m['message-id'],
+            date = m['date'],
+        )
     else:
         storage.queue_message(M, num)
         code = _confirmation_code()
         confirmations[code] = '%s %s' % ('message', m['message-id'])
-        return templates.confirmation(
+        return template.render(
             references=m['message-id'],
             subject='Re: ' + m['subject'].strip(),
             confirmation_code=code,
