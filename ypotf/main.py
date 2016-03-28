@@ -4,7 +4,7 @@ import logging
 
 from .storage import first_message, MAILBOXES, Subscribers
 from .processors import process
-from .templates import send
+from .template import send
 
 logger = logging.getLogger(__name__)
 

@@ -34,6 +34,8 @@ def process(M, num, m):
         confirmations[code] = '%s %s' % (m['subject'], m['from'])
         subject = 'Re: Your %s request' % m['subject'].strip().lower()
         return template.configure(
+            'sender',
+            to_address=m['From'],
             references=m['message-id'],
             subject=subject,
             confirmation_code=code,
@@ -45,7 +47,7 @@ def process(M, num, m):
         code = re.match(MATCHERS['confirmations'], m['subject']).group(1)
         action, argument = confirmations[code].partition(' ')
         if action == 'message':
-            storage.send_message(argument)
+            return storage.send_message(argument)
         elif action == 'subscribe':
             subscribers[argument] = ''
         elif action == 'unsubscribe':
@@ -57,6 +59,8 @@ def process(M, num, m):
         storage.archive_message(M, num)
         M.close()
         return template.configure(
+            'sender',
+            to_address=m['From'],
             subject='Re: ' + m['subject'].strip(),
             references=m['message-id'],
             date = m['date'],
@@ -68,6 +72,8 @@ def process(M, num, m):
         code = _confirmation_code()
         confirmations[code] = '%s %s' % ('message', m['message-id'])
         return template.configure(
+            'sender',
+            to_address=m['From'],
             references=m['message-id'],
             subject='Re: ' + m['subject'].strip(),
             confirmation_code=code,
@@ -75,4 +81,3 @@ def process(M, num, m):
 
 def _confirmation_code():
     return bytes(random.randint(32, 126) for _ in range(32)).decode('ascii')
-           
