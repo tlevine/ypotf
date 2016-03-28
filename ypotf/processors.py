@@ -3,17 +3,18 @@ Processors take a mailbox with the +INBOX folder selected.
 
 They return a message that should be sent, or None.
 '''
+import random
 import re
 
 from . import templates
 from . import storage
 
-MATCHERS = [(k, re.compile(v, flags=re.IGNORECASE)) for (k,v) in [
+MATCHERS = {k: re.compile(v, flags=re.IGNORECASE) for (k,v) in [
     ('subscriptions', r'^(?:un)?subscribe$'),
     ('confirmations', r'list-confirm-[a-z0-9]{32}'),
 #   ('archive', r'^list-archive'),
     ('help', r'^help$'),
-]]
+]}
 
 def process(M, num, m):
     confirmations = storage.Confirmations(M)
@@ -28,9 +29,9 @@ def process(M, num, m):
             subject=subject,
             confirmation_code=code,
         )
-    elif re.match(MATCHERS['confirmations'], subject):
+    elif re.match(MATCHERS['confirmations'], m['subject']):
         storage.archive_message(M, num)
-        code = re.match(MATCHERS['confirmations'], subject).group(1)
+        code = re.match(MATCHERS['confirmations'], m['subject']).group(1)
         action, argument = confirmations[code].partition(' ')
         if action == 'message':
             storage.send_message(argument)
@@ -40,7 +41,7 @@ def process(M, num, m):
             del(subscribers[argument])
         else:
             raise ValueError
-    elif re.match(MATCHERS['help'], subject):
+    elif re.match(MATCHERS['help'], m['subject']):
         storage.archive_message(M, num)
         return templates.help(date = m['date'])
     else:
@@ -53,3 +54,5 @@ def process(M, num, m):
             confirmation_code=code,
         )
 
+def _confirmation_code():
+    return bytes(random.randint(32, 126) for _ in range(32))

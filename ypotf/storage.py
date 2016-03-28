@@ -1,3 +1,5 @@
+import datetime
+
 from email import message_from_bytes
 from email.message import Message
 
@@ -25,13 +27,13 @@ class Folder(object):
         self.M = M
 
     def items(self):
-        M.select(self.name)
+        self.M.select(self.name)
         for num, m in _list_messages(self.M):
             yield m['subject'], m.get_payload()
-        M.close()
+        self.M.close()
 
     def __getitem__(self, key):
-        for num, m in _list_messages(M):
+        for num, m in _list_messages(self.M):
             if m['Subject'] == key:
                 return m.get_payload()
 
@@ -40,19 +42,19 @@ class Folder(object):
         m = Message()
         m['Subject'] = key
         m.set_payload(value)
-        M.append(self.name, None, d, m.as_bytes())
+        self.M.append(self.name, None, d, m.as_bytes())
 
     def __delitem__(self, key):
-        M.select(self.name)
-        for num, m in _list_messages(M):
+        self.M.select(self.name)
+        for num, m in _list_messages(self.M):
             if m['Subject'] == key:
-                M.store(num, '+FLAGS', '\\Deleted')
-                M.expunge()
+                self.M.store(num, '+FLAGS', '\\Deleted')
+                self.M.expunge()
                 break
         else:
             msg = 'Key "%s" is not in folder "%s"'
             raise KeyError(msg % (key, self.name))
-        M.close()
+        self.M.close()
 
 MAILBOXES = {
     'list': 'ypotf-list',
@@ -87,6 +89,3 @@ def send_message(M, message_id):
     else:
         raise ValueError('No such message in the queue')
     M.close()
-
-def _confirmation_code():
-    return bytes(random.randint(32, 126) for _ in range(32))
