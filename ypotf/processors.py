@@ -33,7 +33,7 @@ def process(M, num, m):
         code = _confirmation_code()
         confirmations[code] = '%s %s' % (m['subject'], m['from'])
         subject = 'Re: Your %s request' % m['subject'].strip().lower()
-        return template.render(
+        return template.configure(
             references=m['message-id'],
             subject=subject,
             confirmation_code=code,
@@ -56,7 +56,7 @@ def process(M, num, m):
         _log('help')
         storage.archive_message(M, num)
         M.close()
-        return template.render(
+        return template.configure(
             subject='Re: ' + m['subject'].strip(),
             references=m['message-id'],
             date = m['date'],
@@ -67,7 +67,7 @@ def process(M, num, m):
         M.close()
         code = _confirmation_code()
         confirmations[code] = '%s %s' % ('message', m['message-id'])
-        return template.render(
+        return template.configure(
             references=m['message-id'],
             subject='Re: ' + m['subject'].strip(),
             confirmation_code=code,
