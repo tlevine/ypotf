@@ -2,8 +2,9 @@ import imaplib
 import os
 import logging
 
-from .storage import first_message, MAILBOXES
+from .storage import first_message, MAILBOXES, Subscribers
 from .processors import process
+from .templates import send
 
 logger = logging.getLogger(__name__)
 
@@ -26,9 +27,10 @@ def ypotf(host:str, address:str, password:str):
             elif m['from'].rstrip('> \n\r').endswith(address):
                 logger.warning(IGNORE_FROM_SELF % m)
             else:
-                msg_params = process(M, num, m)
-                print(msg_params)
+                next_msg = process(M, num, m)
                 assert M.state == 'AUTH', M.state
+                if next_msg:
+                    send(address, Subscribers(M), next_msg)
                 exit()
         else:
             break

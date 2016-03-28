@@ -91,7 +91,8 @@ def send_message(M, message_id):
     M.select(MAILBOXES['queue'])
     for num, msg in messages(M):
         if msg['message-id'] == message_id:
-            raise NotImplementedError('Send the message with SMTP')
+            del(msg['To'])
+            out = msg
             M.copy(num, MAILBOXES['sent'])
             M.store(num, '+FLAGS', '\\Deleted')
             M.expunge()
@@ -99,3 +100,4 @@ def send_message(M, message_id):
     else:
         raise ValueError('No such message in the queue')
     M.close()
+    return out
