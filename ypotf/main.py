@@ -26,8 +26,10 @@ def ypotf(host:str, address:str, password:str):
             elif m['from'].rstrip('> \n\r').endswith(address):
                 logger.warning(IGNORE_FROM_SELF % m)
             else:
-                process(M, num, m)
+                msg_params = process(M, num, m)
+                print(msg_params)
                 assert M.state == 'AUTH', M.state
+                exit()
         else:
             break
     M.logout()
