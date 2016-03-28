@@ -5,9 +5,12 @@ They return a message that should be sent, or None.
 '''
 import random
 import re
+import logging
 
 from . import template
 from . import storage
+
+logger = logging.getLogger(__name__)
 
 MATCHERS = {k: re.compile(v, flags=re.IGNORECASE) for (k,v) in [
     ('subscriptions', r'^(?:un)?subscribe$'),
@@ -19,7 +22,12 @@ MATCHERS = {k: re.compile(v, flags=re.IGNORECASE) for (k,v) in [
 def process(M, num, m):
     confirmations = storage.Confirmations(M)
     subscribers = storage.Subscribers(M)
+
+    def _log(cat):
+        tpl = 'Processing message %s as a %s comand'
+        logger.info(tpl % (m['message-id'], cat))
     if re.match(MATCHERS['subscriptions'], m['subject']):
+        _log('subscription')
         storage.archive_message(M, num)
         code = _confirmation_code()
         confirmations[code] = '%s %s' % (m['subject'], m['from'])
@@ -30,6 +38,7 @@ def process(M, num, m):
             confirmation_code=code,
         )
     elif re.match(MATCHERS['confirmations'], m['subject']):
+        _log('confirmation')
         storage.archive_message(M, num)
         code = re.match(MATCHERS['confirmations'], m['subject']).group(1)
         action, argument = confirmations[code].partition(' ')
@@ -42,6 +51,7 @@ def process(M, num, m):
         else:
             raise ValueError
     elif re.match(MATCHERS['help'], m['subject']):
+        _log('help')
         storage.archive_message(M, num)
         return template.render(
             subject='Re: ' + m['subject'].strip(),
@@ -49,6 +59,7 @@ def process(M, num, m):
             date = m['date'],
         )
     else:
+        _log('message')
         storage.queue_message(M, num)
         code = _confirmation_code()
         confirmations[code] = '%s %s' % ('message', m['message-id'])
