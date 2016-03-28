@@ -33,9 +33,14 @@ class Folder(object):
         self.M.close()
 
     def __getitem__(self, key):
+        self.M.select(self.name)
         for num, m in _list_messages(self.M):
             if m['Subject'] == key:
-                return m.get_payload()
+                out = m.get_payload()
+        else:
+            out = None
+        self.M.close()
+        return out
 
     def __setitem__(self, key, value):
         d = tuple(datetime.datetime.now().timetuple())

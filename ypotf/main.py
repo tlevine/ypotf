@@ -33,6 +33,7 @@ def ypotf(host:str, address:str, password:str):
     M.logout()
 
 def cli():
+    logging.basicConfig(level=logging.INFO)
     ypotf('mail.gandi.net', '_@dada.pink', os.environ['PASSWORD'])
 #   import horetu
 #   horetu.horetu(ypotf)

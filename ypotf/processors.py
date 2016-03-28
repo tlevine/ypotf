@@ -29,6 +29,7 @@ def process(M, num, m):
     if re.match(MATCHERS['subscriptions'], m['subject']):
         _log('subscription')
         storage.archive_message(M, num)
+        M.close()
         code = _confirmation_code()
         confirmations[code] = '%s %s' % (m['subject'], m['from'])
         subject = 'Re: Your %s request' % m['subject'].strip().lower()
@@ -40,6 +41,7 @@ def process(M, num, m):
     elif re.match(MATCHERS['confirmations'], m['subject']):
         _log('confirmation')
         storage.archive_message(M, num)
+        M.close()
         code = re.match(MATCHERS['confirmations'], m['subject']).group(1)
         action, argument = confirmations[code].partition(' ')
         if action == 'message':
@@ -53,6 +55,7 @@ def process(M, num, m):
     elif re.match(MATCHERS['help'], m['subject']):
         _log('help')
         storage.archive_message(M, num)
+        M.close()
         return template.render(
             subject='Re: ' + m['subject'].strip(),
             references=m['message-id'],
@@ -61,6 +64,7 @@ def process(M, num, m):
     else:
         _log('message')
         storage.queue_message(M, num)
+        M.close()
         code = _confirmation_code()
         confirmations[code] = '%s %s' % ('message', m['message-id'])
         return template.render(
