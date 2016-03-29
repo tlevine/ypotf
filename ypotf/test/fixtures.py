@@ -1,5 +1,7 @@
 import subprocess, os
 
+import pytest
+
 def _password():
     fn = os.path.expanduser('~/.test-ypotf-password')
     cmd = ['pass', 'show', 'test-ypotf@dada.pink']
@@ -14,4 +16,11 @@ def _password():
             fp.write(x)
     return x
 
-print(_password())
+@pytest.fixture
+def imap():
+    host = 'mail.gandi.net'
+    address = 'test-ypotf@dada.pink'
+    password = _password()
+
+    M = imaplib.IMAP4_SSL(host)
+    M.login(address, password)
