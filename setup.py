@@ -7,7 +7,7 @@ setup(name='ypotf',
       url='http://dada.pink/ypotf/',
       packages=['ypotf'],
       install_requires = [
-          'horetu',
+          'horetu>=0.1.0',
       ],
       tests_require = [
           'pytest>=2.6.4',
