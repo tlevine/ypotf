@@ -64,6 +64,7 @@ def ypotf_imap(request):
         M.create(name)
 
     request.addfinalizer(functools.partial(_finalize, M))
+    return M
 
 @pytest.fixture
 def populated_imap(request):

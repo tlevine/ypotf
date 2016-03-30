@@ -47,10 +47,10 @@ def test_move(populated_imap):
 def test_send_message(ypotf_imap):
     m = Message()
     m['message-id'] = 'the-message-id'
-    bare_imap.append(storage.MAILBOXES['queue'], None, _now(), m.as_bytes())
-    storage.send_message(bare_imap, 'the-message-id')
-    bare_imap.select(storage.MAILBOXES['queue'])
-    typ, data = bare_imap.fetch(b'1', '(RFC822)')
+    ypotf_imap.append(storage.MAILBOXES['queue'], None, _now(), m.as_bytes())
+    storage.send_message(ypotf_imap, 'the-message-id')
+    ypotf_imap.select(storage.MAILBOXES['queue'])
+    typ, data = ypotf_imap.fetch(b'1', '(RFC822)')
     assert typ == 'OK'
     assert data == [
         (
