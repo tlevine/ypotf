@@ -54,8 +54,8 @@ def test_send_message(ypotf_imap):
     assert typ == 'OK'
     assert data == [
         (
-            b'1 (FLAGS (\\Seen \\Recent) RFC822 {23}',
-            b'message-id: the-message-id',
+            b'1 (RFC822 {30}',
+            b'message-id: the-message-id\r\n\r\n',
         ),
         b')',
     ]
