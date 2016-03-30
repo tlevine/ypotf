@@ -32,4 +32,12 @@ def test_move(populated_imap):
     populated_imap.select('chainsaw')
     typ, data = populated_imap.fetch(b'1', '(RFC822)')
     assert typ == 'OK'
-    assert False, data
+    assert data == [
+        (
+            b'1 (FLAGS (\\Seen \\Recent) RFC822 {23}',
+            b'Subject: key2\r\n\r\nvalue2',
+        ),
+        b')',
+    ]
+
+
