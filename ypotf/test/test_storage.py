@@ -3,7 +3,7 @@ from email.message import Message
 from .fixtures import bare_imap, populated_imap, _now
 from .. import storage
 
-def test_storage(bare_imap):
+def test_listings(bare_imap):
     bare_imap.select('INBOX')
 
     m1 = Message()
@@ -22,3 +22,11 @@ def test_storage(bare_imap):
     num, m = storage.first_message(bare_imap)
     assert num == b'1'
     assert m.as_string() == m1.as_string()
+
+def test_move(populated_imap):
+    populated_imap.select('INBOX')
+    _move('chainsaw', populated_imap, b'2')
+    populated_imap.select('chainsaw')
+    typ, data = populated_imap.search(None, 'ALL')
+    assert typ == 'OK'
+    assert data == tuple()

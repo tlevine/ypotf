@@ -6,6 +6,8 @@ from email.message import Message
 
 import pytest
 
+TEST_MAILBOXES = ['INBOX', 'chainsaw']
+
 def _now():
     return tuple(datetime.datetime.now().timetuple())
 
@@ -24,11 +26,15 @@ def _password():
     return x
 
 def _finalize(M):
-    M.select('INBOX')
-    typ, data = M.search(None, 'ALL')
-    for num in data[0].split():
-       M.store(num, '+FLAGS', '\\Deleted')
-    M.expunge()
+    for mailbox in TEST_MAILBOXES:
+        typ, data = M.select(mailbox)
+        if typ == 'NO':
+            continue
+        typ, data = M.search(None, 'ALL')
+        for num in data[0].split():
+           M.store(num, '+FLAGS', '\\Deleted')
+        M.expunge()
+        M.close()
     M.logout()
 
 @pytest.fixture
