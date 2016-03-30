@@ -15,3 +15,14 @@ def test_ypotf(bare_imap):
     typ, data = bare_imap.search(None, 'ALL')
     assert typ == 'OK'
     assert data == [b'']
+
+    typ, _ = bare_imap.select('ypotf-confirm')
+    assert typ == 'OK'
+    typ, data = bare_imap.search(None, 'ALL')
+    assert typ == 'OK'
+    assert data == [b'1']
+    typ, data = bare_imap.fetch(b'1', '(RFC322)')
+    assert typ == 'OK'
+    assert False, data
+
+    bare_imap.select('ypotf-confirm')
