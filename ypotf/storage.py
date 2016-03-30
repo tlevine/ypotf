@@ -1,5 +1,7 @@
 import datetime
 
+from functools import partial
+
 from email import message_from_bytes
 from email.message import Message
 
@@ -78,27 +80,22 @@ class Subscribers(Folder):
 class Confirmations(Folder):
     name = MAILBOXES['confirmations']
 
-def archive_message(M, num):
-    M.copy(num, MAILBOXES['archive'])
+def _move(mailbox, M, num):
+    M.copy(num, )
     M.store(num, '+FLAGS', '\\Deleted')
     M.expunge()
 
-def queue_message(M, num):
-    M.copy(num, MAILBOXES['queue'])
-    M.store(num, '+FLAGS', '\\Deleted')
-    M.expunge()
+archive_message = partial(_move, MAILBOXES['archive'])
+queue_message = partial(_move, MAILBOXES['queue'])
 
 def send_message(M, message_id):
     M.select(MAILBOXES['queue'])
     for num, msg in messages(M):
         if msg['message-id'] == message_id:
             del(msg['To'])
-            out = msg
-            M.copy(num, MAILBOXES['sent'])
-            M.store(num, '+FLAGS', '\\Deleted')
-            M.expunge()
+            _move(MAILBOXES['sent'], M, num)
             break
     else:
         raise ValueError('No such message in the queue')
     M.close()
-    return out
+    return msg
