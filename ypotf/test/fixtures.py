@@ -18,10 +18,20 @@ def _password():
     return x
 
 @pytest.fixture
-def imap():
+def imap(request):
     host = 'mail.gandi.net'
     address = 'test-ypotf@dada.pink'
     password = _password()
 
     M = imaplib.IMAP4_SSL(host)
     M.login(address, password)
+
+    def fin():
+        M.select('INBOX')
+        typ, data = M.search(None, 'ALL')
+        for num in data[0].split():
+           M.store(num, '+FLAGS', '\\Deleted')
+        M.expunge()
+        M.logout()
+    request.addfinalizer(fin)
+    return M
