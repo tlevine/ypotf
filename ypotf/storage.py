@@ -81,7 +81,7 @@ class Confirmations(Folder):
     name = MAILBOXES['confirmations']
 
 def _move(mailbox, M, num):
-    M.copy(num, )
+    M.copy(num, mailbox)
     M.store(num, '+FLAGS', '\\Deleted')
     M.expunge()
 

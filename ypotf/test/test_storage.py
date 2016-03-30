@@ -24,9 +24,12 @@ def test_listings(bare_imap):
     assert m.as_string() == m1.as_string()
 
 def test_move(populated_imap):
+    populated_imap.create('chainsaw')
+
     populated_imap.select('INBOX')
-    _move('chainsaw', populated_imap, b'2')
+    storage._move('chainsaw', populated_imap, b'2')
+
     populated_imap.select('chainsaw')
-    typ, data = populated_imap.search(None, 'ALL')
+    typ, data = populated_imap.fetch(b'1', '(RFC822)')
     assert typ == 'OK'
-    assert data == tuple()
+    assert False, data
