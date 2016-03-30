@@ -49,7 +49,7 @@ def test_send_message(ypotf_imap):
     m['message-id'] = 'the-message-id'
     ypotf_imap.append(storage.MAILBOXES['queue'], None, _now(), m.as_bytes())
     storage.send_message(ypotf_imap, 'the-message-id')
-    ypotf_imap.select(storage.MAILBOXES['queue'])
+    ypotf_imap.select(storage.MAILBOXES['sent'])
     typ, data = ypotf_imap.fetch(b'1', '(RFC822)')
     assert typ == 'OK'
     assert data == [
