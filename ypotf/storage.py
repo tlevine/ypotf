@@ -39,6 +39,7 @@ class Folder(object):
         for num, m in _list_messages(self.M):
             if m['Subject'] == key:
                 out = m.get_payload()
+                break
         else:
             out = None
         self.M.close()
