@@ -7,7 +7,7 @@ from .. import storage
 def _now():
     return tuple(datetime.datetime.now().timetuple())
 
-def test_blah(imap):
+def test_storage(imap):
     imap.select('INBOX')
 
     m1 = Message()
