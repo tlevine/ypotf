@@ -1,6 +1,9 @@
 from email.message import Message
 
-from .fixtures import bare_imap, populated_imap, _now
+from .fixtures import (
+    bare_imap, populated_imap, ypotf_imap,
+    _now,
+)
 from .. import storage
 
 def test_listings(bare_imap):
@@ -41,3 +44,18 @@ def test_move(populated_imap):
     ]
 
 
+def test_send_message(ypotf_imap):
+    m = Message()
+    m['message-id'] = 'the-message-id'
+    bare_imap.append(storage.MAILBOXES['queue'], None, _now(), m.as_bytes())
+    storage.send_message(bare_imap, 'the-message-id')
+    bare_imap.select(storage.MAILBOXES['queue'])
+    typ, data = bare_imap.fetch(b'1', '(RFC822)')
+    assert typ == 'OK'
+    assert data == [
+        (
+            b'1 (FLAGS (\\Seen \\Recent) RFC822 {23}',
+            b'message-id: the-message-id',
+        ),
+        b')',
+    ]

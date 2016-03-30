@@ -6,7 +6,9 @@ from email.message import Message
 
 import pytest
 
-TEST_MAILBOXES = ['INBOX', 'chainsaw']
+from ..storage import MAILBOXES
+
+TEST_MAILBOXES = ['INBOX', 'chainsaw'] + list(MAILBOXES.values())
 
 def _now():
     return tuple(datetime.datetime.now().timetuple())
@@ -48,6 +50,20 @@ def bare_imap(request):
 
     request.addfinalizer(functools.partial(_finalize, M))
     return M
+
+@pytest.fixture
+def ypotf_imap(request):
+    host = 'mail.gandi.net'
+    address = 'test-ypotf@dada.pink'
+    password = _password()
+
+    M = imaplib.IMAP4_SSL(host)
+    M.login(address, password)
+
+    for name in MAILBOXES.values():
+        M.create(name)
+
+    request.addfinalizer(functools.partial(_finalize, M))
 
 @pytest.fixture
 def populated_imap(request):

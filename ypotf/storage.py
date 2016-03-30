@@ -90,7 +90,7 @@ queue_message = partial(_move, MAILBOXES['queue'])
 
 def send_message(M, message_id):
     M.select(MAILBOXES['queue'])
-    for num, msg in messages(M):
+    for num, msg in _list_messages(M):
         if msg['message-id'] == message_id:
             del(msg['To'])
             _move(MAILBOXES['sent'], M, num)
