@@ -27,7 +27,7 @@ def _password():
             fp.write(x)
     return x
 
-def _finalize(M):
+def _delete(M):
     for mailbox in TEST_MAILBOXES:
         typ, data = M.select(mailbox)
         if typ == 'NO':
@@ -37,6 +37,9 @@ def _finalize(M):
            M.store(num, '+FLAGS', '\\Deleted')
         M.expunge()
         M.close()
+
+def _finalize(M):
+    _delete(M)
     M.logout()
 
 @pytest.fixture(scope='module')
@@ -47,6 +50,7 @@ def bare_imap(request):
 
     M = imaplib.IMAP4_SSL(host)
     M.login(address, password)
+    _delete(M)
 
     request.addfinalizer(functools.partial(_finalize, M))
     return M
@@ -59,6 +63,7 @@ def ypotf_imap(request):
 
     M = imaplib.IMAP4_SSL(host)
     M.login(address, password)
+    _delete(M)
 
     for name in MAILBOXES.values():
         M.create(name)
