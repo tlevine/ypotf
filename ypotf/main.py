@@ -29,9 +29,7 @@ def ypotf(host:str, address:str, password:str):
             else:
                 next_msg = process(M, num, m)
                 assert M.state == 'AUTH', M.state
-                print(next_msg)
                 if next_msg:
-                   #send(host, address, list(Subscribers(M)), m)
                     send(address, [], next_msg,
                          host=host, user=address, password=password)
         else:
