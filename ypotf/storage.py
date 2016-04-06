@@ -4,6 +4,7 @@ from functools import partial
 
 from email import message_from_bytes
 from email.message import Message
+from .utils import r
 
 def message_nums(M):
     return r(M.search(None, 'ALL'))[0].split()
