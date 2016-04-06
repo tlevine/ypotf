@@ -39,7 +39,7 @@ def _finalize(M):
         M.close()
     M.logout()
 
-@pytest.fixture
+@pytest.fixture(scope='module')
 def bare_imap(request):
     host = 'mail.gandi.net'
     address = 'test-ypotf@dada.pink'
@@ -51,7 +51,7 @@ def bare_imap(request):
     request.addfinalizer(functools.partial(_finalize, M))
     return M
 
-@pytest.fixture
+@pytest.fixture(scope='module')
 def ypotf_imap(request):
     host = 'mail.gandi.net'
     address = 'test-ypotf@dada.pink'
