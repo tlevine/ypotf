@@ -3,7 +3,7 @@ import datetime
 import pytest
 
 from .fixtures import bare_imap, populated_imap
-from .utils import r
+from ..utils import r
 from .. import storage
 
 class Inbox(storage.Folder):

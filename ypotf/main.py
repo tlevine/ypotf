@@ -15,11 +15,11 @@ because it was sent from %(from)s'''
 
 def ypotf(host:str, address:str, password:str):
     M = imaplib.IMAP4_SSL(host)
-    M.login(address, password)
+    r(M.login(address, password))
     for name in MAILBOXES.values():
-        M.create(name)
+        r(M.create(name))
     while True:
-        M.select('INBOX')
+        r(M.select('INBOX'))
         num, m = first_message(M)
         if m:
             if not 'from' in m and 'message-id' in m:
@@ -34,7 +34,7 @@ def ypotf(host:str, address:str, password:str):
                          host=host, user=address, password=password)
         else:
             break
-    M.logout()
+    r(M.logout())
 
 def cli():
     logging.basicConfig(level=logging.INFO)

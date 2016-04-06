@@ -6,19 +6,18 @@ from email import message_from_bytes
 from email.message import Message
 
 def message_nums(M):
-    typ, data = M.search(None, 'ALL')
-    return data[0].split()
+    return r(M.search(None, 'ALL'))[0].split()
 
 def _list_messages(M):
     for num in message_nums(M):
-        typ, data = M.fetch(num, '(RFC822)')
+        data = r(M.fetch(num, '(RFC822)'))
         yield num, message_from_bytes(data[0][1])
 
 def first_message(M):
     nums = message_nums(M)
     if len(nums) > 0:
         num = nums[0]
-        typ, data = M.fetch(num, '(RFC822)')
+        data = r(M.fetch(num, '(RFC822)'))
         return num, message_from_bytes(data[0][1])
     else:
         return None, None
@@ -31,20 +30,20 @@ class Folder(object):
         self.M = M
 
     def items(self):
-        self.M.select(self.name)
+        r(self.M.select(self.name))
         for num, m in _list_messages(self.M):
             yield m['subject'], m.get_payload()
-        self.M.close()
+        r(self.M.close())
 
     def __getitem__(self, key):
-        self.M.select(self.name)
+        r(self.M.select(self.name))
         for num, m in _list_messages(self.M):
             if m['Subject'] == key:
                 out = m.get_payload()
                 break
         else:
             out = None
-        self.M.close()
+        r(self.M.close())
         return out
 
     def __setitem__(self, key, value):
@@ -52,19 +51,19 @@ class Folder(object):
         m = Message()
         m['Subject'] = key
         m.set_payload(value)
-        self.M.append(self.name, None, d, m.as_bytes())
+        r(self.M.append(self.name, None, d, m.as_bytes()))
 
     def __delitem__(self, key):
-        self.M.select(self.name)
+        r(self.M.select(self.name))
         for num, m in _list_messages(self.M):
             if m['Subject'] == key:
-                self.M.store(num, '+FLAGS', '\\Deleted')
-                self.M.expunge()
+                r(self.M.store(num, '+FLAGS', '\\Deleted'))
+                r(self.M.expunge())
                 break
         else:
             msg = 'Key "%s" is not in folder "%s"'
             raise KeyError(msg % (key, self.name))
-        self.M.close()
+        r(self.M.close())
 
 MAILBOXES = {
     'list': 'ypotf-list',
@@ -81,15 +80,15 @@ class Confirmations(Folder):
     name = MAILBOXES['confirmations']
 
 def _move(mailbox, M, num):
-    M.copy(num, mailbox)
-    M.store(num, '+FLAGS', '\\Deleted')
-    M.expunge()
+    r(M.copy(num, mailbox))
+    r(M.store(num, '+FLAGS', '\\Deleted'))
+    r(M.expunge())
 
 archive_message = partial(_move, MAILBOXES['archive'])
 queue_message = partial(_move, MAILBOXES['queue'])
 
 def send_message(M, message_id):
-    M.select(MAILBOXES['queue'])
+    r(M.select(MAILBOXES['queue']))
     for num, msg in _list_messages(M):
         if msg['message-id'] == message_id:
             del(msg['To'])
@@ -97,5 +96,5 @@ def send_message(M, message_id):
             break
     else:
         raise ValueError('No such message in the queue')
-    M.close()
+    r(M.close())
     return msg

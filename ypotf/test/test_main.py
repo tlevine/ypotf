@@ -1,6 +1,6 @@
 from email.message import Message
 from .fixtures import bare_imap, _password, _now
-from .utils import r
+from ..utils import r
 from ..main import ypotf
 
 def test_ypotf(bare_imap):
