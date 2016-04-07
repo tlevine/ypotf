@@ -120,6 +120,9 @@ processed.
 
 When emails need to be sent (left arrow nodes in the above diagram),
 they are sent over SMTP and placed in the "Sent" folder.
+An outgoing email is always a direct response to some incoming email;
+that email is flagged Answered, though ypotf doesn't otherwise care
+whether an email has been Answered.
 
 Requests to subscribe, unsubscribe, or send a message, and confirmations
 for these requests, require two sorts of temporary information to be
@@ -130,12 +133,6 @@ Confirmations
 Queued messages
     Stored in the inbox with the Draft flag
 
-After processing of a particular message is finished, it is marked as
-Seen. If the processing resulted in the sending of another message, the
-first message is also marked Answered, though ypotf doesn't otherwise
-care whether an email has been Answered.
-
-
-Archive requests, help requests, and erroneous messages results in an
-email.
-
+Archive requests, help requests, and erroneous messages do not require
+confirmation, so those requests are handled in one email response;
+they don't require the aforementioned confirmation procedure.
