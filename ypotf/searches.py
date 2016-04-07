@@ -1,3 +1,20 @@
+import re
+from .utils import r
+
+def _parse_headers(x):
+    lines = re.split(r'[\r\n]+', x.decode('utf-8'))
+    return dict(re.split(r': ?', line, maxsplit=1) for line in lines)
+
+def _search(folder, criterion, M):
+    r(M.select(folder))
+    return r(M.search(None, criterion)).split()
+
+def _fetch(fetch, M, nums):
+    for num in nums.split():
+        data = r(M.fetch(num, fetch))
+        yield _parse_headers(data[1][0][1])
+
+
 # Search the Sent folder with the SENTSINCE search key to assess quotas
 # (one search per quota)
 quota = {
