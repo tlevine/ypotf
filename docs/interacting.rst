@@ -128,10 +128,36 @@ Requests to subscribe, unsubscribe, or send a message, and confirmations
 for these requests, require two sorts of temporary information to be
 stored on the server in the following places.
 
-Confirmations
-    Stored in the inbox with the Flagged flag 
+Queued subscription
+    Stored in the inbox with the Flagged and Draft flags both set
 Queued messages
     Stored in the inbox with the Draft flag
+
+In response to a request to subscribe or unsubscribe, ypotf creates a
+queued subscription email. The "To" field is a randomly generated
+confirmation code that also gets sent to the requestor, and the subject
+is the email address of the requestor.
+
+In response to a message request, ypotf creates a new message that is a
+copy of the incoming message except with the Draft flag set and with the
+following changes in the headers.
+
+To
+    The confirmation code
+Reply-To
+    The mailing list address
+Subject
+    The mailing list prefix plus the original subject
+
+Note that confirmation codes are always in the "To" field.
+This is better than an X-* field because the server is more likely to
+support searching on it and because it is easier to see in a MUA.
+
+These three sorts of requests also result in the sending of a
+confirmation email, with the aforementioned confirmation code in the
+subject of the confirmation email. The email instructs the recipient to
+reply to the email as confirmation that he or she controls the email
+address.
 
 Archive requests, help requests, and erroneous messages do not require
 confirmation, so those requests are handled in one email response;
