@@ -1,5 +1,4 @@
 digraph ypotf {
-    rankdir=LR
     rank="max"
 
     subscribe, unsubscribe, message, confirm, archive, help [shape=rarrow];
