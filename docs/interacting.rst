@@ -113,17 +113,29 @@ whole network of it all.
 .. graphviz:: flow.dot
 
 ypotf stores all of its mailing list information in email messages.
-Requests arrive as emails in the "inbox" folder and are moved to the
-"archive" folder after initial processing.
+Requests arrive (right arrow nodes in the above diagram) as emails in
+the "inbox" folder. They start out with the Recent flag, but ypotf
+ignores that flag. Each message is flagged "Seen" after being fully
+processed.
 
-The processing of archive requests, help requests, and erroneous
-messages results in an email and then ends here.
+When emails need to be sent (left arrow nodes in the above diagram),
+they are sent over SMTP and placed in the "Sent" folder.
 
 Requests to subscribe, unsubscribe, or send a message, and confirmations
-for these requests, require temporary information to be stored on the
-server in the following IMAP folders.
+for these requests, require two sorts of temporary information to be
+stored on the server in the following places.
 
-* Confirmations
-* Queued messages
+Confirmations
+    Stored in the inbox with the Flagged flag 
+Queued messages
+    Stored in the inbox with the Draft flag
 
-Maybe I'll explain more details later.
+After processing of a particular message is finished, it is marked as
+Seen. If the processing resulted in the sending of another message, the
+first message is also marked Answered, though ypotf doesn't otherwise
+care whether an email has been Answered.
+
+
+Archive requests, help requests, and erroneous messages results in an
+email.
+
