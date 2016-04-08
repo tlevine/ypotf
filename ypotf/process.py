@@ -28,18 +28,12 @@ CHARACTERS = string.ascii_lowercase + string.digits
 def _confirmation_code():
     return ''.join(sample(CHARACTERS, 32))
 
-def _append(box, M, flags, m):
-    d = tuple(datetime.datetime.now().timetuple())
-    if 'seen' not in flags.lower():
-        raise ValueError('"\\Seen" must be a flag.')
-    logger.debug('''Appending this message to %s
+append_tpl = '''Appending this message to %s
 ----------------------------------------
 %s
-----------------------------------------''' % (box, m))
-    return r(M.append(box, flags, d, m.as_bytes()))
+----------------------------------------''' 
 
-
-log_tpl = '''Sending this message
+send_tpl = '''Sending this message
 ----------------------------------------
 %s
 ----------------------------------------'''
@@ -76,14 +70,18 @@ class Transaction(object):
         return r(M.store(num, action, flags))
 
     def send(self, msg, to_addresses):
+        'This is not reverted.'
         for to_address in to_addresses:
-            # This is not reverted.
-            _append('Sent', self.M, '\\SEEN', msg)
+            self.append('Sent', '\\SEEN', msg)
             S.send_message(msg, list_address, [to_address])
 
-    def append(self, box, msg, flags):
-        # This is not reverted.
-        _append(box, self.M, '\\SEEN \\DRAFT', msg)
+    def append(self, box, flags, msg):
+        'This is not reverted.'
+        d = tuple(datetime.datetime.now().timetuple())
+        if 'seen' not in flags.lower():
+            raise ValueError('"\\Seen" must be a flag.')
+        logger.debug(append_tpl % (box, m))
+        return r(M.append(box, flags, d, m.as_bytes()))
 
 def process(S, M, num, from_address, subject, message_id):
     _send = partial(send.send, S, M)
@@ -109,11 +107,8 @@ def process(S, M, num, from_address, subject, message_id):
             m = message_from_bytes(data[0][1])
             m['TO'] = code
 
-            t.extend([
-                (send, (templates.confirmation(action, code),
-                        from_address)),
-                (_append, ('Inbox', M, '\\SEEN \\DRAFT', m)),
-            ])
+            t.send(templates.confirmation(action, code), from_address)
+            t.append('Inbox', '\\SEEN \\DRAFT', m)
             t.plus_flags(num, '\\SEEN \\ANSWERED')
 
         elif action == 'subscribe':
@@ -122,7 +117,7 @@ def process(S, M, num, from_address, subject, message_id):
 
             if draft_num and code:
                 logger.debug('Reusing existing pending confirmation')
-                r(M.store(draft_num, '+Flags', flags))
+                t.plus_flags(draft_num, flags)
             elif draft_num:
                 logger.debug('Already subscribed')
                 raise NotImplementedError
@@ -130,26 +125,22 @@ def process(S, M, num, from_address, subject, message_id):
                 logger.debug('Creating a new pending confirmation')
                 code = _confirmation_code()
                 m = templates.subscriber(to=code, subject=from_address)
-                _append('Inbox', M, flags, m)
+                t.append('Inbox', flags, m)
 
-            _send(templates.confirmation(action, code), from_address)
-            r(M.store(num, '+FLAGS', '\\SEEN \\ANSWERED'))
+            t.send(templates.confirmation(action, code), from_address)
+            t.add_flags(num, '+FLAGS', '\\SEEN \\ANSWERED')
 
         elif action == 'unsubscribe':
             draft_num, code = search.inbox.subscriber(M, from_address)
-            with Transaction() as t:
-                if draft_num and code:
-                    # Add confirmation code to unsubscribe message.
-                    t.extend([
-                        (_append, ('Inbox', M, '\\FLAGGED \\SEEN',
-                                   _message(to=code, subject=from_address))),
-                        (send, (templates.confirmation(action, code),
-                                from_address)),
-                    ])
-                    t.plus_flags(draft_num, '\\DELETED')
-                else:
-                    t.append(send, (templates.not_a_member(), from_address))
-                t.plus_flags(num, '\\SEEN \\ANSWERED'))
+            if draft_num and code:
+                # Add confirmation code to unsubscribe message.
+                m = _message(to=code, subject=from_address))),
+                t.append('Inbox', '\\FLAGGED \\SEEN', m)
+                t.send(templates.confirmation(action, code), from_address)
+                t.plus_flags(draft_num, '\\DELETED')
+            else:
+                t.send(templates.not_a_member(), from_address)
+            t.plus_flags(num, '\\SEEN \\ANSWERED'))
 
         elif action == 'list-confirm':
             code = re.match(MATCHERS['list-confirm'], subject).group(1)
