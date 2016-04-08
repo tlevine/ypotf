@@ -129,10 +129,10 @@ class inbox(object):
         nums = _search(criterion, M)
         for num, m in _fetch('FLAGS', M, nums):
             flags = _parse_flags(m)
-            if {'FLAGGED', 'DRAFT'}.issubset(flags):
+            if {'\\FLAGGED', '\\DRAFT'}.issubset(flags):
                 return num, 'subscribe'
-            elif 'FLAGGED' in flags:
+            elif '\\FLAGGED' in flags:
                 return num, 'unsubscribe'
-            elif 'DRAFT' in flags:
+            elif '\\DRAFT' in flags:
                 return num, 'message'
         return None, None
