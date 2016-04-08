@@ -3,6 +3,7 @@ TODO: Ignore from self because that's a good infinite loop.
 '''
 import re
 
+from .language import MATCHERS
 from .utils import r
 
 def _just_email_address(x):
@@ -80,7 +81,13 @@ class Inbox(object):
         nums = _search('UNSEEN', M)
         message_parts = 'BODY.PEEK[HEADER.FIELDS (FROM SUBJECT)]'
         for num, m in _fetch(message_parts, M, nums):
-            yield num, _parse_headers(m)['SUBJECT']
+            subject = _parse_headers(m)['SUBJECT']
+            for k, v in MATCHERS.items():
+                if re.match(v, subject):
+                    action = k
+            else:
+                action = 'message'
+            yield num, action
 
     @staticmethod
     def confirmation(M, code):
