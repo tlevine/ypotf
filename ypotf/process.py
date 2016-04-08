@@ -71,7 +71,9 @@ class Transaction(object):
 
     def send(self, msg, to_addresses):
         'This is not reverted.'
+        logger.info('Sending to %d addresses' % len(to_addresses))
         final_msg = templates._finish(msg, list_address)
+
         for to_address in to_addresses:
             logger.debug(send_tpl % (to_address, final_msg))
             self.append('Sent', '\\SEEN', final_msg)
@@ -148,9 +150,11 @@ def process(S, M, num, from_address, subject, message_id):
             if draft_num and draft_action:
                 if draft_action == 'message':
                     data = r(self.M.fetch(draft_num, '(RFC822)'))
-                    t.send(message_from_bytes(data[0][1]), aoue)
+                    to_addresses = search.inbox.subscribers(M)
+
                     t.plus_flags(draft_num, '\\DELETED')
                     t.plus_flags(num, '\\ANSWERED'))
+                    t.send(message_from_bytes(data[0][1]), to_addresses)
 
                 elif draft_action == 'subscribe':
                     data = r(self.M.fetch(draft_num, '(RFC822)'))
