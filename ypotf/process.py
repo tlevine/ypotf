@@ -97,7 +97,7 @@ def process(S, M, num, from_address, subject, message_id):
                     if k in msg:
                         del(msg[k])
                     msg[k] = v
-            if '@' not in msg['To']:
+            if '@' not in msg.get('To', ''):
                 del(msg['To'])
                 msg['To'] = '_@dada.pink'
 
