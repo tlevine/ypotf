@@ -26,6 +26,9 @@ CHARACTERS = string.ascii_lowercase + string.digits
 def _confirmation_code():
     return ''.join(sample(CHARACTERS, 32))
 
+def _store(M, num, flags):
+    return r(M.store(num, flags))
+
 def _append(box, M, flags, m):
     d = tuple(datetime.datetime.now().timetuple())
     if 'seen' not in flags.lower():
@@ -41,6 +44,18 @@ def _message(**headers):
     for key, value in headers.items():
         m[key] = value
     return m  
+
+class Transaction(object):
+    def __enter__(self):
+        self._queue = []
+        return self._queue
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.transaction and exc_type is not None:
+            logger.info('Exception occurred in transaction, aborting.')
+        else:
+            for f, args in self._queue:
+                f(*args)
 
 def process(S, M, num, from_address, subject, message_id):
     for k, v in MATCHERS.items():
@@ -64,8 +79,11 @@ def process(S, M, num, from_address, subject, message_id):
 %s
 ----------------------------------------''' % msg)
 
-            S.send_message(msg)
-            _append('Sent', M, '\\SEEN', msg)
+            with Transaction() as t:
+                t.extend([
+                    (S.send_message, (msg,)),
+                    (_append, ('Sent', M, '\\SEEN', msg)),
+                ])
 
     if action == 'help':
         send(_help(), from_address)
@@ -81,9 +99,13 @@ def process(S, M, num, from_address, subject, message_id):
         m = message_from_bytes(data[0][1])
         m['TO'] = code
 
-        send(templates.confirmation_message(action, code), from_address)
-        _append('Inbox', M, '\\SEEN \\DRAFT', m)
-        r(M.store(num, '+FLAGS', '\\SEEN \\ANSWERED'))
+        with Transaction() as t:
+            t.extend([
+                (send, (templates.confirmation_message(action, code),
+                        from_address)),
+                (_append, ('Inbox', M, '\\SEEN \\DRAFT', m)),
+                (_store, (M, num, '+FLAGS', '\\SEEN \\ANSWERED'))
+            ])
 
     elif action == 'subscribe':
         flags = '\\FLAGGED \\DRAFT \\SEEN'
@@ -103,16 +125,19 @@ def process(S, M, num, from_address, subject, message_id):
 
     elif action == 'unsubscribe':
         draft_num, code = search.inbox.subscriber(M, from_address)
-        if draft_num and code:
-            # Add confirmation code to unsubscribe message.
-            M.store(draft_num, '+FLAGS', '\\DELETED')
-            _append('Inbox', M, '\\FLAGGED \\SEEN',
-                    _message(to=code, subject=from_address))
-            send(templates.confirmation_message(action, code),
-                 from_address)
-        else:
-            send(templates.not_a_member(), from_address)
-        r(M.store(num, '+FLAGS', '\\SEEN \\ANSWERED'))
+        with Transaction() as t:
+            if draft_num and code:
+                # Add confirmation code to unsubscribe message.
+                t.extend([
+                    (_store, (M, draft_num, '+FLAGS', '\\DELETED')),
+                    (_append, ('Inbox', M, '\\FLAGGED \\SEEN',
+                               _message(to=code, subject=from_address))),
+                    (send, (templates.confirmation_message(action, code),
+                            from_address)),
+                ])
+            else:
+                t.append(send, (templates.not_a_member(), from_address))
+            t.append(_store, (M, num, '+FLAGS', '\\SEEN \\ANSWERED'))
 
     elif action == 'list-confirm':
         code = re.match(MATCHERS['list-confirm'], subject).group(1)
