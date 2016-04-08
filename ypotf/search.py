@@ -99,7 +99,7 @@ class inbox(object):
         for num, m in _fetch(message_parts, M, nums):
             h = _parse_headers(m)
             if {'FROM', 'SUBJECT', 'MESSAGE-ID'}.issubset(h):
-                logger.debug('''Processing an order
+                logger.debug('''Found a new order
 
   From: %(FROM)s
   Subject: %(SUBJECT)s
