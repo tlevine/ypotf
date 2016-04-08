@@ -105,8 +105,9 @@ class Inbox(object):
         for num, m in _fetch('FLAGS', M, nums):
             flags = _parse_flags(m)
             if {'FLAGGED', 'DRAFT'}.issubset(flags):
-                return 'subscribe'
+                return num, 'subscribe'
             elif 'FLAGGED' in flags:
-                return 'unsubscribe'
+                return num, 'unsubscribe'
             elif 'DRAFT' in flags:
-                return 'message'
+                return num, 'message'
+        return None, None
