@@ -5,7 +5,7 @@ import logging
 from . import search
 from . import quota
 from .process import process
-from .utils import r
+from .utils import r, email_address
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +43,8 @@ def ypotf(password, *quotas, n:int=0, list_subscribers=False):
     for i, (num, from_address, subject, message_id) in enumerate(orders):
         if n and i < n:
             logger.info('Processing message from %s' % from_address)
-            process(S, M, num, from_address, subject, message_id)
+            e = email_address(from_address)
+            process(S, M, num, e, subject, message_id)
         else:
             logger.info('Processed %d messages' % n)
             break
