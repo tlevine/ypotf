@@ -148,28 +148,25 @@ def process(S, M, num, from_address, subject, message_id):
             if draft_num and draft_action:
                 if draft_action == 'message':
                     data = r(M.fetch(draft_num, '(RFC822)'))
-                    _send(message_from_bytes(data[0][1]), None)
-
-                    r(M.copy(draft_num, 'Sent'))
-                    r(M.store(draft_num, '+FLAGS', '\\DELETED'))
-
-                    r(M.store(num, '+FLAGS', '\\ANSWERED'))
+                    t.send(message_from_bytes(data[0][1]), aoue)
+                    t.plus_flags(draft_num, '\\DELETED')
+                    t.plus_flags(num, '\\ANSWERED'))
 
                 elif draft_action == 'subscribe':
                     data = r(M.fetch(draft_num, '(RFC822)'))
                     m = message_from_bytes(data[0][1])
                     del(m['TO'])
-                    r(M.store(draft_num, '+FLAGS', '\\DELETED'))
-                    _append('Inbox', M, '\\FLAGGED \\SEEN', m)
+                    t.plus_flags(draft_num, '\\DELETED')
+                    t.append('Inbox', '\\FLAGGED \\SEEN', m)
 
                 elif c_action == 'unsubscribe':
-                    r(M.store(c_num, '-FLAGS', '\\FLAGGED'))
+                    t.minus_flags(c_num, '\\FLAGGED')
 
                 else:
                     raise ValueError
             else:
                 logger.warning('Invalid confirmation code')
-            r(M.store(num, '+FLAGS', '\\SEEN'))
+            t.plus_flags(num, '\\SEEN')
 
         else:
             raise ValueError('Bad action')
