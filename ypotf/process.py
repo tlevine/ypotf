@@ -4,6 +4,9 @@ import re
 from email.message import Message
 from email import message_from_bytes
 
+from . import templates
+from .utils import r
+
 MATCHERS = {k: re.compile(v, flags=re.IGNORECASE) for (k,v) in [
     ('subscribe', r'^subscribe$'),
     ('unsubscribe', r'^unsubscribe$'),
@@ -34,7 +37,9 @@ def process(S, M, num, from_address, subject, message_id):
     else:
         action = 'message'
     
-    send = partial(full_send, message_id)
+    def send(*args):
+        msg = 'Send with message-id %s and these arguments:\n%s'
+        print(msg % (message_id, args))
 
     if action == 'help':
         send(_help(), from_address)
@@ -51,7 +56,7 @@ def process(S, M, num, from_address, subject, message_id):
         m['TO'] = code
 
 
-        send(_confirmation_message(action, code), from_address)
+        send(templates.confirmation_message(action, code), from_address)
         _append(M, '\\SEEN \\DRAFT', m)
         r(M.store(num, '+FLAGS', '\\SEEN \\ANSWERED'))
 
