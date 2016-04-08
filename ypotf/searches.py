@@ -83,6 +83,7 @@ class inbox(object):
         Search for non-Seen (just-received) emails.
         '''
         nums = _search('UNSEEN', M)
+
         n = (nums[0].count(b' ')+1) if nums[0] else 0
         logger.debug('Found %d new orders' % n)
 
@@ -92,10 +93,10 @@ class inbox(object):
             if {'FROM', 'SUBJECT', 'MESSAGE-ID'}.issubset(h):
                 logger.debug('''Processing an order
 
-  From: %(FROM)s:
+  From: %(FROM)s
   Subject: %(SUBJECT)s
   Message-id: %(MESSAGE-ID)s
-''')
+''' % h)
                 e = _just_email_address(h['FROM'])
                 yield num, e, h['SUBJECT'], h['MESSAGE-ID']
             else:

@@ -1,11 +1,15 @@
 from random import randint
 import re
+import logging
+import datetime
 
 from email.message import Message
 from email import message_from_bytes
 
 from . import templates
 from .utils import r
+
+logger = logging.getLogger(__name__)
 
 MATCHERS = {k: re.compile(v, flags=re.IGNORECASE) for (k,v) in [
     ('subscribe', r'^subscribe$'),
@@ -39,7 +43,7 @@ def process(S, M, num, from_address, subject, message_id):
     
     def send(*args):
         msg = 'Send with message-id %s and these arguments:\n%s'
-        print(msg % (message_id, args))
+        logger.debug(msg % (message_id, args))
 
     if action == 'help':
         send(_help(), from_address)
