@@ -30,7 +30,12 @@ def _block(x):
 def _search(criterion, M):
     x = 'UNDELETED ' + criterion
     logger.debug('Searching:\n%s' % _block(x))
-    return r(M.search(None, x))
+
+    nums = r(M.search(None, x))
+    n = (nums[0].count(b' ')+1) if nums[0] else 0
+
+    logger.debug('%d results' % n)
+    return nums
 
 def _fetch(fetch, M, nums):
     for num in nums[0].split():
@@ -90,10 +95,6 @@ class inbox(object):
         Search for non-Seen (just-received) emails.
         '''
         nums = _search('UNSEEN', M)
-
-        n = (nums[0].count(b' ')+1) if nums[0] else 0
-        logger.debug('Found %d new orders' % n)
-
         message_parts = 'BODY.PEEK[HEADER.FIELDS (FROM SUBJECT MESSAGE-ID)]'
         for num, m in _fetch(message_parts, M, nums):
             h = _parse_headers(m)
