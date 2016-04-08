@@ -11,11 +11,7 @@ def _search(folder, criterion, M):
 
 def _fetch(fetch, M, nums):
     for num in nums.split():
-        data = r(M.fetch(num, fetch))
-        yield _parse_headers(data[1][0][1])
-
-
-FLAGS (\\Answered \\Seen)
+        yield r(M.fetch(num, fetch))
 
 # Search the Sent folder with the SENTSINCE search key to assess quotas
 # (one search per quota)
@@ -41,7 +37,8 @@ def subscribers(M):
     '''
     nums = _search('Inbox', 'FLAGGED UNDRAFT', M)
     x = 'BODY.PEEK[HEADER.FIELDS (SUBJECT)]'
-    return set(m['subject'] for m in _fetch(x, M, nums))
+    headers = (_parse_headers(m[1][0][1]) for m in _fetch(x, M, nums))
+    return set(m['subject'] for m in headers)
 
 # Search for Draft (confirmation) and non-Seen (just-received) emails.
 def orders(M):
@@ -49,3 +46,5 @@ def orders(M):
     out = {'confirmations': {}, 'new': {}}
     for m in _fetch('BODY.PEEK[HEADER.FIELDS (TO SUBJECT)]', M, nums):
         m['subject']
+        yield _parse_headers(data[1][0][1])
+FLAGS (\\Answered \\Seen)
