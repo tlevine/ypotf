@@ -92,8 +92,14 @@ def process(S, M, num, from_address, subject, message_id):
             for header in msg:
                 if header.lower() not in FORWARDED_HEADERS:
                     del(msg[header])
-            if 'from' not in msg:
-                msg.update(LIST_HEADERS)
+            if 'From' not in msg:
+                for k, v in LIST_HEADERS.items():
+                    if k in msg:
+                        del(msg[k])
+                    msg[k] = v
+            if '@' not in msg['To']:
+                del(msg['To'])
+                msg['To'] = '_@dada.pink'
 
             logger.debug('''Sending this message
 ----------------------------------------

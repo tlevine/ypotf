@@ -13,3 +13,6 @@ Spam
 
 * Sender blacklist
 * Spam detection and command-line spam review
+* Check whether the email came from the right server based on the
+  DNS-based email certifications that I don't understand.
+  This way, I don't need a confirmation email for every message.
