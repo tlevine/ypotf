@@ -8,6 +8,6 @@ def confirmation_message(action, code):
 
 def help():
     m = Message()
-    m['Subject'] = 'List help' % code
+    m['Subject'] = 'List help'
     m.set_payload('Documentation will eventually go here.')
     return m
