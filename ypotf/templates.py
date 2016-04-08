@@ -41,19 +41,17 @@ LIST_HEADERS = {
     'List-Subscribe': 'mailto:_@dada.pink?subject=subscribe',
 }
 
-def _finish(msg, list_address):
+def message(msg, list_address):
     for header in msg:
         if header.lower() not in FORWARDED_HEADERS:
             del(msg[header])
 
-    if 'From' not in msg:
-        for k, v in LIST_HEADERS.items():
-            if k in msg:
-                del(msg[k])
-            msg[k] = v
+    for k, v in LIST_HEADERS.items():
+        if k in msg:
+            del(msg[k])
+        msg[k] = v
 
-    if '@' not in msg.get('To', ''):
-        del(msg['To'])
-        msg['To'] = list_address
+    del(msg['To'])
+    msg['To'] = list_address
 
     return msg
