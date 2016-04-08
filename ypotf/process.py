@@ -33,7 +33,7 @@ append_tpl = '''Appending this message to %s
 %s
 ----------------------------------------''' 
 
-send_tpl = '''Sending this message
+send_tpl = '''Sending this message to %s
 ----------------------------------------
 %s
 ----------------------------------------'''
@@ -67,13 +67,15 @@ class Transaction(object):
         return self._store(num, '-FLAGS', flags)
 
     def _store(self, num, action, flags):
-        return r(M.store(num, action, flags))
+        return r(self.M.store(num, action, flags))
 
     def send(self, msg, to_addresses):
         'This is not reverted.'
+        final_msg = templates._finish(msg, list_address)
         for to_address in to_addresses:
-            self.append('Sent', '\\SEEN', msg)
-            S.send_message(msg, list_address, [to_address])
+            logger.debug(send_tpl % (to_address, final_msg))
+            self.append('Sent', '\\SEEN', final_msg)
+            self.S.send_message(final_msg, list_address, [to_address])
 
     def append(self, box, flags, msg):
         'This is not reverted.'
@@ -81,7 +83,7 @@ class Transaction(object):
         if 'seen' not in flags.lower():
             raise ValueError('"\\Seen" must be a flag.')
         logger.debug(append_tpl % (box, m))
-        return r(M.append(box, flags, d, m.as_bytes()))
+        return r(self.M.append(box, flags, d, m.as_bytes()))
 
 def process(S, M, num, from_address, subject, message_id):
     _send = partial(send.send, S, M)
@@ -103,7 +105,7 @@ def process(S, M, num, from_address, subject, message_id):
 
         elif action == 'message':
             code = _confirmation_code()
-            data = r(M.fetch(num, '(RFC822)'))
+            data = r(self.M.fetch(num, '(RFC822)'))
             m = message_from_bytes(data[0][1])
             m['TO'] = code
 
@@ -147,13 +149,13 @@ def process(S, M, num, from_address, subject, message_id):
             draft_num, draft_action = search.inbox.confirmation(M, code)
             if draft_num and draft_action:
                 if draft_action == 'message':
-                    data = r(M.fetch(draft_num, '(RFC822)'))
+                    data = r(self.M.fetch(draft_num, '(RFC822)'))
                     t.send(message_from_bytes(data[0][1]), aoue)
                     t.plus_flags(draft_num, '\\DELETED')
                     t.plus_flags(num, '\\ANSWERED'))
 
                 elif draft_action == 'subscribe':
-                    data = r(M.fetch(draft_num, '(RFC822)'))
+                    data = r(self.M.fetch(draft_num, '(RFC822)'))
                     m = message_from_bytes(data[0][1])
                     del(m['TO'])
                     t.plus_flags(draft_num, '\\DELETED')
