@@ -5,6 +5,11 @@ import re
 
 from .utils import r
 
+def _just_email_address(x):
+    if '\\' in x or '"' in x:
+        raise ValueError('Invalid email address: %s' % x)
+    return x
+
 def _parse_headers(x):
     lines = re.split(r'[\r\n]+', x[0][1].decode('utf-8'))
     return dict(re.split(r': ?', line, maxsplit=1) for line.lower() in lines)
@@ -27,7 +32,7 @@ def n_sent(M, timedelta):
     :returns: The number of messages
     :rtype: int
     '''
-    criterion = 'SENTSINCE "01-JAN-2014"' % dt.strftime('%d-%b-%Y')
+    criterion = 'SENTSINCE "%s"' % dt.strftime('%d-%b-%Y')
     return len(_search('Sent', criterion, M).split())
 
 # Search the Inbox folder for the subject fields of messages with the
@@ -42,12 +47,15 @@ def subscribers(M):
     nums = _search('Inbox', 'FLAGGED UNDRAFT', M)
     x = 'BODY.PEEK[HEADER.FIELDS (SUBJECT MESSAGE-ID)]'
     headers = (_parse_headers(m) for _, m in _fetch(x, M, nums))
-    x = {m['SUBJECT']:m['MESSAGE-ID'] for m in headers}
-    for k, v in x.items():
-        if set('"\\').issubset(v):
-            raise NotImplementedError('''
-Quotation marks and backslashes in message-ids are not supported'''.strip())
-    return x
+    return set(m['SUBJECT'] for m in headers)
+
+def subscriber(M, from_field):
+    # " and \ are not allowed in email addresses, so this is safe.
+    e = _just_email_address(from_field)
+    M.search(None, 'FLAGGED UNDRAFT SUBJECT "%s"' % e)
+    if nums:
+        raise NotImplementedError
+    M.fetch(nums.split()[0]
 
 # Search for Draft (confirmation) and non-Seen (just-received) emails.
 def orders(M):

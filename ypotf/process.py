@@ -20,9 +20,6 @@ MATCHERS = {k: re.compile(v, flags=re.IGNORECASE) for (k,v) in [
     ('help', r'^help$'),
 ]}
 
-def _just_email_address(x):
-    return x
-
 def process(confirmations, M, num):
     m = message_from_bytes(r(M.fetch(num, '(RFC822)'))[0][1])
     from_address = _just_email_address(m['from'])
