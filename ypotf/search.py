@@ -76,6 +76,7 @@ class inbox(object):
             h = _parse_headers(m)
             if _just_email_addres(h['SUBJECT']) == e:
                 return num, h['TO']
+        return None, None
 
     @staticmethod
     def new_orders(M):

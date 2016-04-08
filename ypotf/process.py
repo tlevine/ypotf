@@ -79,7 +79,7 @@ def process(S, M, num, from_address, subject, message_id):
         r(M.store(num, '+FLAGS', '\\SEEN \\ANSWERED'))
 
     elif action == 'subscribe':
-        FLAGS = '\\FLAGGED \\DRAFT \\SEEN'
+        flags = '\\FLAGGED \\DRAFT \\SEEN'
         draft_num, code = search.inbox.subscriber(M, from_address)
 
         if draft_num and code:
@@ -89,7 +89,7 @@ def process(S, M, num, from_address, subject, message_id):
             code = _confirmation_code()
             _append(M, flags, _message(to=code, subject=from_address))
 
-        send(_confirmation_message(action, code), from_address)
+        send(templates.confirmation_message(action, code), from_address)
         r(M.store(num, '+FLAGS', '\\SEEN \\ANSWERED'))
 
     elif action == 'unsubscribe':
