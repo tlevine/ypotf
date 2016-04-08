@@ -8,6 +8,7 @@ from email.message import Message
 from email import message_from_bytes
 
 from . import templates
+from . import search
 from .utils import r
 
 logger = logging.getLogger(__name__)
@@ -41,10 +42,9 @@ def process(S, M, num, from_address, subject, message_id):
     for k, v in MATCHERS.items():
         if re.match(v, subject):
             action = k
+            break
     else:
         action = 'message'
-    print(subject, action)
-    exit()
     
     def send(msg, to_address):
         if to_address == None:
@@ -74,14 +74,13 @@ def process(S, M, num, from_address, subject, message_id):
         m = message_from_bytes(data[0][1])
         m['TO'] = code
 
-
         send(templates.confirmation_message(action, code), from_address)
         _append(M, '\\SEEN \\DRAFT', m)
         r(M.store(num, '+FLAGS', '\\SEEN \\ANSWERED'))
 
     elif action == 'subscribe':
         FLAGS = '\\FLAGGED \\DRAFT \\SEEN'
-        draft_num, code = subscriber(M, from_address)
+        draft_num, code = search.inbox.subscriber(M, from_address)
 
         if draft_num and code:
             # Reuse the existing message.
@@ -108,7 +107,7 @@ def process(S, M, num, from_address, subject, message_id):
 
     elif action == 'list-confirm':
         code = re.match(MATCHERS['list-confirm'], subject).group(1)
-        c_num, c_action = searches.Inbox.confirmations(M, code)
+        c_num, c_action = search.Inbox.confirmations(M, code)
         if c_num and c_action:
             if c_action == 'message':
                 data = r(M.fetch(num, '(RFC822)'))

@@ -1,7 +1,7 @@
 import smtplib
 import logging
 
-from . import searches
+from . import search
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +38,7 @@ def quota(M, quotas):
     N = None
     for quota in quotas:
         minutes, count = map(int, quota.split(':'))
-        n = count - searches.n_sent(M, minutes)
+        n = count - search.n_sent(M, minutes)
         if N == None or n < N:
             N = n
     return N
