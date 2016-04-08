@@ -2,14 +2,9 @@ import re
 import logging
 import textwrap
 
-from .utils import r
+from .utils import r, email_address
 
 logger = logging.getLogger(__name__)
-
-def _just_email_address(x):
-    if '\\' in x or '"' in x:
-        raise ValueError('Invalid email address: %s' % x)
-    return x
 
 def _parse_headers(x):
     lines = filter(None, re.split(r'[\r\n]+', x[0][1].decode('utf-8')))
@@ -77,12 +72,12 @@ class inbox(object):
         '''
         " and \ are not allowed in email addresses, so this is safe.
         '''
-        e = _just_email_address(from_field)
+        e = email_address(from_field)
         nums = _search('FLAGGED UNDRAFT SUBJECT "%s"' % e, M)
         x = 'BODY.PEEK[HEADER.FIELDS (TO SUBJECT)]'
         for num, m in _fetch(x, M, nums):
             h = _parse_headers(m)
-            if _just_email_address(h['SUBJECT']) == e:
+            if email_address(h['SUBJECT']).lower() == e.lower():
                 return num, h.get('TO') # None if already subscribed
         return None, None
 
@@ -102,7 +97,7 @@ class inbox(object):
   Subject: %(SUBJECT)s
   Message-id: %(MESSAGE-ID)s
 ''' % h)
-                e = _just_email_address(h['FROM'])
+                e = email_address(h['FROM'])
                 yield num, e, h['SUBJECT'], h['MESSAGE-ID']
             else:
                 logger.warning('Message %s is missing headers' %
