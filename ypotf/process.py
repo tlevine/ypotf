@@ -4,8 +4,8 @@ import re
 MATCHERS = {k: re.compile(v, flags=re.IGNORECASE) for (k,v) in [
     ('subscribe', r'^subscribe$'),
     ('unsubscribe', r'^unsubscribe$'),
-    ('confirmations', r'list-confirm-[a-z0-9]{32}'),
-#   ('archive', r'^list-archive'),
+    ('list-confirm', r'list-confirm-[a-z0-9]{32}'),
+#   ('list-archive', r'^list-archive'),
     ('help', r'^help$'),
 ]}
 
@@ -36,8 +36,9 @@ def process(M, num, from_address, subject):
 
     if action == 'help':
         raise NotImplementedError
-    elif action == 'archive'
+    elif action == 'list-archive'
         raise NotImplementedError
+
     elif action == 'subscribe':
         FLAGS = '\\FLAGGED \\DRAFT \\SEEN'
         draft_num, code = subscriber(M, from_address)
@@ -55,8 +56,8 @@ def process(M, num, from_address, subject):
             M.store(draft_num, '+FLAGS', '\\DELETED')
             _append(M, flags, _message(to=code, subject=from_address))
 
-    elif action == 'message':
-        code = re.match(MATCHERS['confirmations'], subject).group(1)
+    elif action == 'list-confirm':
+        code = re.match(MATCHERS['list-confirm'], subject).group(1)
         c_num, c_action = searches.Inbox.confirmations(M, code)
         if c_num and c_action:
             if c_action == 'message':
