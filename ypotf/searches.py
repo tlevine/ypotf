@@ -40,9 +40,14 @@ def subscribers(M):
     :rtype: set
     '''
     nums = _search('Inbox', 'FLAGGED UNDRAFT', M)
-    x = 'BODY.PEEK[HEADER.FIELDS (SUBJECT)]'
+    x = 'BODY.PEEK[HEADER.FIELDS (SUBJECT MESSAGE-ID)]'
     headers = (_parse_headers(m) for _, m in _fetch(x, M, nums))
-    return {m['SUBJECT']:num for m,num in zip(headers, nums.split())}
+    x = {m['SUBJECT']:m['MESSAGE-ID'] for m in headers}
+    for k, v in x.items():
+        if set('"\\').issubset(v):
+            raise NotImplementedError('''
+Quotation marks and backslashes in message-ids are not supported'''.strip())
+    return x
 
 # Search for Draft (confirmation) and non-Seen (just-received) emails.
 def orders(M):

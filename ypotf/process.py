@@ -49,6 +49,11 @@ def process(confirmations, M, num):
     elif re.match(MATCHERS['unsubscribe'], m['subject']):
         _log('subscription')
         code = _confirmation_code()
+        e = _just_email_address(m['from'])
+        nums = M.search(None, 'MESSAGE-ID "%s"' % subs[e])
+        if not nums:
+            raise NotImplementedError
+        M.fetch(nums.split()[0]
 
         r(M.store(num, '+FLAGS', '\\Seen')
         return template.configure(
