@@ -64,3 +64,4 @@ def orders(M):
             out['new'].append(num)
         else:
             raise ValueError('Bad response: %s' % data)
+    return out
