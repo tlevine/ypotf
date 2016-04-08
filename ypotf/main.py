@@ -9,7 +9,19 @@ from .utils import r
 
 logger = logging.getLogger(__name__)
 
-def ypotf(password, *quotas, list_subscribers=False):
+def ypotf(password, *quotas, n:int=0, list_subscribers=False):
+    '''
+    Process mailing list commands.
+
+    :param str password: Password for the account
+    :param str quotas: Sending rate limits in the form "$minutes:$count"
+    :param int n: Absolute maximum number of emails to send this session
+
+    I determine the number of emails to send this session by evaluating
+    the quotas and then taking the minimum of the number from those and
+    from the "n" parameter. If n is zero (the default), it is ignored.
+    If no quotas and no n are set, there is no maximum.
+    '''
     imap_host = smtp_host = 'mail.gandi.net'
     imap_username = smtp_username = '_@dada.pink'
     imap_password = smtp_password = password
