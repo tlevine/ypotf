@@ -1,7 +1,8 @@
-from random import randint
+from random import sample
 import re
 import logging
 import datetime
+import string
 
 from email.message import Message
 from email import message_from_bytes
@@ -19,8 +20,10 @@ MATCHERS = {k: re.compile(v, flags=re.IGNORECASE) for (k,v) in [
     ('help', r'^help$'),
 ]}
 
+CHARACTERS = string.ascii_lowercase + string.digits
+
 def _confirmation_code():
-    return bytes(randint(32, 126) for _ in range(32)).decode('ascii')
+    return ''.join(sample(CHARACTERS, 32))
 
 def _append(M, flags, m):
     d = tuple(datetime.datetime.now().timetuple())
@@ -40,10 +43,22 @@ def process(S, M, num, from_address, subject, message_id):
             action = k
     else:
         action = 'message'
+    print(subject, action)
+    exit()
     
-    def send(*args):
-        msg = 'Send with message-id %s and these arguments:\n%s'
-        logger.debug(msg % (message_id, args))
+    def send(msg, to_address):
+        if to_address == None:
+            raise NotImplementedError
+        else:
+            msg['To'] = to_address
+        msg['From'] = '_@dada.pink'
+
+        logger.debug('''Sending this message
+----------------------------------------
+%s
+----------------------------------------''' % msg)
+
+        S.send_message(msg)
 
     if action == 'help':
         send(_help(), from_address)

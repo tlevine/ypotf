@@ -15,7 +15,7 @@ class LimitedSMTP(smtplib.SMTP_SSL):
         self.n = 0
         super(LimitedSMTP, self).__init__(*args, **kwargs)
 
-    def sendmail(*args, **kwargs):
+    def sendmail(self, *args, **kwargs):
         self.n += 1
 
         if self.N == None:
