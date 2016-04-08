@@ -14,6 +14,11 @@ def _parse_headers(x):
     lines = re.split(r'[\r\n]+', x[0][1].decode('utf-8'))
     return dict(re.split(r': ?', line, maxsplit=1) for line.lower() in lines)
 
+def _parse_flags(x):
+    m = re.match('[0-9 (]+FLAGS \(([^)]+)', x[0].decode('utf-8'))
+    if m:
+        return set(n.upper() for n in m.group(1).split())
+
 def _search(criterion, M):
     return r(M.search(None, criterion))
 
@@ -77,24 +82,31 @@ class Inbox(object):
         return _fetch(message_parts, M, nums)
 
     @staticmethod
-    def confirmations(M):
+    def confirmation(M, code):
         '''
         Search for Draft (confirmation)
 
         FLAGGED DRAFT
             Subscription confirmation
-        FLAGGED UNDRAFT TO ""
+        FLAGGED UNDRAFT
             Unsubscription confirmation
         UNFLAGGED DRAFT
             Message confirmation
         '''
         criterion = re.sub(r'[\n ]+', ' ', '''
-            OR
+          TO "%s"
+          ( OR
             ( FLAGGED DRAFT
               ( OR
                 ( FLAGGED UNDRAFT TO "")
-                ( UNFLAGGED DRAFT)))''')
-        message_parts = '(FLAGS BODY.PEEK[HEADER.FIELDS (TO SUBJECT)])'
+                ( UNFLAGGED DRAFT))))''' % code)
 
         nums = _search(criterion, M)
-        return _fetch(message_parts, M, nums)
+        for num, m in _fetch('FLAGS', M, nums):
+            flags = _parse_flags(m)
+            if {'FLAGGED', 'DRAFT'}.issubset(flags):
+                return 'subscribe'
+            elif 'FLAGGED' in flags:
+                return 'unsubscribe'
+            elif 'DRAFT' in flags:
+                return 'message'
