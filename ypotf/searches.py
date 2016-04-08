@@ -3,7 +3,6 @@ TODO: Ignore from self because that's a good infinite loop.
 '''
 import re
 
-from .language import MATCHERS
 from .utils import r
 
 def _just_email_address(x):
@@ -13,7 +12,7 @@ def _just_email_address(x):
 
 def _parse_headers(x):
     lines = re.split(r'[\r\n]+', x[0][1].decode('utf-8'))
-    return dict(re.split(r': ?', line, maxsplit=1) for line.lower() in lines)
+    return dict(re.split(r': ?', line.lower(), maxsplit=1) for line in lines)
 
 def _parse_flags(x):
     m = re.match('[0-9 (]+FLAGS \(([^)]+)', x[0].decode('utf-8'))

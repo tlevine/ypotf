@@ -40,7 +40,7 @@ def process(S, M, num, from_address, subject, message_id):
         send(_help(), from_address)
         r(M.store(num, '+FLAGS', '\\SEEN \\ANSWERED'))
 
-    elif action == 'list-archive'
+    elif action == 'list-archive':
         raise NotImplementedError
 
     elif action == 'message':
