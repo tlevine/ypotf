@@ -19,3 +19,4 @@ Spam
   SPF headers look odd.
   * http://www.openspf.org/SPF_Received_Header
   * https://pypi.python.org/pypi/pyspf/
+  * http://www.openspf.org/FAQ/Envelope_from_scope
