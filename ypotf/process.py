@@ -158,7 +158,7 @@ def process(S, M, num, from_address, subject, message_id):
                 m = message_from_bytes(data[0][1])
                 del(m['TO'])
                 r(M.store(draft_num, '+FLAGS', '\\DELETED'))
-                _append('Inbox', M, '\\FLAGGED \\SEEN \\DRAFT', m)
+                _append('Inbox', M, '\\FLAGGED \\SEEN', m)
 
             elif c_action == 'unsubscribe':
                 r(M.store(c_num, '-FLAGS', '\\FLAGGED'))
