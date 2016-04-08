@@ -11,8 +11,9 @@ def _just_email_address(x):
     return x
 
 def _parse_headers(x):
-    lines = re.split(r'[\r\n]+', x[0][1].decode('utf-8'))
-    return dict(re.split(r': ?', line.lower(), maxsplit=1) for line in lines)
+    lines = filter(None, re.split(r'[\r\n]+', x[0][1].decode('utf-8')))
+    return dict(re.split(r': ?', line.lower(), maxsplit=1) \
+                for line in lines)
 
 def _parse_flags(x):
     m = re.match('[0-9 (]+FLAGS \(([^)]+)', x[0].decode('utf-8'))
@@ -23,7 +24,7 @@ def _search(criterion, M):
     return r(M.search(None, 'UNDELETED ' + criterion))
 
 def _fetch(fetch, M, nums):
-    for num in nums.split():
+    for num in nums[0].split():
         yield num, r(M.fetch(num, fetch))
 
 class sent(object):
@@ -67,7 +68,8 @@ class inbox(object):
         '''
         e = _just_email_address(from_field)
         nums = _search('FLAGGED UNDRAFT SUBJECT "%s"' % e, M)
-        for num, m in _fetch(nums, 'BODY.PEEK[HEADER.FIELDS (TO SUBJECT)]'):
+        x = 'BODY.PEEK[HEADER.FIELDS (TO SUBJECT)]'
+        for num, m in _fetch(x, M, nums):
             h = _parse_headers(m)
             if _just_email_addres(h['SUBJECT']) == e:
                 return num, h['TO']
