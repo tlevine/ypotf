@@ -114,7 +114,7 @@ def process(S, M, num, from_address, subject, message_id):
                 ])
 
     if action == 'help':
-        send(_help(), from_address)
+        send(templates.help(), from_address)
         r(M.store(num, '+FLAGS', '\\SEEN \\ANSWERED'))
 
     elif action == 'list-archive':

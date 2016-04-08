@@ -5,3 +5,9 @@ def confirmation_message(action, code):
     m['Subject'] = 'list-confirm-%s' % code
     m.set_payload('Reply to confirm your %s' % action)
     return m
+
+def help():
+    m = Message()
+    m['Subject'] = 'List help' % code
+    m.set_payload('Documentation will eventually go here.')
+    return m
