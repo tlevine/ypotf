@@ -1,6 +1,9 @@
 from random import randint
 import re
 
+from email.message import Message
+from email import message_from_bytes
+
 MATCHERS = {k: re.compile(v, flags=re.IGNORECASE) for (k,v) in [
     ('subscribe', r'^subscribe$'),
     ('unsubscribe', r'^unsubscribe$'),
@@ -24,15 +27,14 @@ def _message(**headers):
         m[key] = value
     return m  
 
-def process(M, num, from_address, subject):
+def process(M, num, from_address, subject, message_id):
     for k, v in MATCHERS.items():
         if re.match(v, h['SUBJECT']):
             action = k
     else:
         action = 'message'
     
-    # Defaults
-    code = None
+    send = partial(full_send, message_id)
 
     if action == 'help':
         raise NotImplementedError
@@ -48,6 +50,7 @@ def process(M, num, from_address, subject):
         else:
             code = _confirmation_code()
             _append(M, flags, _message(to=code, subject=from_address))
+        send(_confirmation_message(from_address, action, code))
 
     elif action == 'unsubscribe':
         FLAGS = '\\FLAGGED \\SEEN'
@@ -55,12 +58,18 @@ def process(M, num, from_address, subject):
         if draft_num and code:
             M.store(draft_num, '+FLAGS', '\\DELETED')
             _append(M, flags, _message(to=code, subject=from_address))
+            send(_confirmation_message(from_address, action, code))
+        else:
+            send(_not_a_member(from_address)
 
     elif action == 'list-confirm':
         code = re.match(MATCHERS['list-confirm'], subject).group(1)
         c_num, c_action = searches.Inbox.confirmations(M, code)
         if c_num and c_action:
             if c_action == 'message':
+                data = r(M.fetch(num, '(RFC822)'))
+                send(message_from_bytes(data[0][1]))
+
                 M.copy(c_num, 'Sent')
                 M.store(c_num, '+FLAGS', '\\DELETED')
             elif c_action == 'subscribe':
@@ -70,6 +79,17 @@ def process(M, num, from_address, subject):
             else:
                 raise ValueError
 
+    elif action == 'message':
+        code = _confirmation_code()
+        data = r(M.fetch(num, '(RFC822)'))
+
+        m = message_from_bytes(data[0][1])
+        m['TO'] = code
+
+        _append(M, '\\SEEN \\DRAFT', m)
+
+    else:
+        raise ValueError('Bad action')
 
 
 
