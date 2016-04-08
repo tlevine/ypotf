@@ -68,6 +68,7 @@ def process(S, M, num, from_address, subject, message_id):
     def send(msg, to_address):
         if to_address == None:
             to_addresses = search.inbox.subscribers(M)
+            logger.info('Sending to %d addresses' % len(to_addresses))
         else:
             to_addresses = {to_address}
         for to_address in to_addresses:
