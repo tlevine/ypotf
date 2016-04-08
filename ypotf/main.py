@@ -31,10 +31,6 @@ def ypotf(password, *quotas):
     orders = searches.orders(M)
     for m in orders['new']:
 
-session_sent = 0
-def send(session_quota, address, msg, *):
-    session_sent+=1
-
 def sending_quota_for_this_session(M, quotas):
     N = None
     for quota in quotas:
