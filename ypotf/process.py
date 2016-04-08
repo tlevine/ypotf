@@ -27,10 +27,15 @@ def _confirmation_code():
     return ''.join(sample(CHARACTERS, 32))
 
 def _append(M, flags, m):
+    box = 'Inbox'
     d = tuple(datetime.datetime.now().timetuple())
     if 'seen' not in flags.lower():
         raise ValueError('"\\Seen" must be a flag.')
-    return r(M.append('Inbox', flags, d, m.as_bytes()))
+    logger.debug('''Appending this message to %s
+----------------------------------------
+%s
+----------------------------------------''' % (box, m))
+    return r(M.append(box, flags, d, m.as_bytes()))
 
 def _message(**headers):
     m = Message()
@@ -83,9 +88,10 @@ def process(S, M, num, from_address, subject, message_id):
         draft_num, code = search.inbox.subscriber(M, from_address)
 
         if draft_num and code:
-            # Reuse the existing message.
+            logger.debug('Reusing existing pending confirmation')
             M.store(draft_num, '+Flags', flags)
         else:
+            logger.debug('Creating a new pending confirmation')
             code = _confirmation_code()
             _append(M, flags, _message(to=code, subject=from_address))
 
