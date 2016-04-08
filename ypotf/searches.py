@@ -7,7 +7,7 @@ def _parse_headers(x):
 
 def _search(folder, criterion, M):
     r(M.select(folder))
-    return r(M.search(None, criterion)).split()
+    return r(M.search(None, criterion))
 
 def _fetch(fetch, M, nums):
     for num in nums.split():
@@ -19,15 +19,14 @@ def _fetch(fetch, M, nums):
 # (one search per quota)
 def sent(M, datetime):
     criterion = 'SENTSINCE "01-JAN-2014"' % datetime.strftime('%d-%b-%Y')
-    n = len(_search('Sent', criterion, M))
+    n = len(_search('Sent', criterion, M).split())
 
 # Search the Inbox folder for the subject fields of messages with the
 # Flagged flag and without the Draft flag; these are the current
 # subscribers.
-subscribers = {
-    'folder': 'Inbox',
-    'criterion': 'FLAGGED UNDRAFT',
-    'fetch': 'BODY.PEEK[HEADER.FIELDS (SUBJECT)]',
+def subscribers(M):
+    nums = _search('Inbox', 'FLAGGED UNDRAFT', M)
+    _fetch('BODY.PEEK[HEADER.FIELDS (SUBJECT)]', M, nums)
 }
 
 # Search for Draft (confirmation) and non-Seen (just-received) emails.
