@@ -1,6 +1,3 @@
-'''
-TODO: Ignore from self because that's a good infinite loop.
-'''
 import re
 import logging
 import textwrap
