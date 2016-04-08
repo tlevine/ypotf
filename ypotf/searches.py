@@ -1,4 +1,8 @@
+'''
+TODO: Ignore from self because that's a good infinite loop.
+'''
 import re
+
 from .utils import r
 
 def _parse_headers(x):
