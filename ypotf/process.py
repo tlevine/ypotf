@@ -34,7 +34,7 @@ def process(confirmations, M, num):
     if re.match(MATCHERS['subscribe'], m['subject']):
         _log('subscription')
         code = _confirmation_code()
-        _append(M, '\\Flagged \\Draft',
+        _append(M, '\\Flagged \\Draft \\Seen',
                 _message(to=code, subject=from_address))
 
         r(M.store(num, '+FLAGS', '\\Seen')
@@ -46,14 +46,36 @@ def process(confirmations, M, num):
             confirmation_code=code,
         )
 
+    elif re.match(MATCHERS['unsubscribe'], m['subject']):
+        _log('subscription')
+        code = _confirmation_code()
+
+        r(M.store(num, '+FLAGS', '\\Seen')
+        return template.configure(
+            'sender',
+            to_address=m['From'],
+            references=m['message-id'],
+            subject=subject,
+            confirmation_code=code,
+        )
+
+
     elif re.match(MATCHERS['confirmations'], m['subject']):
         _log('confirmation')
         code = re.match(MATCHERS['confirmations'], m['subject']).group(1)
+
+        if code not in confirmations:
+            raise NotImplementedError
         confirmation = confirmations[code]
 
+        raise NotImplementedError
         if confirmation['action'] == 'message':
+            M.copy(confirmation['num'], 'Sent')
+            M.store(confirmation['num'], '+FLAGS', '\\DELETED')
         elif confirmation['action'] == 'subscribe':
+            M.store(confirmation['num'], '-FLAGS', '\\DRAFT')
         elif confirmation['action'] == 'unsubscribe':
+            M.store(confirmation['num'], '-FLAGS', '\\FLAGGED')
         else:
             raise ValueError
 

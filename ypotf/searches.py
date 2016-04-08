@@ -42,7 +42,7 @@ def subscribers(M):
     nums = _search('Inbox', 'FLAGGED UNDRAFT', M)
     x = 'BODY.PEEK[HEADER.FIELDS (SUBJECT)]'
     headers = (_parse_headers(m) for _, m in _fetch(x, M, nums))
-    return set(m['SUBJECT'] for m in headers)
+    return {m['SUBJECT']:num for m,num in zip(headers, nums.split())}
 
 # Search for Draft (confirmation) and non-Seen (just-received) emails.
 def orders(M):
