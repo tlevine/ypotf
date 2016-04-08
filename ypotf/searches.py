@@ -21,7 +21,7 @@ def _parse_flags(x):
         return set(n.upper() for n in m.group(1).split())
 
 def _search(criterion, M):
-    return r(M.search(None, criterion))
+    return r(M.search(None, 'UNDELETED ' + criterion))
 
 def _fetch(fetch, M, nums):
     for num in nums.split():
@@ -69,9 +69,10 @@ class Inbox(object):
         '''
         e = _just_email_address(from_field)
         nums = _search('FLAGGED UNDRAFT SUBJECT "%s"' % e, M)
-        for num, m in _fetch(nums, 'BODY.PEEK[HEADER.FIELDS (SUBJECT)]'):
-            if _just_email_addres(_parse_headers(m)['SUBJECT']) == e:
-                return num
+        for num, m in _fetch(nums, 'BODY.PEEK[HEADER.FIELDS (TO SUBJECT)]'):
+            h = _parse_headers(m)
+            if _just_email_addres(h['SUBJECT']) == e:
+                return num, h['TO']
 
     @staticmethod
     def new_orders(M):

@@ -24,21 +24,34 @@ def _message(**headers):
         m[key] = value
     return m  
 
-
 def process(num, from_address, subject):
-            yield num, _just_email_address(h['FROM']), h['SUBJECT']
-            for k, v in MATCHERS.items():
-                if re.match(v, h['SUBJECT']):
-                    action = k
-            else:
-                action = 'message'
+    for k, v in MATCHERS.items():
+        if re.match(v, h['SUBJECT']):
+            action = k
+    else:
+        action = 'message'
+    
+    # Defaults
+    code = None
 
+    if action == 'subscribe':
+        flags = '\\Flagged \\Draft \\Seen'
+        draft_num, code = subscriber(M, from_address)
+        if draft_num and code:
+            # Reuse the existing message.
+            M.store(draft_num, '+Flags', flags)
+        else:
+            code = _confirmation_code()
+            _append(M, flags, _message(to=code, subject=from_address))
 
-def subscribe(num, action, subject):
-    code = _confirmation_code()
-    _append(M, '\\Flagged \\Draft \\Seen',
-            _message(to=code, subject=from_address))
+    elif action == 'unsubscribe':
+        flags = '\\Flagged \\Seen'
+        draft_num, code = subscriber(M, from_address)
+        if draft_num and code:
+            M.store(draft_num, '+Flags', '\\Deleted')
+            _append(M, flags, _message(to=code, subject=from_address))
 
+    elif action == 'message':
     r(M.store(num, '+FLAGS', '\\Seen')
     return template.configure(
         'sender',
