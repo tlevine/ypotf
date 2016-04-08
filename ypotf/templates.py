@@ -2,8 +2,14 @@ from email.message import Message
 
 def confirmation(action, code):
     m = Message()
-    m['Subject'] = 'list-confirm-%s' % code
-    m.set_payload('Reply to confirm your %s' % action)
+    m['Subject'] = 'Verify your email address {%s}' % code
+    tpl = 'Reply to verify your email address and %s.'
+    _desc = {
+        'subscribe': 'finish subscribing',
+        'unsubscribe': 'unsubscribe',
+        'message': 'publish the message you just sent',
+    }
+    m.set_payload(tpl % _desc[action])
     return m
 
 def help():
