@@ -24,7 +24,7 @@ def _message(**headers):
         m[key] = value
     return m  
 
-def process(num, from_address, subject):
+def process(M, num, from_address, subject):
     for k, v in MATCHERS.items():
         if re.match(v, h['SUBJECT']):
             action = k
@@ -34,8 +34,12 @@ def process(num, from_address, subject):
     # Defaults
     code = None
 
-    if action == 'subscribe':
-        flags = '\\Flagged \\Draft \\Seen'
+    if action == 'help':
+        raise NotImplementedError
+    elif action == 'archive'
+        raise NotImplementedError
+    elif action == 'subscribe':
+        FLAGS = '\\FLAGGED \\DRAFT \\SEEN'
         draft_num, code = subscriber(M, from_address)
         if draft_num and code:
             # Reuse the existing message.
@@ -45,13 +49,29 @@ def process(num, from_address, subject):
             _append(M, flags, _message(to=code, subject=from_address))
 
     elif action == 'unsubscribe':
-        flags = '\\Flagged \\Seen'
+        FLAGS = '\\FLAGGED \\SEEN'
         draft_num, code = subscriber(M, from_address)
         if draft_num and code:
-            M.store(draft_num, '+Flags', '\\Deleted')
+            M.store(draft_num, '+FLAGS', '\\DELETED')
             _append(M, flags, _message(to=code, subject=from_address))
 
     elif action == 'message':
+        code = re.match(MATCHERS['confirmations'], subject).group(1)
+        c_num, c_action = searches.Inbox.confirmations(M, code)
+        if c_num and c_action:
+            if c_action == 'message':
+                M.copy(c_num, 'Sent')
+                M.store(c_num, '+FLAGS', '\\DELETED')
+            elif c_action == 'subscribe':
+                M.store(c_num, '-FLAGS', '\\DRAFT')
+            elif c_action == 'unsubscribe':
+                M.store(c_num, '-FLAGS', '\\FLAGGED')
+            else:
+                raise ValueError
+
+
+
+
     r(M.store(num, '+FLAGS', '\\Seen')
     return template.configure(
         'sender',

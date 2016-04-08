@@ -27,7 +27,7 @@ def _fetch(fetch, M, nums):
     for num in nums.split():
         yield num, r(M.fetch(num, fetch))
 
-class Sent(object):
+class sent(object):
     @staticmethod
     def n_sent(M, timedelta):
         '''
@@ -41,10 +41,9 @@ class Sent(object):
         :rtype: int
         '''
         criterion = 'SENTSINCE "%s"' % dt.strftime('%d-%b-%Y')
-        r(M.select('Sent'))
         return len(_search(criterion, M).split())
 
-class Inbox(object):
+class inbox(object):
     @staticmethod
     def subscribers(M):
         '''
