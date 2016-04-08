@@ -72,6 +72,9 @@ class Inbox(object):
         '''
         Search for non-Seen (just-received) emails.
         '''
+        nums = _search('UNSEEN', M)
+        message_parts = 'BODY.PEEK[HEADER.FIELDS (FROM SUBJECT)]'
+        return _fetch(message_parts, M, nums)
 
     @staticmethod
     def confirmations(M):
@@ -85,55 +88,13 @@ class Inbox(object):
         UNFLAGGED DRAFT
             Message confirmation
         '''
-        nums = _search('UNSEEN', M)
-
         criterion = re.sub(r'[\n ]+', ' ', '''
-            ( OR
-              UNSEEN
+            OR
+            ( FLAGGED DRAFT
               ( OR
-                ( FLAGGED DRAFT
-                  ( OR
-                    ( FLAGGED UNDRAFT TO "")
-                    ( UNFLAGGED DRAFT)))))''')
-        nums = _search(criterion , M)
-        out = {'confirmations': {}, 'new': []}
+                ( FLAGGED UNDRAFT TO "")
+                ( UNFLAGGED DRAFT)))''')
+        message_parts = '(FLAGS BODY.PEEK[HEADER.FIELDS (TO SUBJECT)])'
 
-        message_parts = 'BODY.PEEK[HEADER.FIELDS (TO SUBJECT)]'
-        for num, data in _fetch(message_parts, M, nums):
-            h = _parse_headers(data)
-
-            m = re.match(r'.*FLAGS \(([^)]+).*', m[0][0].decode('utf-8'))
-            if not m:
-                raise ValueError('Bad response: %s' % data)
-            flags = set(m.group(1).split())
-
-            if '\\UNSEEN' in flags:
-                # New message
-                out['new'].append(num)
-            elif {'\\FLAGGED', '\\DRAFT'}.issubset(flags):
-                # Subscribe confirmation
-                out['confirmations'][h['TO']] = {
-                    'action': 'subscribe',
-                    'address': h['SUBJECT'],
-                    'code': h['TO'],
-                    'num': num,
-                }
-            elif ('DRAFT' not in flags) and 'FLAGGED' in flags and 'TO' in h:
-                # Unsubscribe confirmation
-                out['confirmations'][h['TO']] = {
-                    'action': 'unsubscribe',
-                    'address': h['SUBJECT'],
-                    'code': h['TO'],
-                    'num': num,
-                }
-            elif 'DRAFT' in flags and not 'FLAGGED' in flags:
-                # Message confirmation
-                out['confirmations'][h['TO']] = {
-                    'action': 'message',
-                    'address': h['SUBJECT'],
-                    'code': h['TO'],
-                    'num': num,
-                }
-            else:
-                raise ValueError('Bad response: %s' % data)
-        return out
+        nums = _search(criterion, M)
+        return _fetch(message_parts, M, nums)
