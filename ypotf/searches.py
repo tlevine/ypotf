@@ -32,6 +32,11 @@ def n_sent(M, timedelta):
 # Flagged flag and without the Draft flag; these are the current
 # subscribers.
 def subscribers(M):
+    '''
+    :param imaplib.IMAP4_SSL M: A mailbox
+    :returns: Set of str email addresses of subscribers
+    :rtype: set
+    '''
     nums = _search('Inbox', 'FLAGGED UNDRAFT', M)
     x = 'BODY.PEEK[HEADER.FIELDS (SUBJECT)]'
     return set(m['subject'] for m in _fetch(x, M, nums))
