@@ -98,17 +98,3 @@ def process(confirmations, M, num):
             confirmation_code=code,
         )
 
-def _confirmation_code():
-    return bytes(randint(32, 126) for _ in range(32)).decode('ascii')
-
-def _append(M, flags, m):
-    d = tuple(datetime.datetime.now().timetuple())
-    if 'seen' not in flags.lower():
-        raise ValueError('"\\Seen" must be a flag.')
-    return r(M.append('Inbox', flags, d, m.as_bytes()))
-
-def _message(**headers):
-    m = Message()
-    for key, value in headers.items():
-        m[key] = value
-    return m  
