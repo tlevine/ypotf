@@ -12,7 +12,7 @@ def _just_email_address(x):
 
 def _parse_headers(x):
     lines = filter(None, re.split(r'[\r\n]+', x[0][1].decode('utf-8')))
-    return dict(re.split(r': ?', line.lower(), maxsplit=1) \
+    return dict(re.split(r': ?', line.upper(), maxsplit=1) \
                 for line in lines)
 
 def _parse_flags(x):
@@ -83,8 +83,9 @@ class inbox(object):
         message_parts = 'BODY.PEEK[HEADER.FIELDS (FROM SUBJECT)]'
         for num, m in _fetch(message_parts, M, nums):
             h = _parse_headers(m)
-            e = _just_email_address(h['FROM'])
-            yield num, e, h['SUBJECT'], h['MESSAGE-ID']
+            if {'FROM', 'SUBJECT', 'MESSAGE-ID'}.issubset(h):
+                e = _just_email_address(h['FROM'])
+                yield num, e, h['SUBJECT'], h['MESSAGE-ID']
 
     @staticmethod
     def confirmation(M, code):
