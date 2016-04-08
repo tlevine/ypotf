@@ -26,11 +26,12 @@ def ypotf(password, *quotas):
     r(M.select('Inbox'))
     orders = searches.inbox.new_orders(M)
     for num, from_address, subject, message_id in orders:
+        logger.info('Processing message from %s' % from_address)
         process(S, M, num, from_address, subject, message_id)
     r(M.close())
     r(M.logout(), 'BYE')
 
 def cli():
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.DEBUG)
     import horetu
     horetu.horetu(ypotf)

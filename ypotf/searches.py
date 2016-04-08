@@ -2,8 +2,11 @@
 TODO: Ignore from self because that's a good infinite loop.
 '''
 import re
+import logging
 
 from .utils import r
+
+logger = logging.getLogger(__name__)
 
 def _just_email_address(x):
     if '\\' in x or '"' in x:
@@ -12,8 +15,8 @@ def _just_email_address(x):
 
 def _parse_headers(x):
     lines = filter(None, re.split(r'[\r\n]+', x[0][1].decode('utf-8')))
-    return dict(re.split(r': ?', line.upper(), maxsplit=1) \
-                for line in lines)
+    pairs = (re.split(r': ?', line, maxsplit=1) for line in lines)
+    return {k.upper():v for k,v in pairs}
 
 def _parse_flags(x):
     m = re.match('[0-9 (]+FLAGS \(([^)]+)', x[0].decode('utf-8'))
@@ -80,12 +83,17 @@ class inbox(object):
         Search for non-Seen (just-received) emails.
         '''
         nums = _search('UNSEEN', M)
-        message_parts = 'BODY.PEEK[HEADER.FIELDS (FROM SUBJECT)]'
+        logger.debug('Found %d new orders' % (nums.count(b' ')+1))
+
+        message_parts = 'BODY.PEEK[HEADER.FIELDS (FROM SUBJECT MESSAGE-ID)]'
         for num, m in _fetch(message_parts, M, nums):
             h = _parse_headers(m)
             if {'FROM', 'SUBJECT', 'MESSAGE-ID'}.issubset(h):
                 e = _just_email_address(h['FROM'])
                 yield num, e, h['SUBJECT'], h['MESSAGE-ID']
+            else:
+                logger.warning('Message %s is missing headers' %
+                               num.decode('ascii'))
 
     @staticmethod
     def confirmation(M, code):

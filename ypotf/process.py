@@ -29,7 +29,7 @@ def _message(**headers):
 
 def process(S, M, num, from_address, subject, message_id):
     for k, v in MATCHERS.items():
-        if re.match(v, h['SUBJECT']):
+        if re.match(v, subject):
             action = k
     else:
         action = 'message'
