@@ -17,16 +17,17 @@ def _fetch(fetch, M, nums):
 
 # Search the Sent folder with the SENTSINCE search key to assess quotas
 # (one search per quota)
-def sent(M, datetime):
+def sent_since(M, datetime):
     criterion = 'SENTSINCE "01-JAN-2014"' % datetime.strftime('%d-%b-%Y')
-    n = len(_search('Sent', criterion, M).split())
+    return len(_search('Sent', criterion, M).split())
 
 # Search the Inbox folder for the subject fields of messages with the
 # Flagged flag and without the Draft flag; these are the current
 # subscribers.
 def subscribers(M):
     nums = _search('Inbox', 'FLAGGED UNDRAFT', M)
-    _fetch('BODY.PEEK[HEADER.FIELDS (SUBJECT)]', M, nums)
+    x = 'BODY.PEEK[HEADER.FIELDS (SUBJECT)]'
+    return set(m['subject'] for m in _fetch(x, M, nums))
 }
 
 # Search for Draft (confirmation) and non-Seen (just-received) emails.
