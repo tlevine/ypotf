@@ -86,8 +86,6 @@ class Transaction(object):
         return r(self.M.append(box, flags, d, m.as_bytes()))
 
 def process(S, M, num, from_address, subject, message_id):
-    _send = partial(send.send, S, M)
-
     for k, v in MATCHERS.items():
         if re.match(v, subject):
             action = k
