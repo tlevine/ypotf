@@ -38,6 +38,13 @@ def _append(box, M, flags, m):
 ----------------------------------------''' % (box, m))
     return r(M.append(box, flags, d, m.as_bytes()))
 
+
+log_tpl = '''Sending this message
+----------------------------------------
+%s
+----------------------------------------'''
+list_address = '_@dada.pink'
+
 class Transaction(object):
     def __init__(self, S, M):
         self.S = S
@@ -68,10 +75,15 @@ class Transaction(object):
     def _store(self, num, action, flags):
         return r(M.store(num, action, flags))
 
-    def send(self, msg, address):
-        = partial(send.send, S, M)
-                (send, (templates.confirmation(action, code),
-                        from_address)),
+    def send(self, msg, to_addresses):
+        for to_address in to_addresses:
+            # This is not reverted.
+            _append('Sent', self.M, '\\SEEN', msg)
+            S.send_message(msg, list_address, [to_address])
+
+    def append(self, box, msg, flags):
+        # This is not reverted.
+        _append(box, self.M, '\\SEEN \\DRAFT', msg)
 
 def process(S, M, num, from_address, subject, message_id):
     _send = partial(send.send, S, M)
@@ -85,8 +97,8 @@ def process(S, M, num, from_address, subject, message_id):
     
     with Transaction() as t:
         if action == 'help':
-            _send(templates.help(), from_address)
-            r(M.store(num, '+FLAGS', '\\SEEN \\ANSWERED'))
+            t.plus_flags(num, '\\SEEN \\ANSWERED')
+            t.send(templates.help(), from_address)
 
         elif action == 'list-archive':
             raise NotImplementedError
@@ -94,7 +106,6 @@ def process(S, M, num, from_address, subject, message_id):
         elif action == 'message':
             code = _confirmation_code()
             data = r(M.fetch(num, '(RFC822)'))
-
             m = message_from_bytes(data[0][1])
             m['TO'] = code
 

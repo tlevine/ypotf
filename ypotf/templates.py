@@ -35,7 +35,7 @@ LIST_HEADERS = {
     'List-Subscribe': 'mailto:_@dada.pink?subject=subscribe',
 }
 
-def message(msg):
+def finish(msg):
     for header in msg:
         if header.lower() not in FORWARDED_HEADERS:
             del(msg[header])
