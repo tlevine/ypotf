@@ -15,8 +15,6 @@ def ypotf(password, *quotas):
     subs = searches.subscribers(M)
     orders = searches.orders(M)
     for num in orders['new']:
-        m = message_from_bytes(r(M.fetch(num, '(RFC822)'))[0][1])
-        m['subject']
 
 def cli():
     logging.basicConfig(level=logging.INFO)
