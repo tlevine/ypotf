@@ -46,7 +46,25 @@ def subscribers(M):
 
 # Search for Draft (confirmation) and non-Seen (just-received) emails.
 def orders(M):
-    nums = _search('Inbox', 'OR (FLAGGED DRAFT) UNSEEN', M)
+    '''
+    UNSEEN
+        New order, not a confirmation for a previous order
+    FLAGGED DRAFT
+        Subscription confirmation
+    FLAGGED UNDRAFT TO ""
+        Unsubscription confirmation
+    UNFLAGGED DRAFT
+        Message confirmation
+    '''
+    criterion = re.sub(r'[\n ]+', ' ', '''
+        ( OR
+          UNSEEN
+          ( OR
+            ( FLAGGED DRAFT
+              ( OR
+                ( FLAGGED UNDRAFT TO "")
+                ( UNFLAGGED DRAFT)))))''')
+    nums = _search('Inbox', criterion , M)
     out = {'confirmations': {}, 'new': []}
     criterion = 'BODY.PEEK[HEADER.FIELDS (TO SUBJECT)]'
     for num, data in _fetch(criterion, M, nums):
@@ -57,15 +75,15 @@ def orders(M):
             raise ValueError('Bad response: %s' % data)
         flags = set(m.group(1).split())
 
-        if {'\\FLAGGED', '\\DRAFT'}.issubset(flags):
+        if '\\UNSEEN' in flags:
+            out['new'].append(num)
+        elif {'\\FLAGGED', '\\DRAFT'}.issubset(flags):
             # This is a pending confirmation
             out['confirmations'][h['to']] = {
                 'address': h['subject'],
                 'code': h['to'],
                 'num': num,
             }
-        elif '\\UNSEEN' in flags:
-            out['new'].append(num)
         else:
             raise ValueError('Bad response: %s' % data)
     return out
