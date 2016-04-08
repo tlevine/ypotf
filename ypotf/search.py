@@ -3,6 +3,7 @@ TODO: Ignore from self because that's a good infinite loop.
 '''
 import re
 import logging
+import textwrap
 
 from .utils import r
 
@@ -23,9 +24,12 @@ def _parse_flags(x):
     if m:
         return set(n.upper() for n in m.group(1).split())
 
+def _block(x):
+    return '\n%s\n' % textwrap.indent(textwrap.fill(x.strip(), 50), '  ')
+
 def _search(criterion, M):
     x = 'UNDELETED ' + criterion
-    logger.debug('Searching: %s' % x)
+    logger.debug('Searching:\n%s' % _block(x))
     return r(M.search(None, x))
 
 def _fetch(fetch, M, nums):
