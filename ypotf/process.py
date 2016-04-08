@@ -50,15 +50,11 @@ def process(confirmations, M, num):
         code = re.match(MATCHERS['confirmations'], m['subject']).group(1)
         confirmation = confirmations[code]
 
-        if action == 'message':
-            logger.debug('Sending message %d' % confirmation['num'])
+        if confirmation['action'] == 'message':
+        elif confirmation['action'] == 'subscribe':
+        elif confirmation['action'] == 'unsubscribe':
         else:
-            if action == 'subscribe':
-                subscribers[argument] = ''
-            elif action == 'unsubscribe':
-                del(subscribers[argument])
-            else:
-                raise ValueError
+            raise ValueError
 
     elif re.match(MATCHERS['help'], m['subject']):
         _log('help')

@@ -82,7 +82,7 @@ def orders(M):
         elif {'\\FLAGGED', '\\DRAFT'}.issubset(flags):
             # Subscribe confirmation
             out['confirmations'][h['TO']] = {
-                'kind': 'subscribe',
+                'action': 'subscribe',
                 'address': h['SUBJECT'],
                 'code': h['TO'],
                 'num': num,
@@ -90,7 +90,7 @@ def orders(M):
         elif ('DRAFT' not in flags) and 'FLAGGED' in flags and 'TO' in h:
             # Unsubscribe confirmation
             out['confirmations'][h['TO']] = {
-                'kind': 'unsubscribe',
+                'action': 'unsubscribe',
                 'address': h['SUBJECT'],
                 'code': h['TO'],
                 'num': num,
@@ -98,7 +98,7 @@ def orders(M):
         elif 'DRAFT' in flags and not 'FLAGGED' in flags:
             # Message confirmation
             out['confirmations'][h['TO']] = {
-                'kind': 'message',
+                'action': 'message',
                 'address': h['SUBJECT'],
                 'code': h['TO'],
                 'num': num,
