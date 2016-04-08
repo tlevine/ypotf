@@ -26,8 +26,8 @@ CHARACTERS = string.ascii_lowercase + string.digits
 def _confirmation_code():
     return ''.join(sample(CHARACTERS, 32))
 
-def _store(M, num, flags):
-    return r(M.store(num, flags))
+def _store(M, num, action, flags):
+    return r(M.store(num, action, flags))
 
 def _append(box, M, flags, m):
     d = tuple(datetime.datetime.now().timetuple())
@@ -51,7 +51,7 @@ class Transaction(object):
         return self._queue
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        if self.transaction and exc_type is not None:
+        if exc_type is not None:
             logger.info('Exception occurred in transaction, aborting.')
         else:
             for f, args in self._queue:
