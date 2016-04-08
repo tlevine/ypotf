@@ -5,7 +5,7 @@ from . import searches
 
 logger = logging.getLogger(__name__)
 
-class LimitedSMTP(smtplib.SMTP):
+class LimitedSMTP(smtplib.SMTP_SSL):
 
     def __init__(self, N, *args, **kwargs):
         '''

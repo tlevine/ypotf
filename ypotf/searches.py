@@ -82,7 +82,8 @@ class inbox(object):
         message_parts = 'BODY.PEEK[HEADER.FIELDS (FROM SUBJECT)]'
         for num, m in _fetch(message_parts, M, nums):
             h = _parse_headers(m)
-            yield num, _just_email_address(h['FROM']), h['SUBJECT']
+            e = _just_email_address(h['FROM'])
+            yield num, e, h['SUBJECT'], h['MESSAGE-ID']
 
     @staticmethod
     def confirmation(M, code):

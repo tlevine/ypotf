@@ -27,7 +27,7 @@ def _message(**headers):
         m[key] = value
     return m  
 
-def process(M, num, from_address, subject, message_id):
+def process(S, M, num, from_address, subject, message_id):
     for k, v in MATCHERS.items():
         if re.match(v, h['SUBJECT']):
             action = k
