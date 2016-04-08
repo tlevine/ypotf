@@ -29,7 +29,9 @@ def ypotf(password, *quotas):
     N = sending_quota_for_this_session(M, quotas)
     subs = searches.subscribers(M)
     orders = searches.orders(M)
-    for m in orders['new']:
+    for num in orders['new']:
+        m = message_from_bytes(r(M.fetch(num, '(RFC822)'))[0][1])
+        
 
 def sending_quota_for_this_session(M, quotas):
     N = None
