@@ -7,7 +7,7 @@ from .utils import r
 
 def _parse_headers(x):
     lines = re.split(r'[\r\n]+', x[0][1].decode('utf-8'))
-    return dict(re.split(r': ?', line, maxsplit=1) for line in lines)
+    return dict(re.split(r': ?', line, maxsplit=1) for line.lower() in lines)
 
 def _search(folder, criterion, M):
     r(M.select(folder))
@@ -42,7 +42,7 @@ def subscribers(M):
     nums = _search('Inbox', 'FLAGGED UNDRAFT', M)
     x = 'BODY.PEEK[HEADER.FIELDS (SUBJECT)]'
     headers = (_parse_headers(m) for _, m in _fetch(x, M, nums))
-    return set(m['subject'] for m in headers)
+    return set(m['SUBJECT'] for m in headers)
 
 # Search for Draft (confirmation) and non-Seen (just-received) emails.
 def orders(M):
@@ -66,8 +66,9 @@ def orders(M):
                 ( UNFLAGGED DRAFT)))))''')
     nums = _search('Inbox', criterion , M)
     out = {'confirmations': {}, 'new': []}
-    criterion = 'BODY.PEEK[HEADER.FIELDS (TO SUBJECT)]'
-    for num, data in _fetch(criterion, M, nums):
+
+    message_parts = 'BODY.PEEK[HEADER.FIELDS (TO SUBJECT)]'
+    for num, data in _fetch(message_parts, M, nums):
         h = _parse_headers(data)
 
         m = re.match(r'.*FLAGS \(([^)]+).*', m[0][0].decode('utf-8'))
@@ -76,12 +77,30 @@ def orders(M):
         flags = set(m.group(1).split())
 
         if '\\UNSEEN' in flags:
+            # New message
             out['new'].append(num)
         elif {'\\FLAGGED', '\\DRAFT'}.issubset(flags):
-            # This is a pending confirmation
-            out['confirmations'][h['to']] = {
-                'address': h['subject'],
-                'code': h['to'],
+            # Subscribe confirmation
+            out['confirmations'][h['TO']] = {
+                'kind': 'subscribe',
+                'address': h['SUBJECT'],
+                'code': h['TO'],
+                'num': num,
+            }
+        elif ('DRAFT' not in flags) and 'FLAGGED' in flags and 'TO' in h:
+            # Unsubscribe confirmation
+            out['confirmations'][h['TO']] = {
+                'kind': 'unsubscribe',
+                'address': h['SUBJECT'],
+                'code': h['TO'],
+                'num': num,
+            }
+        elif 'DRAFT' in flags and not 'FLAGGED' in flags:
+            # Message confirmation
+            out['confirmations'][h['TO']] = {
+                'kind': 'message',
+                'address': h['SUBJECT'],
+                'code': h['TO'],
                 'num': num,
             }
         else:
