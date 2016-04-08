@@ -15,12 +15,11 @@ def ypotf(password, *quotas, n:int=0, list_subscribers=False):
 
     :param str password: Password for the account
     :param str quotas: Sending rate limits in the form "$minutes:$count"
-    :param int n: Absolute maximum number of emails to send this session
+    :param int n: Number of incoming emails to process this session
+        If it is zero (the default), it is ignored.
 
-    I determine the number of emails to send this session by evaluating
-    the quotas and then taking the minimum of the number from those and
-    from the "n" parameter. If n is zero (the default), it is ignored.
-    If no quotas and no n are set, there is no maximum.
+    The max emails to send this session is the minimum that I determine
+    from all quotas.
     '''
     imap_host = smtp_host = 'mail.gandi.net'
     imap_username = smtp_username = '_@dada.pink'
