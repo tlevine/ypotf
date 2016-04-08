@@ -86,7 +86,7 @@ class inbox(object):
         for num, m in _fetch(x, M, nums):
             h = _parse_headers(m)
             if _just_email_address(h['SUBJECT']) == e:
-                return num, h['TO']
+                return num, h.get('TO') # None if already subscribed
         return None, None
 
     @staticmethod

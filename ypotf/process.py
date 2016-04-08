@@ -57,6 +57,23 @@ class Transaction(object):
             for f, args in self._queue:
                 f(*args)
 
+FORWARDED_HEADERS = {
+    'from', 'to',
+    'cc', 'subject', 'date',
+    'user-agent',
+    'mime-version', 'content-type', 'content-transfer-encoding',
+    'message-id', 'in-reply-to', 'references',
+}
+LIST_HEADERS = {
+    'From': '_@dada.pink',
+    'List-Id': '_.dada.pink',
+    'List-Unsubscribe': 'mailto:_@dada.pink?subject=unsubscribe',
+    'List-Archive': 'mailto:_@dada.pink?subject=list-archive',
+    'List-Post': 'mailto:_@dada.pink',
+    'List-Help': 'mailto:_@dada.pink?subject=help',
+    'List-Subscribe': 'mailto:_@dada.pink?subject=subscribe',
+}
+
 def process(S, M, num, from_address, subject, message_id):
     for k, v in MATCHERS.items():
         if re.match(v, subject):
@@ -72,8 +89,11 @@ def process(S, M, num, from_address, subject, message_id):
         else:
             to_addresses = {to_address}
         for to_address in to_addresses:
-            msg['To'] = to_address
-            msg['From'] = '_@dada.pink'
+            for header in msg:
+                if header.lower() not in FORWARDED_HEADERS:
+                    del(msg[header])
+            if 'from' not in msg:
+                msg.update(LIST_HEADERS)
 
             logger.debug('''Sending this message
 ----------------------------------------
@@ -82,7 +102,8 @@ def process(S, M, num, from_address, subject, message_id):
 
             with Transaction() as t:
                 t.extend([
-                    (S.send_message, (msg,)),
+                    (S.send_message,
+                        (msg, '_@dada.pink', [to_address])),
                     (_append, ('Sent', M, '\\SEEN', msg)),
                 ])
 
@@ -115,6 +136,9 @@ def process(S, M, num, from_address, subject, message_id):
         if draft_num and code:
             logger.debug('Reusing existing pending confirmation')
             r(M.store(draft_num, '+Flags', flags))
+        elif draft_num:
+            logger.debug('Already subscribed')
+            raise NotImplementedError
         else:
             logger.debug('Creating a new pending confirmation')
             code = _confirmation_code()
