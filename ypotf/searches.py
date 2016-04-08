@@ -43,8 +43,6 @@ def subscribers(M):
 }
 
 # Search for Draft (confirmation) and non-Seen (just-received) emails.
-orders = {
-    'folder': 'Inbox',
-    'criterion': 'OR DRAFT UNSEEN',
-    'fetch': 'BODY.PEEK[HEADER.FIELDS (TO SUBJECT)]',
-}
+def new_orders(M):
+    nums = _search('Inbox', 'OR DRAFT UNSEEN', M)
+    ms = _fetch('BODY.PEEK[HEADER.FIELDS (TO SUBJECT)]', M, nums)
