@@ -145,9 +145,9 @@ def process(S, M, num, from_address, subject, message_id):
         draft_num, draft_action = search.inbox.confirmation(M, code)
         if draft_num and draft_action:
             if draft_action == 'message':
-                data = r(M.fetch(num, '(RFC822)'))
-
+                data = r(M.fetch(draft_num, '(RFC822)'))
                 send(message_from_bytes(data[0][1]), None)
+
                 r(M.copy(draft_num, 'Sent'))
                 r(M.store(draft_num, '+FLAGS', '\\DELETED'))
 
