@@ -11,10 +11,12 @@ def ypotf(password, *quotas):
     M = imaplib.IMAP4_SSL('mail.gandi.net')
     r(M.login('_@dada.pink', password))
 
+    # "Sent" folder
     N = quota.quota(M, quotas)
-    subs = searches.subscribers(M)
-    orders = searches.orders(M)
-    for num in orders['new']:
+
+    # "Inbox" folder
+    for num, action, subject in searches.Inbox.new_orders(M):
+        getattr(process, action)(M, num, subject)
 
 def cli():
     logging.basicConfig(level=logging.INFO)

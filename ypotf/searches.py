@@ -87,7 +87,7 @@ class Inbox(object):
                     action = k
             else:
                 action = 'message'
-            yield num, action
+            yield num, action, subject
 
     @staticmethod
     def confirmation(M, code):
