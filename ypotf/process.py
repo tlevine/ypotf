@@ -108,13 +108,3 @@ def process(M, num, from_address, subject, message_id):
 
     else:
         raise ValueError('Bad action')
-
-
-
-    return template.configure(
-        'sender',
-        to_address=m['From'],
-        references=m['message-id'],
-        subject=subject,
-        confirmation_code=code,
-    )
