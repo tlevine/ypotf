@@ -128,6 +128,8 @@ def process(S, M, num, from_address, subject, message_id):
 
             else:
                 raise ValueError
+        else:
+            logger.warning('Invalid confirmation code')
 
     else:
         raise ValueError('Bad action')
