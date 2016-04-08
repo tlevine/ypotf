@@ -26,8 +26,7 @@ CHARACTERS = string.ascii_lowercase + string.digits
 def _confirmation_code():
     return ''.join(sample(CHARACTERS, 32))
 
-def _append(M, flags, m):
-    box = 'Inbox'
+def _append(box, M, flags, m):
     d = tuple(datetime.datetime.now().timetuple())
     if 'seen' not in flags.lower():
         raise ValueError('"\\Seen" must be a flag.')
@@ -53,17 +52,20 @@ def process(S, M, num, from_address, subject, message_id):
     
     def send(msg, to_address):
         if to_address == None:
-            raise NotImplementedError
+            to_addresses = search.inbox.subscribers(M)
         else:
+            to_addresses = {to_address}
+        for to_address in to_addresses:
             msg['To'] = to_address
-        msg['From'] = '_@dada.pink'
+            msg['From'] = '_@dada.pink'
 
-        logger.debug('''Sending this message
+            logger.debug('''Sending this message
 ----------------------------------------
 %s
 ----------------------------------------''' % msg)
 
-        S.send_message(msg)
+            S.send_message(msg)
+            _append('Sent', M, '\\SEEN', msg)
 
     if action == 'help':
         send(_help(), from_address)
@@ -80,7 +82,7 @@ def process(S, M, num, from_address, subject, message_id):
         m['TO'] = code
 
         send(templates.confirmation_message(action, code), from_address)
-        _append(M, '\\SEEN \\DRAFT', m)
+        _append('Inbox', M, '\\SEEN \\DRAFT', m)
         r(M.store(num, '+FLAGS', '\\SEEN \\ANSWERED'))
 
     elif action == 'subscribe':
@@ -93,7 +95,8 @@ def process(S, M, num, from_address, subject, message_id):
         else:
             logger.debug('Creating a new pending confirmation')
             code = _confirmation_code()
-            _append(M, flags, _message(to=code, subject=from_address))
+            _append('Inbox', M, flags,
+                    _message(to=code, subject=from_address))
 
         send(templates.confirmation_message(action, code), from_address)
         r(M.store(num, '+FLAGS', '\\SEEN \\ANSWERED'))
@@ -103,7 +106,7 @@ def process(S, M, num, from_address, subject, message_id):
         if draft_num and code:
             # Add confirmation code to unsubscribe message.
             M.store(draft_num, '+FLAGS', '\\DELETED')
-            _append(M, '\\FLAGGED \\SEEN',
+            _append('Inbox', M, '\\FLAGGED \\SEEN',
                     _message(to=code, subject=from_address))
             send(templates.confirmation_message(action, code),
                  from_address)
@@ -131,7 +134,7 @@ def process(S, M, num, from_address, subject, message_id):
 
                 r(M.store(num, '+FLAGS', '\\SEEN'))
                 M.store(draft_num, '+FLAGS', '\\DELETED')
-                _append(M, '\\FLAGGED \\SEEN \\DRAFT', m)
+                _append('Inbox', M, '\\FLAGGED \\SEEN \\DRAFT', m)
 
             elif c_action == 'unsubscribe':
                 r(M.store(c_num, '-FLAGS', '\\FLAGGED'))
