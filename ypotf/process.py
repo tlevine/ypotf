@@ -3,12 +3,14 @@ import re
 import logging
 import datetime
 import string
+from functools import partial
 
 from email.message import Message
 from email import message_from_bytes
 
 from . import templates
 from . import search
+from . import send
 from .utils import r
 
 logger = logging.getLogger(__name__)
@@ -72,24 +74,9 @@ class Transaction(object):
         return r(M.store(num, action, flags))
 
 
-FORWARDED_HEADERS = {
-    'from', 'to',
-    'cc', 'subject', 'date',
-    'user-agent',
-    'mime-version', 'content-type', 'content-transfer-encoding',
-    'message-id', 'in-reply-to', 'references',
-}
-LIST_HEADERS = {
-    'From': '_@dada.pink',
-    'List-Id': '_.dada.pink',
-    'List-Unsubscribe': 'mailto:_@dada.pink?subject=unsubscribe',
-    'List-Archive': 'mailto:_@dada.pink?subject=list-archive',
-    'List-Post': 'mailto:_@dada.pink',
-    'List-Help': 'mailto:_@dada.pink?subject=help',
-    'List-Subscribe': 'mailto:_@dada.pink?subject=subscribe',
-}
-
 def process(S, M, num, from_address, subject, message_id):
+    _send = partial(send.send, S, M)
+
     for k, v in MATCHERS.items():
         if re.match(v, subject):
             action = k
@@ -97,39 +84,8 @@ def process(S, M, num, from_address, subject, message_id):
     else:
         action = 'message'
     
-    def send(msg, to_address):
-        if to_address == None:
-            to_addresses = search.inbox.subscribers(M)
-            logger.info('Sending to %d addresses' % len(to_addresses))
-        else:
-            to_addresses = {to_address}
-        for to_address in to_addresses:
-            for header in msg:
-                if header.lower() not in FORWARDED_HEADERS:
-                    del(msg[header])
-            if 'From' not in msg:
-                for k, v in LIST_HEADERS.items():
-                    if k in msg:
-                        del(msg[k])
-                    msg[k] = v
-            if '@' not in msg.get('To', ''):
-                del(msg['To'])
-                msg['To'] = '_@dada.pink'
-
-            logger.debug('''Sending this message
-----------------------------------------
-%s
-----------------------------------------''' % msg)
-
-            with Transaction() as t:
-                t.extend([
-                    (S.send_message,
-                        (msg, '_@dada.pink', [to_address])),
-                    (_append, ('Sent', M, '\\SEEN', msg)),
-                ])
-
     if action == 'help':
-        send(templates.help(), from_address)
+        _send(templates.help(), from_address)
         r(M.store(num, '+FLAGS', '\\SEEN \\ANSWERED'))
 
     elif action == 'list-archive':
@@ -166,7 +122,7 @@ def process(S, M, num, from_address, subject, message_id):
             _append('Inbox', M, flags,
                     _message(to=code, subject=from_address))
 
-        send(templates.confirmation_message(action, code), from_address)
+        _send(templates.confirmation_message(action, code), from_address)
         r(M.store(num, '+FLAGS', '\\SEEN \\ANSWERED'))
 
     elif action == 'unsubscribe':
@@ -191,7 +147,7 @@ def process(S, M, num, from_address, subject, message_id):
         if draft_num and draft_action:
             if draft_action == 'message':
                 data = r(M.fetch(draft_num, '(RFC822)'))
-                send(message_from_bytes(data[0][1]), None)
+                _send(message_from_bytes(data[0][1]), None)
 
                 r(M.copy(draft_num, 'Sent'))
                 r(M.store(draft_num, '+FLAGS', '\\DELETED'))
