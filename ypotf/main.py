@@ -28,7 +28,7 @@ def ypotf(password, *quotas):
     for num, from_address, subject, message_id in orders:
         process(S, M, num, from_address, subject, message_id)
     r(M.close())
-    r(M.logout())
+    r(M.logout(), 'BYE')
 
 def cli():
     logging.basicConfig(level=logging.INFO)

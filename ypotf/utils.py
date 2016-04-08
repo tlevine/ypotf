@@ -1,4 +1,4 @@
-def r(x):
+def r(x, expected='OK'):
     typ, data = x
-    assert typ == 'OK', typ
+    assert typ == expected, typ
     return data
