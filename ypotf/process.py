@@ -46,7 +46,7 @@ class Transaction(object):
     def __enter__(self):
         self._finalize = []
         self._revert = []
-        return self._finalize
+        return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if exc_type is None:
@@ -68,7 +68,7 @@ class Transaction(object):
     def _store(self, num, action, flags):
         return r(self.M.store(num, action, flags))
 
-    def send(self, msg, to_addresses):
+    def send(self, msg, *to_addresses):
         'This is not reverted.'
         logger.info('Sending to %d addresses' % len(to_addresses))
         final_msg = templates._finish(msg, list_address)
@@ -78,7 +78,7 @@ class Transaction(object):
             self.append('Sent', '\\SEEN', final_msg)
             self.S.send_message(final_msg, list_address, [to_address])
 
-    def append(self, box, flags, msg):
+    def append(self, box, flags, m):
         'This is not reverted.'
         d = tuple(datetime.datetime.now().timetuple())
         if 'seen' not in flags.lower():
@@ -94,7 +94,7 @@ def process(S, M, num, from_address, subject, message_id):
     else:
         action = 'message'
     
-    with Transaction() as t:
+    with Transaction(S, M) as t:
         if action == 'help':
             t.plus_flags(num, '\\SEEN \\ANSWERED')
             t.send(templates.help(), from_address)
@@ -104,7 +104,7 @@ def process(S, M, num, from_address, subject, message_id):
 
         elif action == 'message':
             code = _confirmation_code()
-            data = r(self.M.fetch(num, '(RFC822)'))
+            data = r(M.fetch(num, '(RFC822)'))
             m = message_from_bytes(data[0][1])
             m['TO'] = code
 
@@ -148,15 +148,15 @@ def process(S, M, num, from_address, subject, message_id):
             draft_num, draft_action = search.inbox.confirmation(M, code)
             if draft_num and draft_action:
                 if draft_action == 'message':
-                    data = r(self.M.fetch(draft_num, '(RFC822)'))
+                    data = r(M.fetch(draft_num, '(RFC822)'))
                     to_addresses = search.inbox.subscribers(M)
 
                     t.plus_flags(draft_num, '\\DELETED')
                     t.plus_flags(num, '\\ANSWERED')
-                    t.send(message_from_bytes(data[0][1]), to_addresses)
+                    t.send(message_from_bytes(data[0][1]), *to_addresses)
 
                 elif draft_action == 'subscribe':
-                    data = r(self.M.fetch(draft_num, '(RFC822)'))
+                    data = r(M.fetch(draft_num, '(RFC822)'))
                     m = message_from_bytes(data[0][1])
                     del(m['TO'])
                     t.plus_flags(draft_num, '\\DELETED')
