@@ -4,16 +4,17 @@ Processors take a mailbox with the +INBOX folder selected.
 They return a message that should be sent, or None.
 '''
 import datetime
-from random import randint
 import re
 import logging
 
+from random import randint
 from .utils import r
 
 logger = logging.getLogger(__name__)
 
 MATCHERS = {k: re.compile(v, flags=re.IGNORECASE) for (k,v) in [
-    ('subscriptions', r'^(?:un)?subscribe$'),
+    ('subscribe', r'^subscribe$'),
+    ('unsubscribe', r'^unsubscribe$'),
     ('confirmations', r'list-confirm-[a-z0-9]{32}'),
 #   ('archive', r'^list-archive'),
     ('help', r'^help$'),
@@ -58,8 +59,7 @@ def process(confirmations, M, num):
 
     elif re.match(MATCHERS['help'], m['subject']):
         _log('help')
-        storage.archive_message(M, num)
-        r(M.close())
+        raise NotImplementedError
         return template.configure(
             'sender',
             to_address=m['From'],
