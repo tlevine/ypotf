@@ -17,8 +17,15 @@ def _fetch(fetch, M, nums):
 
 # Search the Sent folder with the SENTSINCE search key to assess quotas
 # (one search per quota)
-def sent_since(M, datetime):
-    criterion = 'SENTSINCE "01-JAN-2014"' % datetime.strftime('%d-%b-%Y')
+def n_sent(M, timedelta):
+    '''
+    :param imaplib.IMAP4_SSL M: A mailbox
+    :type timedelta: datetime.timedelta or int
+    :param timedelta: A time duration, integers interpreted as minutes
+    :returns: The number of messages
+    :rtype: int
+    '''
+    criterion = 'SENTSINCE "01-JAN-2014"' % dt.strftime('%d-%b-%Y')
     return len(_search('Sent', criterion, M).split())
 
 # Search the Inbox folder for the subject fields of messages with the
