@@ -113,7 +113,7 @@ def process(S, M, num, from_address, subject, message_id):
 
         if draft_num and code:
             logger.debug('Reusing existing pending confirmation')
-            M.store(draft_num, '+Flags', flags)
+            r(M.store(draft_num, '+Flags', flags))
         else:
             logger.debug('Creating a new pending confirmation')
             code = _confirmation_code()
@@ -150,25 +150,23 @@ def process(S, M, num, from_address, subject, message_id):
                 r(M.copy(draft_num, 'Sent'))
                 r(M.store(draft_num, '+FLAGS', '\\DELETED'))
 
-                r(M.store(num, '+FLAGS', '\\SEEN \\ANSWERED'))
+                r(M.store(num, '+FLAGS', '\\ANSWERED'))
 
             elif draft_action == 'subscribe':
                 data = r(M.fetch(draft_num, '(RFC822)'))
                 m = message_from_bytes(data[0][1])
                 del(m['TO'])
-
-                r(M.store(num, '+FLAGS', '\\SEEN'))
-                M.store(draft_num, '+FLAGS', '\\DELETED')
+                r(M.store(draft_num, '+FLAGS', '\\DELETED'))
                 _append('Inbox', M, '\\FLAGGED \\SEEN \\DRAFT', m)
 
             elif c_action == 'unsubscribe':
                 r(M.store(c_num, '-FLAGS', '\\FLAGGED'))
-                r(M.store(num, '+FLAGS', '\\SEEN'))
 
             else:
                 raise ValueError
         else:
             logger.warning('Invalid confirmation code')
+        r(M.store(num, '+FLAGS', '\\SEEN'))
 
     else:
         raise ValueError('Bad action')
