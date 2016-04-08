@@ -38,14 +38,9 @@ def _append(box, M, flags, m):
 ----------------------------------------''' % (box, m))
     return r(M.append(box, flags, d, m.as_bytes()))
 
-def _message(**headers):
-    m = Message()
-    for key, value in headers.items():
-        m[key] = value
-    return m  
-
 class Transaction(object):
-    def __init__(self, M):
+    def __init__(self, S, M):
+        self.S = S
         self.M = M
 
     def __enter__(self):
@@ -73,6 +68,10 @@ class Transaction(object):
     def _store(self, num, action, flags):
         return r(M.store(num, action, flags))
 
+    def send(self, msg, address):
+        = partial(send.send, S, M)
+                (send, (templates.confirmation(action, code),
+                        from_address)),
 
 def process(S, M, num, from_address, subject, message_id):
     _send = partial(send.send, S, M)
@@ -84,91 +83,91 @@ def process(S, M, num, from_address, subject, message_id):
     else:
         action = 'message'
     
-    if action == 'help':
-        _send(templates.help(), from_address)
-        r(M.store(num, '+FLAGS', '\\SEEN \\ANSWERED'))
+    with Transaction() as t:
+        if action == 'help':
+            _send(templates.help(), from_address)
+            r(M.store(num, '+FLAGS', '\\SEEN \\ANSWERED'))
 
-    elif action == 'list-archive':
-        raise NotImplementedError
+        elif action == 'list-archive':
+            raise NotImplementedError
 
-    elif action == 'message':
-        code = _confirmation_code()
-        data = r(M.fetch(num, '(RFC822)'))
+        elif action == 'message':
+            code = _confirmation_code()
+            data = r(M.fetch(num, '(RFC822)'))
 
-        m = message_from_bytes(data[0][1])
-        m['TO'] = code
+            m = message_from_bytes(data[0][1])
+            m['TO'] = code
 
-        with Transaction() as t:
             t.extend([
-                (send, (templates.confirmation_message(action, code),
+                (send, (templates.confirmation(action, code),
                         from_address)),
                 (_append, ('Inbox', M, '\\SEEN \\DRAFT', m)),
             ])
             t.plus_flags(num, '\\SEEN \\ANSWERED')
 
-    elif action == 'subscribe':
-        flags = '\\FLAGGED \\DRAFT \\SEEN'
-        draft_num, code = search.inbox.subscriber(M, from_address)
+        elif action == 'subscribe':
+            flags = '\\FLAGGED \\DRAFT \\SEEN'
+            draft_num, code = search.inbox.subscriber(M, from_address)
 
-        if draft_num and code:
-            logger.debug('Reusing existing pending confirmation')
-            r(M.store(draft_num, '+Flags', flags))
-        elif draft_num:
-            logger.debug('Already subscribed')
-            raise NotImplementedError
-        else:
-            logger.debug('Creating a new pending confirmation')
-            code = _confirmation_code()
-            _append('Inbox', M, flags,
-                    _message(to=code, subject=from_address))
-
-        _send(templates.confirmation_message(action, code), from_address)
-        r(M.store(num, '+FLAGS', '\\SEEN \\ANSWERED'))
-
-    elif action == 'unsubscribe':
-        draft_num, code = search.inbox.subscriber(M, from_address)
-        with Transaction() as t:
             if draft_num and code:
-                # Add confirmation code to unsubscribe message.
-                t.extend([
-                    (_append, ('Inbox', M, '\\FLAGGED \\SEEN',
-                               _message(to=code, subject=from_address))),
-                    (send, (templates.confirmation_message(action, code),
-                            from_address)),
-                ])
-                t.plus_flags(draft_num, '\\DELETED')
+                logger.debug('Reusing existing pending confirmation')
+                r(M.store(draft_num, '+Flags', flags))
+            elif draft_num:
+                logger.debug('Already subscribed')
+                raise NotImplementedError
             else:
-                t.append(send, (templates.not_a_member(), from_address))
-            t.plus_flags(num, '\\SEEN \\ANSWERED'))
+                logger.debug('Creating a new pending confirmation')
+                code = _confirmation_code()
+                m = templates.subscriber(to=code, subject=from_address)
+                _append('Inbox', M, flags, m)
 
-    elif action == 'list-confirm':
-        code = re.match(MATCHERS['list-confirm'], subject).group(1)
-        draft_num, draft_action = search.inbox.confirmation(M, code)
-        if draft_num and draft_action:
-            if draft_action == 'message':
-                data = r(M.fetch(draft_num, '(RFC822)'))
-                _send(message_from_bytes(data[0][1]), None)
+            _send(templates.confirmation(action, code), from_address)
+            r(M.store(num, '+FLAGS', '\\SEEN \\ANSWERED'))
 
-                r(M.copy(draft_num, 'Sent'))
-                r(M.store(draft_num, '+FLAGS', '\\DELETED'))
+        elif action == 'unsubscribe':
+            draft_num, code = search.inbox.subscriber(M, from_address)
+            with Transaction() as t:
+                if draft_num and code:
+                    # Add confirmation code to unsubscribe message.
+                    t.extend([
+                        (_append, ('Inbox', M, '\\FLAGGED \\SEEN',
+                                   _message(to=code, subject=from_address))),
+                        (send, (templates.confirmation(action, code),
+                                from_address)),
+                    ])
+                    t.plus_flags(draft_num, '\\DELETED')
+                else:
+                    t.append(send, (templates.not_a_member(), from_address))
+                t.plus_flags(num, '\\SEEN \\ANSWERED'))
 
-                r(M.store(num, '+FLAGS', '\\ANSWERED'))
+        elif action == 'list-confirm':
+            code = re.match(MATCHERS['list-confirm'], subject).group(1)
+            draft_num, draft_action = search.inbox.confirmation(M, code)
+            if draft_num and draft_action:
+                if draft_action == 'message':
+                    data = r(M.fetch(draft_num, '(RFC822)'))
+                    _send(message_from_bytes(data[0][1]), None)
 
-            elif draft_action == 'subscribe':
-                data = r(M.fetch(draft_num, '(RFC822)'))
-                m = message_from_bytes(data[0][1])
-                del(m['TO'])
-                r(M.store(draft_num, '+FLAGS', '\\DELETED'))
-                _append('Inbox', M, '\\FLAGGED \\SEEN', m)
+                    r(M.copy(draft_num, 'Sent'))
+                    r(M.store(draft_num, '+FLAGS', '\\DELETED'))
 
-            elif c_action == 'unsubscribe':
-                r(M.store(c_num, '-FLAGS', '\\FLAGGED'))
+                    r(M.store(num, '+FLAGS', '\\ANSWERED'))
 
+                elif draft_action == 'subscribe':
+                    data = r(M.fetch(draft_num, '(RFC822)'))
+                    m = message_from_bytes(data[0][1])
+                    del(m['TO'])
+                    r(M.store(draft_num, '+FLAGS', '\\DELETED'))
+                    _append('Inbox', M, '\\FLAGGED \\SEEN', m)
+
+                elif c_action == 'unsubscribe':
+                    r(M.store(c_num, '-FLAGS', '\\FLAGGED'))
+
+                else:
+                    raise ValueError
             else:
-                raise ValueError
+                logger.warning('Invalid confirmation code')
+            r(M.store(num, '+FLAGS', '\\SEEN'))
+
         else:
-            logger.warning('Invalid confirmation code')
-        r(M.store(num, '+FLAGS', '\\SEEN'))
-
-    else:
-        raise ValueError('Bad action')
+            raise ValueError('Bad action')
