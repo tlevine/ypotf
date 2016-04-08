@@ -10,7 +10,6 @@ from email import message_from_bytes
 
 from . import templates
 from . import search
-from . import send
 from .utils import r
 
 logger = logging.getLogger(__name__)
@@ -136,13 +135,13 @@ def process(S, M, num, from_address, subject, message_id):
             draft_num, code = search.inbox.subscriber(M, from_address)
             if draft_num and code:
                 # Add confirmation code to unsubscribe message.
-                m = _message(to=code, subject=from_address))),
+                m = _message(to=code, subject=from_address)
                 t.append('Inbox', '\\FLAGGED \\SEEN', m)
                 t.send(templates.confirmation(action, code), from_address)
                 t.plus_flags(draft_num, '\\DELETED')
             else:
                 t.send(templates.not_a_member(), from_address)
-            t.plus_flags(num, '\\SEEN \\ANSWERED'))
+            t.plus_flags(num, '\\SEEN \\ANSWERED')
 
         elif action == 'list-confirm':
             code = re.match(MATCHERS['list-confirm'], subject).group(1)
@@ -153,7 +152,7 @@ def process(S, M, num, from_address, subject, message_id):
                     to_addresses = search.inbox.subscribers(M)
 
                     t.plus_flags(draft_num, '\\DELETED')
-                    t.plus_flags(num, '\\ANSWERED'))
+                    t.plus_flags(num, '\\ANSWERED')
                     t.send(message_from_bytes(data[0][1]), to_addresses)
 
                 elif draft_action == 'subscribe':
