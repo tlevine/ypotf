@@ -25,14 +25,13 @@ def subscriber(**headers):
     return m
 
 FORWARDED_HEADERS = {
-    'from', 'to',
-    'cc', 'subject', 'date',
-    'user-agent',
+    'from',
+    'subject', 'date', 'user-agent',
     'mime-version', 'content-type', 'content-transfer-encoding',
     'message-id', 'in-reply-to', 'references',
 }
 LIST_HEADERS = {
-    'From': '_@dada.pink',
+    'To': '_@dada.pink',
     'List-Id': '_.dada.pink',
     'List-Unsubscribe': 'mailto:_@dada.pink?subject=unsubscribe',
     'List-Archive': 'mailto:_@dada.pink?subject=list-archive',
@@ -50,8 +49,5 @@ def message(msg, list_address):
         if k in msg:
             del(msg[k])
         msg[k] = v
-
-    del(msg['To'])
-    msg['To'] = list_address
 
     return msg

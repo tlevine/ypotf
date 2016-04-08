@@ -71,7 +71,7 @@ class Transaction(object):
     def send(self, msg, *to_addresses):
         'This is not reverted.'
         logger.info('Sending to %d addresses' % len(to_addresses))
-        final_msg = templates._finish(msg, list_address, list_address)
+        final_msg = templates.message(msg, list_address)
 
         for to_address in to_addresses:
             logger.debug(send_tpl % (to_address, final_msg))
