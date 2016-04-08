@@ -79,7 +79,8 @@ class Inbox(object):
         '''
         nums = _search('UNSEEN', M)
         message_parts = 'BODY.PEEK[HEADER.FIELDS (FROM SUBJECT)]'
-        return _fetch(message_parts, M, nums)
+        for num, m in _fetch(message_parts, M, nums):
+            yield num, _parse_headers(m)['SUBJECT']
 
     @staticmethod
     def confirmation(M, code):
