@@ -110,6 +110,8 @@ def _confirmation_code():
 
 def _append(M, flags, m):
     d = tuple(datetime.datetime.now().timetuple())
+    if 'seen' not in flags.lower():
+        raise ValueError('"\\Seen" must be a flag.')
     return r(M.append('Inbox', flags, d, m.as_bytes()))
 
 def _message(**headers):

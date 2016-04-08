@@ -68,12 +68,16 @@ class Inbox(object):
                 return num
 
     @staticmethod
-    def orders(M):
+    def new_orders(M):
         '''
-        Search for Draft (confirmation) and non-Seen (just-received) emails.
+        Search for non-Seen (just-received) emails.
+        '''
 
-        UNSEEN
-            New order, not a confirmation for a previous order
+    @staticmethod
+    def confirmations(M):
+        '''
+        Search for Draft (confirmation)
+
         FLAGGED DRAFT
             Subscription confirmation
         FLAGGED UNDRAFT TO ""
@@ -81,6 +85,8 @@ class Inbox(object):
         UNFLAGGED DRAFT
             Message confirmation
         '''
+        nums = _search('UNSEEN', M)
+
         criterion = re.sub(r'[\n ]+', ' ', '''
             ( OR
               UNSEEN
@@ -89,7 +95,6 @@ class Inbox(object):
                   ( OR
                     ( FLAGGED UNDRAFT TO "")
                     ( UNFLAGGED DRAFT)))))''')
-        r(M.select('Inbox'))
         nums = _search(criterion , M)
         out = {'confirmations': {}, 'new': []}
 
