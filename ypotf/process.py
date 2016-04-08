@@ -71,12 +71,10 @@ class Transaction(object):
     def send(self, msg, *to_addresses):
         'This is not reverted.'
         logger.info('Sending to %d addresses' % len(to_addresses))
-        final_msg = templates.message(msg, list_address)
-
         for to_address in to_addresses:
-            logger.debug(send_tpl % (to_address, final_msg))
-            self.append('Sent', '\\SEEN', final_msg)
-            self.S.send_message(final_msg, list_address, [to_address])
+            logger.debug(send_tpl % (to_address, msg))
+            self.append('Sent', '\\SEEN', msg)
+            self.S.send_message(msg, list_address, [to_address])
 
     def append(self, box, flags, m):
         'This is not reverted.'
@@ -97,7 +95,7 @@ def process(S, M, num, from_address, subject, message_id):
     with Transaction(S, M) as t:
         if action == 'help':
             t.plus_flags(num, '\\SEEN \\ANSWERED')
-            t.send(templates.help(), from_address)
+            t.send(templates.help(from_address), from_address)
 
         elif action == 'list-archive':
             raise NotImplementedError
@@ -108,7 +106,8 @@ def process(S, M, num, from_address, subject, message_id):
             m = message_from_bytes(data[0][1])
             m['TO'] = code
 
-            t.send(templates.confirmation(action, code), from_address)
+            t.send(templates.confirmation(action, from_address, code),
+                   from_address)
             t.append('Inbox', '\\SEEN \\DRAFT', m)
             t.plus_flags(num, '\\SEEN \\ANSWERED')
 
@@ -128,7 +127,8 @@ def process(S, M, num, from_address, subject, message_id):
                 m = templates.subscriber(to=code, subject=from_address)
                 t.append('Inbox', flags, m)
 
-            t.send(templates.confirmation(action, code), from_address)
+            t.send(templates.confirmation(action, from_address, code),
+                   from_address)
             t.add_flags(num, '+FLAGS', '\\SEEN \\ANSWERED')
 
         elif action == 'unsubscribe':
@@ -137,10 +137,11 @@ def process(S, M, num, from_address, subject, message_id):
                 # Add confirmation code to unsubscribe message.
                 m = _message(to=code, subject=from_address)
                 t.append('Inbox', '\\FLAGGED \\SEEN', m)
-                t.send(templates.confirmation(action, code), from_address)
+                t.send(templates.confirmation(action, from_address, code),
+                       from_address)
                 t.plus_flags(draft_num, '\\DELETED')
             else:
-                t.send(templates.not_a_member(), from_address)
+                t.send(templates.not_a_member(from_address), from_address)
             t.plus_flags(num, '\\SEEN \\ANSWERED')
 
         elif action == 'list-confirm':
@@ -153,7 +154,8 @@ def process(S, M, num, from_address, subject, message_id):
 
                     t.plus_flags(draft_num, '\\DELETED')
                     t.plus_flags(num, '\\ANSWERED')
-                    t.send(message_from_bytes(data[0][1]), *to_addresses)
+                    m = templates.message(message_from_bytes(data[0][1]))
+                    t.send(m, *to_addresses)
 
                 elif draft_action == 'subscribe':
                     data = r(M.fetch(draft_num, '(RFC822)'))
