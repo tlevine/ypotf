@@ -17,11 +17,9 @@ def _fetch(fetch, M, nums):
 
 # Search the Sent folder with the SENTSINCE search key to assess quotas
 # (one search per quota)
-quota = {
-    'folder': 'Sent',
-    'criterion': 'SENTSINCE "01-JAN-2014"',
-    'fetch': None, # Don't fetch; just count.
-}    
+def sent(M, datetime):
+    criterion = 'SENTSINCE "01-JAN-2014"' % datetime.strftime('%d-%b-%Y')
+    n = len(_search('Sent', criterion, M))
 
 # Search the Inbox folder for the subject fields of messages with the
 # Flagged flag and without the Draft flag; these are the current
