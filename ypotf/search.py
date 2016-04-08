@@ -121,10 +121,10 @@ class inbox(object):
         criterion = re.sub(r'[\n ]+', ' ', '''
           TO "%s"
           ( OR
-            ( FLAGGED DRAFT
-              ( OR
-                ( FLAGGED UNDRAFT )
-                ( UNFLAGGED DRAFT ))))''' % code)
+            ( FLAGGED DRAFT )
+            ( OR
+              ( FLAGGED UNDRAFT )
+              ( UNFLAGGED DRAFT )))''' % code)
 
         nums = _search(criterion, M)
         for num, m in _fetch('FLAGS', M, nums):
