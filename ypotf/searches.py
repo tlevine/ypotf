@@ -14,8 +14,7 @@ def _parse_headers(x):
     lines = re.split(r'[\r\n]+', x[0][1].decode('utf-8'))
     return dict(re.split(r': ?', line, maxsplit=1) for line.lower() in lines)
 
-def _search(folder, criterion, M):
-    r(M.select(folder))
+def _search(criterion, M):
     return r(M.search(None, criterion))
 
 def _fetch(fetch, M, nums):
@@ -33,7 +32,8 @@ def n_sent(M, timedelta):
     :rtype: int
     '''
     criterion = 'SENTSINCE "%s"' % dt.strftime('%d-%b-%Y')
-    return len(_search('Sent', criterion, M).split())
+    r(M.select('Sent'))
+    return len(_search(criterion, M).split())
 
 # Search the Inbox folder for the subject fields of messages with the
 # Flagged flag and without the Draft flag; these are the current
@@ -44,7 +44,8 @@ def subscribers(M):
     :returns: Set of str email addresses of subscribers
     :rtype: set
     '''
-    nums = _search('Inbox', 'FLAGGED UNDRAFT', M)
+    r(M.select('Inbox'))
+    nums = _search('FLAGGED UNDRAFT', M)
     x = 'BODY.PEEK[HEADER.FIELDS (SUBJECT MESSAGE-ID)]'
     headers = (_parse_headers(m) for _, m in _fetch(x, M, nums))
     return set(m['SUBJECT'] for m in headers)
@@ -52,10 +53,10 @@ def subscribers(M):
 def subscriber(M, from_field):
     # " and \ are not allowed in email addresses, so this is safe.
     e = _just_email_address(from_field)
-    M.search(None, 'FLAGGED UNDRAFT SUBJECT "%s"' % e)
-    if nums:
-        raise NotImplementedError
-    M.fetch(nums.split()[0]
+    nums = _search('FLAGGED UNDRAFT SUBJECT "%s"' % e, M)
+    for num, m in _fetch(nums, 'BODY.PEEK[HEADER.FIELDS (SUBJECT)]'):
+        if _just_email_addres(_parse_headers(m)['SUBJECT']) == e:
+            return num
 
 # Search for Draft (confirmation) and non-Seen (just-received) emails.
 def orders(M):
@@ -77,7 +78,8 @@ def orders(M):
               ( OR
                 ( FLAGGED UNDRAFT TO "")
                 ( UNFLAGGED DRAFT)))))''')
-    nums = _search('Inbox', criterion , M)
+    r(M.select('Inbox'))
+    nums = _search(criterion , M)
     out = {'confirmations': {}, 'new': []}
 
     message_parts = 'BODY.PEEK[HEADER.FIELDS (TO SUBJECT)]'
