@@ -24,7 +24,9 @@ def _parse_flags(x):
         return set(n.upper() for n in m.group(1).split())
 
 def _search(criterion, M):
-    return r(M.search(None, 'UNDELETED ' + criterion))
+    x = 'UNDELETED ' + criterion
+    logger.debug('Searching: %s' % x)
+    return r(M.search(None, x))
 
 def _fetch(fetch, M, nums):
     for num in nums[0].split():
@@ -121,8 +123,8 @@ class inbox(object):
           ( OR
             ( FLAGGED DRAFT
               ( OR
-                ( FLAGGED UNDRAFT TO "")
-                ( UNFLAGGED DRAFT))))''' % code)
+                ( FLAGGED UNDRAFT )
+                ( UNFLAGGED DRAFT ))))''' % code)
 
         nums = _search(criterion, M)
         for num, m in _fetch('FLAGS', M, nums):

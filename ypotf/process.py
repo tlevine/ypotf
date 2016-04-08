@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 MATCHERS = {k: re.compile(v, flags=re.IGNORECASE) for (k,v) in [
     ('subscribe', r'^subscribe$'),
     ('unsubscribe', r'^unsubscribe$'),
-    ('list-confirm', r'list-confirm-[a-z0-9]{32}'),
+    ('list-confirm', r'.*list-confirm-([a-z0-9]{32}).*'),
 #   ('list-archive', r'^list-archive'),
     ('help', r'^help$'),
 ]}
@@ -107,7 +107,7 @@ def process(S, M, num, from_address, subject, message_id):
 
     elif action == 'list-confirm':
         code = re.match(MATCHERS['list-confirm'], subject).group(1)
-        c_num, c_action = search.Inbox.confirmations(M, code)
+        c_num, c_action = search.inbox.confirmation(M, code)
         if c_num and c_action:
             if c_action == 'message':
                 data = r(M.fetch(num, '(RFC822)'))
