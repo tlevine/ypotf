@@ -56,17 +56,17 @@ def process(S, M, num, from_address, subject, message_id):
                 # Rely on the email provider to have SPF, DKIM,
                 # and spam filtering.
                 m = templates.envelope.message(fetch_num(num))
-                to_addresses = search.inbox.subscribers(M)
+                to_addresses = search.subscribers(M)
                 t.send(m, *to_addresses)
             else:
                 t.send(templates.not_a_member(from_address), from_address)
 
         elif action == 'subscribe':
-            if search.inbox.current(from_address):
+            if search.is_subscribed(from_address):
                 t.send(templates.error('You are already subscribed.'),
                        from_address)
             else:
-                code = search.inbox.pending(M, from_address)
+                code = search.subscription_ypotf_id(M, from_address)
                 if code:
                     logger.debug('Reusing existing pending subscription')
                 else:
@@ -77,7 +77,7 @@ def process(S, M, num, from_address, subject, message_id):
                        from_address)
 
         elif action == 'unsubscribe':
-            code = search.inbox.current(from_address) # XXX
+            code = search.subscription_ypotf_id(from_address)
             if code:
                 t.send(templates.unsubscribe_confirm(from_address, code),
                        from_address)
@@ -86,7 +86,7 @@ def process(S, M, num, from_address, subject, message_id):
 
         elif action == 'list-confirm':
             code = re.match(MATCHERS['list-confirm'], subject).group(1)
-            draft_num, draft_action = search.inbox.confirmation(M, code)
+            draft_num, draft_action = search.from_ypotf_id(M, code)
             if draft_num and draft_action:
                 if draft_action == 'subscribe':
                     t.store_current(draft_num)

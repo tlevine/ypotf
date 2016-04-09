@@ -12,77 +12,47 @@ def _parse_headers(x):
     pairs = (re.split(r': ?', line, maxsplit=1) for line in lines)
     return {k.upper():v for k,v in pairs}
 
-def _parse_flags(x):
-    m = re.match('[0-9 (]+FLAGS \(([^)]+)', x[0].decode('utf-8'))
-    if m:
-        return set(n.upper() for n in m.group(1).split())
+def subscribers(M):
+    '''
+    :returns: Iterable of subscriber email addresses
+    '''
+    nums = _search('ANSWERED HEADER X-Ypotf-Kind Subscription', M)
+    x = 'BODY.PEEK[HEADER.FIELDS (SUBJECT)]'
+    headers = (_parse_headers(m) for _, m in _fetch(x, M, nums))
+    return set(m['SUBJECT'] for m in headers)
 
-def _search(criterion, M):
-    x = 'UNDELETED ' + criterion
-    y = '\n%s\n' % textwrap.indent(textwrap.fill(x.strip(), 50), '  ')
-    logger.debug('Searching:\n%s' % y)
+def subscription_ypotf_id(M, address):
+    '''
+    :returns: Ypotf ID for a particular subscription
+    '''
+    e = email_address(address)
 
-    nums = r(M.search(None, x))
-    n = (nums[0].count(b' ')+1) if nums[0] else 0
+    s = 'ANSWERED HEADER X-Ypotf-Kind Subscription Subject "%s"'
+    nums = _search(q % s, M)
 
-    logger.debug('%d results' % n)
-    return nums
+    f = 'BODY.PEEK[HEADER.FIELDS (X-Ypotf-Id Subject)]'
+    for _, m in _fetch(f, M, nums):
+        _parse_headers(m)
+        if email_address(m['Subject']) == e:
+            return m['X-Ypotf-Id']
 
-def search_one(M, criterion):
-    nums = _search(criterion, M)
-    xs = nums[0].split()
-    if len(xs) == 1:
-        return xs[0]
-    elif len(xs) == 0:
-        raise ValueError('No messages match "%s"' % criterion)
-    else:
-        raise ValueError('Multiple messages match "%s"' % criterion)
+def is_subscribed(M, address):
+    return subscription_ypotf_id(address) != None
 
-def _fetch(fetch, M, nums):
-    for num in nums[0].split():
-        yield num, r(M.fetch(num, fetch))
 
-def fetch_one(M, num):
-    data = r(M.fetch(num, '(RFC822)')
-    return message_from_bytes(data[0][1])
 
-class inbox(object):
 
-    @staticmethod
-    def subscribers(M):
-        '''
-        :returns: Iterable of subscriber email addresses
-        '''
-        nums = _search('ANSWERED HEADER X-Ypotf-Kind Subscription', M)
-        x = 'BODY.PEEK[HEADER.FIELDS (SUBJECT)]'
-        headers = (_parse_headers(m) for _, m in _fetch(x, M, nums))
-        return set(m['SUBJECT'] for m in headers)
 
-    @staticmethod
-    def subscriber_ypotf_id(M, address):
-        '''
-        :returns: Iterable of subscriber email addresses
-        '''
-        e = email_address(address)
 
-        s = 'ANSWERED HEADER X-Ypotf-Kind Subscription Subject "%s"'
-        nums = _search(q % s, M)
 
-        f = 'BODY.PEEK[HEADER.FIELDS (X-Ypotf-Id Subject)]'
-        for _, m in _fetch(f, M, nums):
-            _parse_headers(m)
-            if email_address(m['Subject']) == e:
-                return m['X-Ypotf-Id']
 
-    @staticmethod
+
     def current(M, address):
         return inbox._subscriber(M, address, 'UNDRAFT SEEN')
 
-    @staticmethod
     def pending(M, address):
         return inbox._subscriber(M, address, 'DRAFT SEEN')
 
-    @staticmethod
     def new_orders(M):
         '''
         Search for just-received emails.
@@ -104,7 +74,6 @@ class inbox(object):
                 logger.warning('Message %s is missing headers' %
                                num.decode('ascii'))
 
-    @staticmethod
     def confirmation(M, code):
         criterion = re.sub(r'[\n ]+', ' ', '''
           SUBJECT "%s"
