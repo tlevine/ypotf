@@ -2,13 +2,16 @@ import sys
 import imaplib
 import logging
 
+import horetu
+
 from . import quota, read
 from .process import process
 from .utils import r, email_address
 
 logger = logging.getLogger(__name__)
 
-def ypotf(password, *quotas, n:int=0, list_subscribers=False):
+def ypotf(password, *quotas, n:int=0, list_subscribers=False,
+          v:horetu.Count=0):
     '''
     Process mailing list commands.
 
@@ -20,6 +23,8 @@ def ypotf(password, *quotas, n:int=0, list_subscribers=False):
     The max emails to send this session is the minimum that I determine
     from all quotas.
     '''
+    logging.basicConfig(level=50-v*10)
+
     imap_host = smtp_host = 'mail.gandi.net'
     list_address = imap_username = smtp_username = '_@dada.pink'
     imap_password = smtp_password = password
@@ -63,6 +68,4 @@ def subscribers(M):
     sys.exit(1 if len(xs) else 0)
 
 def cli():
-    logging.basicConfig(level=logging.DEBUG)
-    import horetu
     horetu.horetu(ypotf)
