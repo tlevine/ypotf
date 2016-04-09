@@ -120,9 +120,6 @@ processed.
 
 When emails need to be sent (left arrow nodes in the above diagram),
 they are sent over SMTP and placed in the "Sent" folder.
-An outgoing email is always a direct response to some incoming email;
-that email is flagged Answered, though ypotf doesn't otherwise care
-whether an email has been Answered.
 
 Requests to subscribe, unsubscribe, or send a message, and confirmations
 for these requests, require two sorts of temporary information to be
@@ -142,14 +139,14 @@ In response to a message request, ypotf creates a new message that is a
 copy of the incoming message except with the Draft flag set and with the
 following changes in the headers.
 
-To
+Bcc
     The confirmation code
 Reply-To
     The mailing list address
 Subject
     The mailing list prefix plus the original subject
 
-Note that confirmation codes are always in the "To" field.
+Note that confirmation codes are in the "Bcc" field.
 This is better than an X-* field because the server is more likely to
 support searching on it and because it is easier to see in a MUA.
 
@@ -162,3 +159,32 @@ address.
 Archive requests, help requests, and erroneous messages do not require
 confirmation, so those requests are handled in one email response;
 they don't require the aforementioned confirmation procedure.
+
+Logs
+^^^^^
+ypotf retains all messages that it ever creates. This includes
+
+* All messages that ever arrive in the inbox
+* All versions of all messages that it creates in the inbox
+* All messages that it ever sends, one copy per recipient
+* One message for each batch of mail sent
+
+When it is finished processing an incoming message, ypotf flags that
+message as "Seen" and "Answered". When it is finished processing a
+message that it created (a queued subscription or queued message), it
+marks that message as "Answered". That is, ypotf uses "Answered" in all
+places where "Deleted" would be a reasonable choice.
+
+For large mailing lists, it may be helpful to add a flag for at least
+batch deletes from the inbox directory; it would be safe to delete all
+messages all "Answered" messages, as those are already ignored anyway.
+
+
+to delete these messages is with the "Delete" flag;
+
+and the storage of  only their
+
+ypotf refrains from conceptually deleting things
+
+Invalidation of temporary files
+
