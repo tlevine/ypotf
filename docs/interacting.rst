@@ -162,7 +162,8 @@ they don't require the aforementioned confirmation procedure.
 
 Sending messages
 ^^^^^^^^^^^^^^^^^^^^
-ypotf sends messages to one recipient at a time. It can store
+ypotf sends messages to one recipient at a time. It can store the
+following records of sent messages, and it stores both by default.
 
 1. A copy of every message that is sent
 2. An additional copy for every message sent to the full subscription
@@ -172,10 +173,34 @@ ypotf sends messages to one recipient at a time. It can store
 It stores both of these in the "Sent" folder. We can tell them apart
 because the first kind has a "Bcc" header and the second does not.
 
-The first is an exact copy of the exact message that is passed to the
-SMTP server. It is stored only for record-keeping; aside from saving
-them, ypotf ignores these messages.
+Copies of individual sends
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+The first kind of message is an exact copy of the message that is passed
+to the SMTP server. It includes the "X-Ypotf-Id" flag, which is just a
+random number; as we'll see shortly, ypotf needs this because all of the
+copies have the same message-id.
 
+This kind of message is stored only for record-keeping; aside from
+saving them, ypotf ignores these messages.
+
+I intend for this to record only the ones where sending actually
+succeeded; here is how I do that.
+
+1. I start out with the Inbox IMAP folder selected; everything in Ypotf
+   except for the saving of sent messages happens in the Inbox folder.
+2. Append the message to the Sent folder (IMAP).
+3. Try sending the message with SMTP.
+4. If sending fails: Select the Sent folder, find the message based on
+   the "X-Ypotf-Id" header, delete it, and exit the program with an
+   error message.
+
+Thus, if we intended to send a message to all list subscribers but the
+message was in fact sent only to a few of them, we can tell which ones
+received it and which ones didn't. A neat feature would be to finish
+sending partially sent batches of messages.
+
+Additional message-type batch copy
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The second is a record of each batch of messages that was sent; it has
 nothing to do with what was sent to the SMTP server.
 
@@ -190,6 +215,13 @@ were, but I thought it would be nice to have
   thing that it lacks is the exact dates of sending.
 * It provides a record of the historical subscriber list that is easy to
   view in a mail user agent.
+* It provides the full list of recipients that were intended in the
+  batch, whereas the first kind of message includes only the ones for
+  whom sending was successful.
+  
+if sending fails on the seventh of 12 recipients, this can help
+  you see who
+
 aggregation of the first type of message. Note that this does not have
 all of the information that the first sort of message does; the exact
 dates are missing, and this message is saved regardless of whether the
