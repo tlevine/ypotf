@@ -84,7 +84,7 @@ class Transaction(object):
 
         if msg2['To'].lower() == list_address:
             msg2['Bcc'] = ', '.join(to_addresses)
-            self.append('Sent', '\\SEEN', msg1)
+            self.append('Sent', '\\SEEN', msg2)
 
         for to_address in to_addresses:
             msg1 = _prepare_send(msg) # sent message kind 1
@@ -92,7 +92,7 @@ class Transaction(object):
             self.append('Sent', '\\SEEN', msg1)
             self.S.send_message(msg1, list_address, [to_address])
 
-    def append(self, box, flags, m, force_revert=False):
+    def append(self, box, flags, m):
         '''
         It is possible to append to boxes other than the current one.
         This gets interesting.
@@ -103,11 +103,10 @@ class Transaction(object):
 
         append_id = _confirmation_code()
         m['X-Ypotf-Append'] = append_id
-        if box == self._box:
-            self._revert.append(self._revert_append, (box, append_id))
-        else:
-            # Put it at the beginning of the revert list so it runs last.
-            self._revert.insert(0, self._revert_append, (box, append_id))
+
+        # Reverting an append may require a switch of box.
+        # Put it at the beginning of the revert list so it runs last.
+        self._revert.insert(0, self._revert_append, (box, append_id))
 
         d = tuple(_now().timetuple())
         return r(self._M.append(box, flags, d, m.as_bytes()))
