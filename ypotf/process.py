@@ -49,12 +49,15 @@ from .templates import list_address
 
 class Transaction(object):
     def __init__(self, S, M):
-        self.S = S
-        self.M = M
+        self._S = S
+        self._M = M
 
-    def __enter__(self):
+    def __enter__(self, box='Inbox'):
         self._finalize = []
         self._revert = []
+        self._box = box
+
+        r(self._M.select(self._box))
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -65,6 +68,7 @@ class Transaction(object):
             logger.info('Exception occurred in transaction, aborting.')
             for f, args in self._revert:
                 f(*args)
+        r(self._M.close())
 
     def plus_flags(self, num, flags):
         self._revert.append((self._store, (num, '-FLAGS', flags)))
@@ -75,15 +79,15 @@ class Transaction(object):
         return self._store(num, '-FLAGS', flags)
 
     def _store(self, num, action, flags):
-        return r(self.M.store(num, action, flags))
+        return r(self._M.store(num, action, flags))
 
     def send(self, msg, *to_addresses):
         logger.info('Sending to %d addresses' % len(to_addresses))
-
         msg2 = _prepare_send(msg) # sent message kind 2
 
         if msg2['To'].lower() == list_address:
-            msg2['Bcc'] = 
+            msg2['Bcc'] = ', '.join(to_addresses)
+            self.append('Sent', '\\SEEN', msg1)
 
         for to_address in to_addresses:
             msg1 = _prepare_send(msg) # sent message kind 1
@@ -93,13 +97,35 @@ class Transaction(object):
             self.append('Sent', '\\SEEN', msg1)
             self.S.send_message(msg1, list_address, [to_address])
 
-    def append(self, box, flags, m):
-        'This is not reverted.'
-        d = tuple(_now().timetuple())
+    def append(self, box, flags, m, force_revert=False):
+        '''
+        It is possible to append to boxes other than the current one.
+        This gets interesting.
+        '''
         if 'seen' not in flags.lower():
             raise ValueError('"\\Seen" must be a flag.')
         logger.debug(append_tpl % (box, m))
-        return r(self.M.append(box, flags, d, m.as_bytes()))
+
+        append_id = _confirmation_code()
+        m['X-Ypotf-Append'] = append_id
+        if box == self._box:
+            self._revert.append(self._revert_append, (box, append_id))
+        else:
+            # Put it at the beginning of the revert list so it runs last.
+            self._revert.insert(0, self._revert_append, (box, append_id))
+
+        d = tuple(_now().timetuple())
+        return r(self._M.append(box, flags, d, m.as_bytes()))
+
+    def _revert_append(box, append_id):
+        query = 'HEADER X-Ypotf-Append %s' % append_id))
+
+        if self._box != box:
+            self._M.select(box)
+        self._box = box
+        
+        num = search.get_num(M, query)
+        self._store(num, '+FLAGS', '\\DELETED')
 
 def process(S, M, num, from_address, subject, message_id):
     for k, v in MATCHERS.items():

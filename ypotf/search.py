@@ -33,6 +33,16 @@ def _fetch(fetch, M, nums):
     for num in nums[0].split():
         yield num, r(M.fetch(num, fetch))
 
+def get_num(M, criterion):
+    nums = _search(criterion, M)
+    xs = nums[0].split()
+    if len(xs) == 1:
+        return xs[0]
+    elif len(xs) == 0:
+        raise ValueError('No messages match "%s"' % criterion)
+    else:
+        raise ValueError('Multiple messages match "%s"' % criterion)
+
 class sent(object):
     @staticmethod
     def n_sent(M, timedelta):

@@ -38,7 +38,6 @@ def ypotf(password, *quotas, n:int=0, list_subscribers=False):
     S = quota.LimitedSMTP(N, host=smtp_host)
     S.login(smtp_username, smtp_password)
 
-    r(M.select('Inbox'))
     orders = search.inbox.new_orders(M)
     for i, (num, from_address, subject, message_id) in enumerate(orders):
         if n and i < n:
@@ -48,7 +47,6 @@ def ypotf(password, *quotas, n:int=0, list_subscribers=False):
         else:
             logger.info('Processed %d messages' % n)
             break
-    r(M.close())
     r(M.logout(), 'BYE')
 
 def subscribers(M):
