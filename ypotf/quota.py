@@ -1,7 +1,7 @@
 import smtplib
 import logging
 
-from .read import _search
+from .utils import search
 
 logger = logging.getLogger(__name__)
 
@@ -55,4 +55,4 @@ def n_sent(M, timedelta):
     :rtype: int
     '''
     criterion = 'SENTSINCE "%s" NOT BCC ""' % dt.strftime('%d-%b-%Y')
-    return len(_search(criterion, M).split())
+    return len(search(criterion, M).split())
