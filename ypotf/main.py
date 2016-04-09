@@ -37,6 +37,7 @@ def ypotf(password, *quotas, n:int=0, list_subscribers=False):
     S = quota.LimitedSMTP(N, host=smtp_host)
     S.login(smtp_username, smtp_password)
 
+    r(M.select('Inbox'))
     orders = read.new_orders(M)
     for i, (num, m) in enumerate(orders):
         if n and i < n:

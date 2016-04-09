@@ -5,8 +5,7 @@ import datetime
 from functools import partial
 
 from . import read, templates
-from .utils import r, _uuid
-from .write import Transaction
+from .write import Writer
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +29,7 @@ def process(S, M, m):
 
     logging.debug('"%s" request from "%s"' % (action, from_address))
 
-    with Transaction(S, M) as t:
+    with Writer(S, M) as t:
         t.store_current(num)
         if action == 'help':
             t.send(templates.help(from_address, message_id))

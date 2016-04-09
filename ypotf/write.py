@@ -10,7 +10,7 @@ log_tpl = '''%s this message to %s
 %s
 ----------------------------------------''' 
 
-class Mail(object):
+class Writer(object):
     def __init__(self, S, M, list_address):
         self._S = S
         self._M = M
@@ -19,7 +19,8 @@ class Mail(object):
     def __enter__(self, box='Inbox'):
         self._finalize = []
         self._revert = []
-        self._select(box)
+        self._box = box
+        self._switched_box = False
         return self
 
     def _select(self, box):
@@ -27,16 +28,20 @@ class Mail(object):
             self._box = box
             r(self._M.select(self._box))
             logger.debug('Selected box %s' % self._box)
+            self._switched_box = True
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if exc_type is None:
             for f, args in self._finalize:
                 f(*args)
         else:
-            logger.info('Exception occurred in transaction, aborting.')
+            logger.error('Exception occurred in transaction, aborting.')
             for f, args in self._revert:
                 f(*args)
-        r(self._M.close())
+
+        if self._switched_box:
+            r(M.logout(), 'BYE')
+            sys.exit(1)
 
     def store_applied(self, num):
         return self.store(num, '+FLAGS', '\\ANSWERED \\SEEN')
@@ -72,7 +77,7 @@ class Mail(object):
         '''
         :param args: Tuple of num, action, flags
         '''
-        logger.debug('STORE %d %s (%s)' % *args)
+        logger.debug('STORE %d %s (%s)' % args)
         return r(self._M.store(*args))
 
     def _append(self, box, flags, m):
@@ -95,7 +100,7 @@ class Mail(object):
         return r(self._M.append(box, flags, d, m.as_bytes()))
 
     def _revert_append(box, append_id):
-        query = 'HEADER X-Ypotf-Append %s' % append_id))
+        query = 'HEADER X-Ypotf-Append %s' % append_id
         self._select(box)
         
         num = search.get_num(M, query)

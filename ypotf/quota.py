@@ -36,7 +36,7 @@ def quota(M, quotas):
     :rtype: int or NoneType
     '''
     N = None
-    for q in qs:
+    for q in quotas:
         minutes, count = map(int, q.split(':'))
         n = count - n_sent(M, minutes)
         if N == None or n < N:
