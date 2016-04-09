@@ -177,7 +177,7 @@ def process(S, M, num, from_address, subject, message_id):
                 t.append('Inbox', '\\FLAGGED \\SEEN', m)
                 t.send(templates.confirmation(action, from_address, code),
                        from_address)
-                t.plus_flags(draft_num, '\\DELETED')
+                t.plus_flags(draft_num, '\\ANSWERED')
             else:
                 t.send(templates.not_a_member(from_address), from_address)
             t.plus_flags(num, '\\SEEN \\ANSWERED')
@@ -189,8 +189,7 @@ def process(S, M, num, from_address, subject, message_id):
                 if draft_action == 'message':
                     data = r(M.fetch(draft_num, '(RFC822)'))
                     to_addresses = search.inbox.subscribers(M)
-
-                    t.plus_flags(draft_num, '\\DELETED')
+                    t.plus_flags(draft_num, '\\ANSWERED')
                     t.plus_flags(num, '\\ANSWERED')
                     m = templates.message(message_from_bytes(data[0][1]))
                     t.send(m, *to_addresses)
