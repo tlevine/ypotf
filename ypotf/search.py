@@ -83,15 +83,16 @@ class inbox(object):
     New command
         UNSEEN UNANSWERED UNDRAFT UNFLAGGED
     Pending subscription
-        SEEN   UNANSWERED UNDRAFT UNFLAGGED
-    Current subscription
         SEEN   UNANSWERED   DRAFT   FLAGGED
+    Current subscription
+        SEEN   UNANSWERED   DRAFT UNFLAGGED
     Pending message to list members
+        SEEN     ANSWERED UNDRAFT   FLAGGED
+    Ignored
         SEEN     ANSWERED UNDRAFT UNFLAGGED
-    Error (These states should not occur.)
-        UNANSWERED UNSEEN UNDRAFT   FLAGGED,
-        UNANSWERED UNSEEN   DRAFT UNFLAGGED,
-        UNANSWERED UNSEEN   DRAFT   FLAGGED
+    Errors
+        UNSEEN with any of ANSWERED, UNDRAFT, AND UNFLAGGED
+        should not occur.
     Ignored
         SEEN
         
