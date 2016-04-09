@@ -113,10 +113,10 @@ class inbox(object):
         Search for just-received emails.
         '''
         nums = _search('UNSEEN UNFLAGGED', M)
-        message_parts = 'BODY.PEEK[HEADER.FIELDS (FROM SUBJECT MESSAGE-ID)]'
+        message_parts = 'BODY.PEEK[HEADER.FIELDS (FROM SUBJECT)]'
         for num, m in _fetch(message_parts, M, nums):
             h = _parse_headers(m)
-            if {'FROM', 'SUBJECT', 'MESSAGE-ID'}.issubset(h):
+            if {'FROM', 'SUBJECT'}.issubset(h):
                 logger.debug('''Found a new order
 
   From: %(FROM)s
