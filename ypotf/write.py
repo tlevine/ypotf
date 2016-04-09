@@ -28,12 +28,12 @@ class Writer(object):
     def __exit__(self, exc_type, exc_val, exc_tb):
         if exc_type is not None:
             logger.error('Exception occurred in transaction, aborting.')
-            for f, args in self._revert:
+            for f, args in reversed(self._revert):
                 f(*args)
 
         if self._switched_box:
-            r(M.logout(), 'BYE')
-            sys.exit(1)
+            r(self._M.logout(), 'BYE')
+            logger.warning('You need to start over after reverting a sent message.')
 
     def store_current(self, num):
         logger.debug('Storing message %s as current' % num.decode('ascii'))
@@ -97,8 +97,8 @@ class Writer(object):
 
         # Reverting an append may require a switch of box.
         # Put it at the beginning of the revert list so it runs last.
-        self._revert.insert(0,
-            (self._revert_append, (box, m['X-Ypotf-Append'])))
+        command = (self._revert_append, (box, m['X-Ypotf-Append']))
+        self._revert.insert(0, command)
 
         return y
 
@@ -106,17 +106,13 @@ class Writer(object):
         query = 'HEADER X-Ypotf-Append %s' % append_id
 
         if self._box != box:
-            r(self._M.close())
             r(self._M.select(box))
-
-        logger.debug('Selected box %s' % box)
-
-        num = search(self._M, query)[0]
-        self._store(num, '+FLAGS', '\\DELETED')
-
-        if self._box != box:
             self._switched_box = True
             self._box = box
+
+        logger.debug('Selected the "%s" box' % self._box)
+        num = search(self._M, query)[0]
+        self._store(num, '+FLAGS', '\\DELETED')
 
     def send(self, msg, to_addresses=None):
         publication = to_addresses != None

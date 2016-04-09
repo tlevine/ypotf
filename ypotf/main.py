@@ -39,12 +39,12 @@ def ypotf(password, *quotas, n:int=0, list_subscribers=False):
 
     r(M.select('Inbox'))
     orders = read.new_orders(M)
+
     for i, (num, m) in enumerate(orders):
-        if n <= 0 or i < n:
-            logger.info('Processing message from %(From)s' % m)
-            process(list_address, S, M, num, m)
-        else:
-            logger.info('Processed %d messages' % n)
+        logger.info('Processing message from %(From)s' % m)
+        process(list_address, S, M, num, m)
+        if n <= 0 or n == i+1:
+            logger.info('Processed %d messages' % (i+1))
             break
     r(M.logout(), 'BYE')
 
