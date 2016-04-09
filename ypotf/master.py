@@ -1,4 +1,5 @@
 import logging
+from copy import deepcopy
 
 from .utils import r
 

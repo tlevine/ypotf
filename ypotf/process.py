@@ -3,27 +3,24 @@ import re
 import logging
 import datetime
 from functools import partial
-from copy import deepcopy
-
-from email.message import Message
-from email import message_from_bytes
 
 from . import read, templates
 from .utils import r, _uuid
+from .write import Transaction
 
 logger = logging.getLogger(__name__)
 
 MATCHERS = {k: re.compile(v, flags=re.IGNORECASE) for (k,v) in [
     ('subscribe', r'^subscribe$'),
     ('unsubscribe', r'^unsubscribe$'),
-    ('list-confirm', r'.*{([a-z0-9]{32})}.*'),
-#   ('list-archive', r'^list-archive'),
+    ('confirm', r'.*{([a-z0-9]{32})}.*'),
+    ('archive', r'^list-archive'),
     ('help', r'^help$'),
 ]}
 
 _now = datetime.datetime.now
 
-def process(S, M, num, from_address, subject, message_id):
+def process(S, M, m):
     for k, v in MATCHERS.items():
         if re.match(v, subject):
             action = k
@@ -32,10 +29,6 @@ def process(S, M, num, from_address, subject, message_id):
         action = 'publication'
 
     logging.debug('"%s" request from "%s"' % (action, from_address))
-    
-
-    data = r(M.fetch(num, '(RFC822)'))
-    return email.message_from_bytes(data[0][1])
 
     with Transaction(S, M) as t:
         t.store_current(num)

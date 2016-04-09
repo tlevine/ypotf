@@ -67,9 +67,3 @@ Subject: %(SUBJECT)s
         else:
             logger.warning('Message %s is missing headers, skipping' %
                            num.decode('ascii'))
-
-
-
-
-
-
