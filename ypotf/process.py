@@ -47,38 +47,37 @@ def process(S, M, num, from_address, subject, message_id):
             t.send(templates.help(from_address), from_address)
 
         elif action == 'list-archive':
-            raise NotImplementedError
+            x = 'List archives are not implemented yet.'
+            t.send(templates.error(x), from_address)
 
         elif action == 'message':
             if search.is_subscribed(M, from_address):
                 # Skip confirmation if this is "From" a subscriber
                 # Rely on the email provider to have SPF, DKIM,
                 # and spam filtering.
-                m = read.pending_publication(
-            code = _uuid()
-            XXX m = templates.i_message_confirmation(fetch_num(num), code)
-            t.append_pending(m)
-            t.send(templates.message_confirm(from_address, code),
-                   from_address)
+                m = templates.envelope.message(fetch_num(num))
+                to_addresses = search.inbox.subscribers(M)
+                t.send(m, *to_addresses)
+            else:
+                t.send(templates.not_a_member(from_address), from_address)
 
         elif action == 'subscribe':
             if search.inbox.current(from_address):
-                logger.debug('Already subscribed')
-                raise NotImplementedError
+                t.send(templates.error('You are already subscribed.'),
+                       from_address)
             else:
                 code = search.inbox.pending(M, from_address)
                 if code:
                     logger.debug('Reusing existing pending subscription')
                 else:
                     logger.debug('Creating a new pending subscription')
-                    code = _uuid()
-                    m = templates.i_subscriber(from_address, code)
+                    m = templates.new.subscription(from_address, code)
                     t.append_pending(m)
                 t.send(templates.subscribe_confirm(from_address, code),
                        from_address)
 
         elif action == 'unsubscribe':
-            code = search.inbox.current(from_address)
+            code = search.inbox.current(from_address) # XXX
             if code:
                 t.send(templates.unsubscribe_confirm(from_address, code),
                        from_address)
@@ -89,22 +88,16 @@ def process(S, M, num, from_address, subject, message_id):
             code = re.match(MATCHERS['list-confirm'], subject).group(1)
             draft_num, draft_action = search.inbox.confirmation(M, code)
             if draft_num and draft_action:
-                if draft_action == 'message':
-                    m = search.fetch_num(draft_num)
-                    to_addresses = search.inbox.subscribers(M)
-                    t.store_deleted(draft_num)
-                    t.send(m, *to_addresses)
-
-                elif draft_action == 'subscribe':
+                if draft_action == 'subscribe':
                     t.store_current(draft_num)
-
                 elif draft_action == 'unsubscribe':
                     t.store_deleted(draft_num)
-
                 else:
-                    raise ValueError
+                    x = 'I can confirm only subscribe and unsubscribe.'
+                    logger.error(x)
             else:
-                logger.warning('Invalid confirmation code')
+                t.send(templates.error('Invalid confirmation code'),
+                       from_address)
 
         else:
-            raise ValueError('Bad action')
+            logger.error('Bad action')
