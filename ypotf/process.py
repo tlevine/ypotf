@@ -25,8 +25,16 @@ MATCHERS = {k: re.compile(v, flags=re.IGNORECASE) for (k,v) in [
 
 CHARACTERS = string.ascii_lowercase + string.digits
 
+_now = datetime.datetime.now
+
 def _confirmation_code():
     return ''.join(sample(CHARACTERS, 32))
+
+def _prepare_send(msg):
+    m = deepcopy(msg)
+    m['X-Ypotf-Id'] = _confirmation_code()
+    m['X-Ypotf-Date'] = email.utils.format_datetime(_now())
+    return m
 
 append_tpl = '''Appending this message to %s
 ----------------------------------------
@@ -70,14 +78,16 @@ class Transaction(object):
         return r(self.M.store(num, action, flags))
 
     def send(self, msg, *to_addresses):
-        msg2 = deepcopy(msg) # sent message kind 2
-
         logger.info('Sending to %d addresses' % len(to_addresses))
-        if msg['To'].lower() == list_address:
+
+        msg2 = _prepare_send(msg) # sent message kind 2
+
+        if msg2['To'].lower() == list_address:
+            msg2['Bcc'] = 
 
         for to_address in to_addresses:
-            msg1 = deepcopy(msg) # sent message kind 1
-            msg1['
+            msg1 = _prepare_send(msg) # sent message kind 1
+            msg1['To']
 
             logger.debug(send_tpl % (to_address, msg1))
             self.append('Sent', '\\SEEN', msg1)
@@ -85,7 +95,7 @@ class Transaction(object):
 
     def append(self, box, flags, m):
         'This is not reverted.'
-        d = tuple(datetime.datetime.now().timetuple())
+        d = tuple(_now().timetuple())
         if 'seen' not in flags.lower():
             raise ValueError('"\\Seen" must be a flag.')
         logger.debug(append_tpl % (box, m))

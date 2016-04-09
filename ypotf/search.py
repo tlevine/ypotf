@@ -77,7 +77,7 @@ class inbox(object):
         x = 'BODY.PEEK[HEADER.FIELDS (TO SUBJECT)]'
         for num, m in _fetch(x, M, nums):
             h = _parse_headers(m)
-            if email_address(h['SUBJECT']).lower() == e.lower():
+            if email_address(h['SUBJECT']) == e:
                 return num, h.get('TO') # None if already subscribed
         return None, None
 
