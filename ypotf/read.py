@@ -73,10 +73,15 @@ Subject: %(SUBJECT)s
             logger.warning('Message %s is missing headers, skipping' %
                            num.decode('ascii'))
 
-def archive(M):
+def commands_archive(M, matchers):
     '''
     :returns: Iterable of subscriber email addresses
     '''
-    nums = search(M, 'ANSWERED NOT HEADER X-Ypotf-Kind Subscription ""')
+    nums = search(M, 'ANSWERED NOT HEADER X-Ypotf-Subscription ""')
     x = 'BODY.PEEK[HEADER.FIELDS (SUBJECT)]'
-    return [m['SUBJECT'] for _, m in _fetch(x, M, nums)]
+    for _, m in _fetch(x, M, nums):
+        for exp in matchers.values():
+            if re.match(exp, m['Subject']):
+                break
+        else:
+            yield m['Subject']

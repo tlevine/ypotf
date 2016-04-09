@@ -33,6 +33,7 @@ def process(list_address, S, M, num, m):
             t.send(templates.help(list_address, m))
 
         elif action == 'archive':
+            all_subjects = read.archive(MATCHERS, M)
             t.send(templates.archive(list_address, m, subjects))
 
         elif action == 'publication':
