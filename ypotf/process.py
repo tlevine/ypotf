@@ -64,13 +64,31 @@ class Transaction(object):
                 f(*args)
         r(self._M.close())
 
-    def plus_flags(self, num, flags):
+    def applied(self, num):
+        flags = '\\ANSWERED \\SEEN'
         self._revert.append((self._store, (num, '-FLAGS', flags)))
         return self._store(num, '+FLAGS', flags)
 
-    def minus_flags(self, num, *flags):
+    def pending(self, num, *flags):
+        flags = '\\ANSWERED'
+        self._revert.append((self._store, (num, '-FLAGS', flags)))
+        return self._store(num, '-FLAGS', flags)
+
+    def deleted(self, num, *flags):
         self._revert.append((self._store, (num, '+FLAGS', flags)))
         return self._store(num, '-FLAGS', flags)
+
+    def store(self, num, action, flags):
+        actions = {
+            '+FLAGS': '-FLAGS',
+            '-FLAGS': '+FLAGS',
+        }
+        if action in actions:
+            anti_action = actions[action]
+            self._revert.append((self._store, (num, anti_action, flags)))
+            return self._store(num, action, flags)
+        else:
+            raise ValueError('Bad action: %s' % action)
 
     def _store(self, *args):
         '''
