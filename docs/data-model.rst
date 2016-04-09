@@ -18,26 +18,28 @@ Inbox folder
 Messages in the Inbox folders have two primary types, which are
 encoded as flags.
 
-1. Pending commands/data (UNANSWERED)
-2. Applied commands/data (ANSWERED)
+1. Pending commands and subscriptions (UNANSWERED)
+2. Pending unsubscriptions (ANSWERED UNSEEN)
+3. Applied commands/data (ANSWERED SEEN)
 
-Secondary and tertiary types are encoded in headers; in the outline
-below, the headers in parantheses distinguish among the sub-types.
+Secondary and tertiary types are encoded in headers.
 
-1. Pending commands/data (X-Ypotf-Subscription)
+1. Pending commands/data
 
-  1. Incoming commands (Subject)
+  1. Incoming commands (X-Ypotf-Subscription is absent)
 
-    1. help
-    2. list-archive
-    3. subscribe
-    4. unsubscribe
-    5. list-confirm
-    6. message
+    1. help (Subject is "help".)
+    2. list-archive (Subject starts with "list-archive".)
+    3. subscribe (Subject is "subscribe".)
+    4. unsubscribe (Subject is "unsubscribe".)
+    5. list-confirm (Subject contains a confirmation code.)
+    6. message (All other subjects)
 
-  2. Pending subscriptions 
+  2. Pending subscriptions (X-Ypotf-Subscription is set.)
 
-2. Applied commands/data (X-Ypotf-Subscription)
+2. Pending unsubscriptions
 
-  1. Applied commands
-  2. Current subscriptions
+3. Applied commands/data
+
+  1. Applied commands (X-Ypotf-Subscription is not set.)
+  2. Current subscriptions (X-Ypotf-Subscription is set.)
