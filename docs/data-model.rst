@@ -15,7 +15,16 @@ meaning in this folder.
 
 Inbox folder
 -------------
-Messages in the Inbox folders have these types, which are organized as
+Messages in the Inbox folders have three primary types, which are
+encoded as flags.
+
+1. Incoming commands (UNSEEN UNANSWERED UNDRAFT UNFLAGGED)
+2. Processed commands (SEEN ANSWERED DRAFT UNFLAGGED)
+3. Pending master data (SEEN ANSWERED UNDRAFT FLAGGED)
+4. Current master data (SEEN ANSWERED UNDRAFT UNFLAGGED)
+
+
+these types, which are organized as
 primary and secondary types. Primary types are encoded in flags, and
 secondary types are encoded in headers.
 
