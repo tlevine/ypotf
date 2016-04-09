@@ -27,7 +27,6 @@ def is_subscribed(M, address):
     e = email_address(address)
 
     s = 'ANSWERED HEADER X-Ypotf-Subscription ""'
-    print(search(M, s), 8888)
     return search(M, s) != ''
 
 def subscription_ypotf_id(M, address):
