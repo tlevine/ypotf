@@ -1,7 +1,7 @@
 import logging
 from copy import deepcopy
 
-from .utils import r, uuid
+from .utils import r, uuid, get_num
 from . import templates
 
 logger = logging.getLogger(__name__)
@@ -66,8 +66,9 @@ class Writer(object):
         }
         if action in actions:
             anti_action = actions[action]
+            y = self._base_store(num, action, flags)
             self._revert.append((self._base_store, (num, anti_action, flags)))
-            return self._base_store(num, action, flags)
+            return y
         else:
             raise ValueError('Bad action: %s' % action)
 
@@ -90,19 +91,22 @@ class Writer(object):
 
         m['X-Ypotf-Append'] = uuid()
 
+        d = tuple(_now().timetuple())
+        l = m.as_bytes()
+        y = r(self._M.append(box, flags, d, l))
+
         # Reverting an append may require a switch of box.
         # Put it at the beginning of the revert list so it runs last.
         self._revert.insert(0,
             (self._revert_append, (box, m['X-Ypotf-Append'])))
 
-        d = tuple(_now().timetuple())
-        return r(self._M.append(box, flags, d, m.as_bytes()))
+        return y
 
     def _revert_append(self, box, append_id):
         query = 'HEADER X-Ypotf-Append %s' % append_id
         self._select(box)
         
-        num = read.get_num(M, query)
+        num = get_num(self._M, query)
         self._store(num, '+FLAGS', '\\DELETED')
 
     def send(self, msg, to_addresses=None):

@@ -60,7 +60,7 @@ def confirm_ok(action, list_address, to_address, code):
     m.set_payload(tpl % _desc[action])
     return m
 
-def help(list_address, to_address):
+def help(list_address, m_in):
     m = _set_list_headers(list_address, Message())
     m = _set_reply_headers(list_address, m_in, m)
     m['Subject'] = 'List help'

@@ -32,9 +32,9 @@ def process(list_address, S, M, num, m):
     with Writer(list_address, S, M) as t:
         t.store_current(num)
         if action == 'help':
-            t.send(templates.help(m['From'], message_id))
+            t.send(templates.help(list_address, m))
 
-        elif action == 'list-archive':
+        elif action == 'archive':
             x = 'List archives are not implemented yet.'
             t.send(templates.error(x, m['From'], message_id))
 
