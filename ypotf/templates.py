@@ -47,9 +47,9 @@ def _set_reply_headers(list_address, m_in, m_out):
     m_out['Date'] = _now()
     return m_out
 
-def subscribe_ok(list_address, m, code):
+def subscribe_ok(list_address, m_in, code):
     m = _set_list_headers(list_address, Message())
-    m['To'] = email_address(m['From'])
+    m['To'] = email_address(m_in['From'])
     m['From'] = list_address
     m['Subject'] = 'Verify your email address {%s}' % code
     m.set_payload('Reply to verify your email address and finish subscribing.')
@@ -94,7 +94,6 @@ def confirm_ok(list_address, m_in):
 def unsubscribe_ok(list_address, m_in):
     m = _set_list_headers(list_address, Message())
     m = _set_reply_headers(list_address, m_in, m)
-    m['From'] = list_address
     x = 'Your email address, %s, has been removed from this mailing list.'
     m.set_payload(x % e)
     return m
@@ -110,6 +109,5 @@ mailing list; your unsubscribe command did nothing.''' % e)
 def error(list_address, m_in, text):
     m = _set_list_headers(list_address, Message())
     m = _set_reply_headers(list_address, m_in, m)
-    e = email_address(m_in['From'])
     m.set_payload(text)
     return m

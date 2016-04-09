@@ -131,4 +131,7 @@ class Writer(object):
                 msg1 = msg
             logger.debug(log_tpl % ('Sending', to_address, msg1))
             self._append('Sent', '\\SEEN', msg1)
-            self._S.send_message(msg1, self._list_address, [to_address])
+            if to_address:
+                self._S.send_message(msg1, self._list_address, [to_address])
+            else:
+                raise ValueError('No "To:" field')
