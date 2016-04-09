@@ -166,7 +166,7 @@ def process(S, M, num, from_address, subject, message_id):
 
             t.send(templates.confirmation(action, from_address, code),
                    from_address)
-            t.add_flags(num, '+FLAGS', '\\SEEN \\ANSWERED')
+            t.plus_flags(num, '\\SEEN \\ANSWERED')
 
         elif action == 'unsubscribe':
             draft_num, code = search.inbox.subscriber(M, from_address)
