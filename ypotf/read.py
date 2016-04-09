@@ -50,23 +50,29 @@ class inbox(object):
 
     @staticmethod
     def subscribers(M):
-        nums = _search('FLAGGED UNDRAFT HEADER X-Ypotf-Kind Subscription', M)
+        '''
+        :returns: Iterable of subscriber email addresses
+        '''
+        nums = _search('ANSWERED HEADER X-Ypotf-Kind Subscription', M)
         x = 'BODY.PEEK[HEADER.FIELDS (SUBJECT)]'
         headers = (_parse_headers(m) for _, m in _fetch(x, M, nums))
         return set(m['SUBJECT'] for m in headers)
 
     @staticmethod
-    def _subscriber(M, address, extra_flags):
+    def subscriber_ypotf_id(M, address):
         '''
-        " and \ are not allowed in email addresses, so this is safe.
+        :returns: Iterable of subscriber email addresses
         '''
         e = email_address(address)
-        nums = _search('%s FLAGGED FROM "%s"' % (extra_flags, e), M)
-        x = 'BODY.PEEK[HEADER.FIELDS (SUBJECT X-Ypotf-Confirmation)]'
-        for num, m in _fetch(x, M, nums):
-            h = _parse_headers(m)
-            if email_address(h['SUBJECT']) == e:
-                return h['X-Ypotf-Confirmation']
+
+        s = 'ANSWERED HEADER X-Ypotf-Kind Subscription Subject "%s"'
+        nums = _search(q % s, M)
+
+        f = 'BODY.PEEK[HEADER.FIELDS (X-Ypotf-Id Subject)]'
+        for _, m in _fetch(f, M, nums):
+            _parse_headers(m)
+            if email_address(m['Subject']) == e:
+                return m['X-Ypotf-Id']
 
     @staticmethod
     def current(M, address):

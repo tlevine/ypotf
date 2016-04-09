@@ -18,8 +18,8 @@ Inbox folder
 Messages in the Inbox folders have these primary types, which are
 encoded as flags.
 
-1. Pending (Flags: UNANSWERED (OR SEEN UNSEEN))
-2. Applied commands/data (Flags: ANSWERED SEEN)
+1. Pending (UNANSWERED)
+2. Applied commands/data (ANSWERED)
 
 Secondary and tertiary types are encoded in headers.
 
