@@ -1,7 +1,13 @@
+import email
+import datetime
+
 from email.message import Message
 from functools import partial
 
-from .utils import email_address
+from .utils import email_address, uuid
+
+def _now():
+    return email.utils.format_datetime(datetime.datetime.now())
 
 FORWARDED_HEADERS = {
     'from',
@@ -37,7 +43,7 @@ def _set_reply_headers(list_address, m_in, m_out):
     m_out['From'] = list_address
     m_out['Subject'] = 'Re: %(Subject)ss' % m_in
     m_out['References'] = ('%(References)s %(Message-Id)s' % m_in).strip()
-    m_out['Date'] = email.utils.format_datetime(_now())
+    m_out['Date'] = _now()
     return m_out
 
 def confirm_ok(action, list_address, to_address, code):
@@ -61,23 +67,25 @@ def help(list_address, to_address):
     m.set_payload('Documentation will eventually go here.')
     return m
 
-def publication(list_address, msg):
+def set_publication_headers(m):
+    m['X-Ypotf-Id'] = uuid()
+    m['X-Ypotf-Date'] = _now()
+    return m
+
+def set_publication_batch_headers(m, to_addresses):
+    m['Bcc'] = ', '.join(to_addresses)
+    return m
+
+def publication_ok(list_address, msg):
     m = _set_list_headers(list_address, msg)
     del(msg['To'])
     msg['To'] = list_address
-    m['X-Ypotf-Id'] = _uuid()
-    m['X-Ypotf-Date'] = email.utils.format_datetime(_now())
     return msg
 
-def subscriber(address):
-    m = _set_ypotf_headers(Message())
-    m['Subject'] = address
-    m['X-Ypotf-Id'] = _uuid()
-    return m
-
-def publication_batch(list_address, m, to_addresses):
-    m = publication(list_address, m)
-    m['Bcc'] = ', '.join(to_addresses)
+def subscription(m):
+    m = Message()
+    m['Subject'] = email_address(m['From'])
+    m['X-Ypotf-Id'] = uuid()
     return m
 
 def unsubscribe_ok(list_address, m_in):

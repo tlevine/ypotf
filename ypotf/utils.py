@@ -1,4 +1,4 @@
-import uuid
+from uuid import uuid1
 import email
 import textwrap
 import logging
@@ -11,7 +11,7 @@ def r(x, expected='OK'):
     return data
 
 def uuid():
-    return uuid.uuid1().hex
+    return uuid1().hex
 
 def email_address(x):
     return email.utils.parseaddr(x)[1].lower()
@@ -26,3 +26,12 @@ def search(M, criterion):
 
     logger.debug('%d results' % n)
     return nums
+
+def get_num(M, criterion):
+    ns = nums[0].split()
+    if len(ns) == 0:
+        raise ValueError('No results')
+    elif len(ns) == 1:
+        return ns[0]
+    else:
+        raise ValueError('%d results' % len(ns))

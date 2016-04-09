@@ -66,9 +66,9 @@ def process(list_address, S, M, num, m):
             if code:
                 sub_num = read.ypotf_id_num(M, code)
                 t.store_deleted(sub_num)
-                t.send(templates.unsubscribe_ok(self._list_address, m))
+                t.send(templates.unsubscribe_ok(list_address, m))
             else:
-                t.send(templates.unsubscribe_fail_not_member(self._list_address, m))
+                t.send(templates.unsubscribe_fail_not_member(list_address, m))
 
         elif action == 'confirm':
             code = re.match(MATCHERS['confirm'], subject).group(1)

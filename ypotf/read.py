@@ -38,7 +38,7 @@ def is_subscribed(M, address):
     :returns: Whether the address is subscribed
     :rtype: bool
     '''
-    return subscription_ypotf_id(address) != None
+    return subscription_ypotf_id(M, address) != None
 
 def ypotf_id_num(M, x):
     q = 'ANSWERED HEADER X-Ypotf-Kind Subscription X-Ypotf-Id "%s"'

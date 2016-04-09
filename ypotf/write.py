@@ -1,7 +1,8 @@
 import logging
 from copy import deepcopy
 
-from .utils import r
+from .utils import r, uuid
+from . import templates
 
 logger = logging.getLogger(__name__)
 
@@ -85,36 +86,40 @@ class Writer(object):
         '''
         if 'seen' not in flags.lower():
             raise ValueError('"\\Seen" must be a flag.')
-        logger.debug(log_tpl % ('Appending', to_address, msg1))
+        logger.debug(log_tpl % ('Appending', m['To'], m))
 
-        append_id = _uuid()
-        m['X-Ypotf-Append'] = append_id
+        m['X-Ypotf-Append'] = uuid()
 
         # Reverting an append may require a switch of box.
         # Put it at the beginning of the revert list so it runs last.
-        self._revert.insert(0, self._revert_append, (box, append_id))
+        self._revert.insert(0,
+            (self._revert_append, (box, m['X-Ypotf-Append'])))
 
         d = tuple(_now().timetuple())
         return r(self._M.append(box, flags, d, m.as_bytes()))
 
-    def _revert_append(box, append_id):
+    def _revert_append(self, box, append_id):
         query = 'HEADER X-Ypotf-Append %s' % append_id
         self._select(box)
         
-        num = search.get_num(M, query)
+        num = read.get_num(M, query)
         self._store(num, '+FLAGS', '\\DELETED')
 
     def send(self, msg, to_addresses=None):
-        logger.info('Sending to %d addresses' % len(to_addresses))
+        publication = to_addresses != None
 
-        if to_addresses:
-            msg2 = templates.publication_batch(deepcopy(msg))
+        if publication:
+            msg2 = set_publication_batch_headers(deepcopy(msg), to_addresses)
             self._append('Sent', '\\SEEN', msg2)
         else:
             to_addresses = [msg['To']]
 
+        logger.info('Sending to %d addresses' % len(to_addresses))
         for to_address in to_addresses:
-            msg1 = templates.publication(msg) # sent message kind 1
+            if publication:
+                msg1 = templates.set_publication_headers(msg)
+            else:
+                msg1 = msg
             logger.debug(log_tpl % ('Sending', to_address, msg1))
             self._append('Sent', '\\SEEN', msg1)
             self.S.send_message(msg1, self._list_address, [to_address])
