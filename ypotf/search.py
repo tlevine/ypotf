@@ -78,9 +78,9 @@ class inbox(object):
         '''
         r(M.select('Inbox'))
         nums = _search('FLAGGED UNDRAFT', M)
-        x = 'BODY.PEEK[HEADER.FIELDS (TO)]'
+        x = 'BODY.PEEK[HEADER.FIELDS (SUBJECT)]'
         headers = (_parse_headers(m) for _, m in _fetch(x, M, nums))
-        return set(m['TO'] for m in headers)
+        return set(m['SUBJECT'] for m in headers)
 
     @staticmethod
     def _subscriber(M, address, extra_flags):
