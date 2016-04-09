@@ -66,18 +66,24 @@ class sent(object):
 
 class inbox(object):
     '''
-    Messages are processed only if they are UNDELETED and either UNSEEN
-    or FLAGGED. All other messages must have one of the following flag
-    settings. Bold indicates the more distinguishing flags.
+    All messages must have one of the following flag settings;
+    other flag configurations are ignored. Bold indicates the
+    more distinguishing flags.
 
     New command
-        **UNSEEN** UNDRAFT UNFLAGGED
-    Pending message to list members
-        SEEN DRAFT
+        UNANSWERED 
     Pending subscription
-        SEEN UNDRAFT FLAGGED
+        ANSWERED   UNFLAGGED
     Current subscription
-        SEEN UNDRAFT UNFLAGGED
+        ANSWERED   FLAGGED
+    Pending message to list members
+        UNANSWERED DRAFT      UNFLAGGED
+    Sent message to list members
+        UNANSWERED DRAFT      FLAGGED
+
+    Note: There are five categories of method (four explicitly
+    and one for everything else). Three flags is enough to distinguish
+    among eight categories if I really needed.
 
     Transitions between states
 
