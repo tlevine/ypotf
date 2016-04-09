@@ -54,11 +54,16 @@ def envelope(**headers):
         m[key] = value
     return m
 
-def subscriber(address, code):
-    return envelope(To=address, Subject=code)
-
 def message(msg):
     m = _set_list_headers(msg)
     del(msg['To'])
     msg['To'] = list_address
     return msg
+
+# Internal emails
+def i_subscriber(address, code):
+    return envelope(To=address, Subject=code)
+
+def i_message_confirmation(m, code):
+    m['TO'] = code
+    return m

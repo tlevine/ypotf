@@ -2,6 +2,7 @@ import re
 import logging
 import textwrap
 
+from email import message_from_bytes
 from .utils import r, email_address
 
 logger = logging.getLogger(__name__)
@@ -20,7 +21,7 @@ def _block(x):
     return '\n%s\n' % textwrap.indent(textwrap.fill(x.strip(), 50), '  ')
 
 def _search(criterion, M):
-    x = 'UNDELETED ' + criterion
+    x = 'UNANSWERED UNDELETED ' + criterion
     logger.debug('Searching:\n%s' % _block(x))
 
     nums = r(M.search(None, x))
@@ -42,6 +43,10 @@ def get_num(M, criterion):
         raise ValueError('No messages match "%s"' % criterion)
     else:
         raise ValueError('Multiple messages match "%s"' % criterion)
+
+def fetch_num(M, num):
+    data = r(M.fetch(num, '(RFC822)')
+    return message_from_bytes(data[0][1])
 
 class sent(object):
     @staticmethod
@@ -73,9 +78,9 @@ class inbox(object):
         '''
         r(M.select('Inbox'))
         nums = _search('FLAGGED UNDRAFT', M)
-        x = 'BODY.PEEK[HEADER.FIELDS (SUBJECT MESSAGE-ID)]'
+        x = 'BODY.PEEK[HEADER.FIELDS (TO)]'
         headers = (_parse_headers(m) for _, m in _fetch(x, M, nums))
-        return set(m['SUBJECT'] for m in headers)
+        return set(m['TO'] for m in headers)
 
     @staticmethod
     def subscriber(M, from_field):
@@ -83,20 +88,20 @@ class inbox(object):
         " and \ are not allowed in email addresses, so this is safe.
         '''
         e = email_address(from_field)
-        nums = _search('FLAGGED UNDRAFT SUBJECT "%s"' % e, M)
-        x = 'BODY.PEEK[HEADER.FIELDS (TO SUBJECT)]'
+        nums = _search('FLAGGED UNDRAFT FROM "%s"' % e, M)
+        x = 'BODY.PEEK[HEADER.FIELDS (FROM)]'
         for num, m in _fetch(x, M, nums):
             h = _parse_headers(m)
-            if email_address(h['SUBJECT']) == e:
-                return num, h.get('TO') # None if already subscribed
+            if email_address(h['FROM']) == e:
+                return num
         return None, None
 
     @staticmethod
     def new_orders(M):
         '''
-        Search for non-Seen (just-received) emails.
+        Search for just-received emails.
         '''
-        nums = _search('UNSEEN', M)
+        nums = _search('UNSEEN UNFLAGGED', M)
         message_parts = 'BODY.PEEK[HEADER.FIELDS (FROM SUBJECT MESSAGE-ID)]'
         for num, m in _fetch(message_parts, M, nums):
             h = _parse_headers(m)
@@ -118,19 +123,19 @@ class inbox(object):
         '''
         Search for Draft (confirmation)
 
-        FLAGGED DRAFT
+        FLAGGED DRAFT SEEN
             Subscription confirmation
-        FLAGGED UNDRAFT
+        FLAGGED UNDRAFT UNSEEN
             Unsubscription confirmation
         UNFLAGGED DRAFT
             Message confirmation
         '''
         criterion = re.sub(r'[\n ]+', ' ', '''
-          TO "%s"
+          SUBJECT "%s"
           ( OR
-            ( FLAGGED DRAFT )
+            ( FLAGGED DRAFT SEEN )
             ( OR
-              ( FLAGGED UNDRAFT )
+              ( FLAGGED UNDRAFT UNSEEN )
               ( UNFLAGGED DRAFT )))''' % code)
 
         nums = _search(criterion, M)

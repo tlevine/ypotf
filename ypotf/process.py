@@ -140,9 +140,7 @@ def process(S, M, num, from_address, subject, message_id):
 
         elif action == 'message':
             code = _confirmation_code()
-            data = r(M.fetch(num, '(RFC822)'))
-            m = message_from_bytes(data[0][1])
-            m['TO'] = code
+            m = templates.i_message_confirmation(fetch_num(num), code)
 
             t.send(templates.confirmation(action, from_address, code),
                    from_address)
@@ -162,7 +160,7 @@ def process(S, M, num, from_address, subject, message_id):
             else:
                 logger.debug('Creating a new pending confirmation')
                 code = _confirmation_code()
-                m = templates.subscriber(from_address, code)
+                m = templates.i_subscriber(from_address, code)
                 t.append('Inbox', flags, m)
 
             t.send(templates.confirmation(action, from_address, code),
@@ -188,16 +186,14 @@ def process(S, M, num, from_address, subject, message_id):
             draft_num, draft_action = search.inbox.confirmation(M, code)
             if draft_num and draft_action:
                 if draft_action == 'message':
-                    data = r(M.fetch(draft_num, '(RFC822)'))
+                    m = search.fetch_num(draft_num)
                     to_addresses = search.inbox.subscribers(M)
                     t.plus_flags(draft_num, '\\ANSWERED')
                     t.plus_flags(num, '\\ANSWERED')
-                    m = templates.message(message_from_bytes(data[0][1]))
                     t.send(m, *to_addresses)
 
                 elif draft_action == 'subscribe':
-                    data = r(M.fetch(draft_num, '(RFC822)'))
-                    m = message_from_bytes(data[0][1])
+                    m = search.fetch_num(draft_num)
                     del(m['TO'])
                     t.plus_flags(draft_num, '\\DELETED')
                     t.append('Inbox', '\\FLAGGED \\SEEN', m)
