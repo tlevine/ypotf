@@ -15,13 +15,13 @@ def ypotf(password, *quotas, n:int=0, list_subscribers=False):
     :param str password: Password for the account
     :param str quotas: Sending rate limits in the form "$minutes:$count"
     :param int n: Number of incoming emails to process this session
-        If it is zero (the default), it is ignored.
+        If it is zero or less (the default), it is ignored.
 
     The max emails to send this session is the minimum that I determine
     from all quotas.
     '''
     imap_host = smtp_host = 'mail.gandi.net'
-    imap_username = smtp_username = '_@dada.pink'
+    list_address = imap_username = smtp_username = '_@dada.pink'
     imap_password = smtp_password = password
 
     M = imaplib.IMAP4_SSL(imap_host)
@@ -40,9 +40,9 @@ def ypotf(password, *quotas, n:int=0, list_subscribers=False):
     r(M.select('Inbox'))
     orders = read.new_orders(M)
     for i, (num, m) in enumerate(orders):
-        if n and i < n:
+        if n <= 0 or i < n:
             logger.info('Processing message from %(From)s' % m)
-            process(S, M, m)
+            process(list_address, S, M, m)
         else:
             logger.info('Processed %d messages' % n)
             break

@@ -11,10 +11,10 @@ log_tpl = '''%s this message to %s
 ----------------------------------------''' 
 
 class Writer(object):
-    def __init__(self, S, M, list_address):
+    def __init__(self, list_address, S, M):
         self._S = S
         self._M = M
-        self._list_address
+        self._list_address = list_address
 
     def __enter__(self, box='Inbox'):
         self._finalize = []
@@ -43,7 +43,7 @@ class Writer(object):
             r(M.logout(), 'BYE')
             sys.exit(1)
 
-    def store_applied(self, num):
+    def store_current(self, num):
         return self.store(num, '+FLAGS', '\\ANSWERED \\SEEN')
 
     def store_pending(self, num):
@@ -52,7 +52,7 @@ class Writer(object):
     def store_deleted(self, num, flags):
         return self.store(num, '+FLAGS', '\\DELETED')
 
-    def append_applied(self, m):
+    def append_current(self, m):
         return self._append('Inbox', '\\ANSWERED \\SEEN', m)
 
     def append_pending(self, m):

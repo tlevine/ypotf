@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 def _fetch(fetch, M, nums):
     for num in nums[0].split():
-        yield num, message_from_bytes(r(M.fetch(num, fetch)))
+        yield num, message_from_bytes(r(M.fetch(num, fetch))[0][1])
 
 def subscribers(M):
     '''
@@ -57,12 +57,12 @@ def new_orders(M):
     '''
     nums = search(M, 'UNSEEN UNANSWERED')
     for num, m in _fetch('(RFC822)', M, nums):
-        if {'FROM', 'SUBJECT'}.issubset(h):
+        if 'From' in m and 'Subject' in m:
             logger.debug('''Found a new order
 
 From: %(FROM)s
 Subject: %(SUBJECT)s
-''' % h)
+''' % m)
             yield num, m
         else:
             logger.warning('Message %s is missing headers, skipping' %
