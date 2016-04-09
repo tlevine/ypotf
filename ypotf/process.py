@@ -159,7 +159,7 @@ def process(S, M, num, from_address, subject, message_id):
                     logger.debug('Creating a new pending subscription')
                     code = _confirmation_code()
                     m = templates.i_subscriber(from_address, code)
-                    t.append('Inbox', flags, m)
+                    t.append('Inbox', '\\FLAGGED \\SEEN \\DRAFT', m)
                 t.send(templates.subscribe_confirm(from_address, code),
                        from_address)
 
