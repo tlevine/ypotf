@@ -2,20 +2,32 @@ Ypotf stores its data in IMAP as a log that can be replayed.
 It records changes in state only by appending new messages or
 manipulating IMAP flags.
 
-Ypotf stores messages in the Inbox and Sent folders and never modifies
-the messages themselves
-
 Sent folder
 -------------
-Messages in the Sent folders have two types
+Messages in the Sent folders have these types
 
 1. Exact copies of all messages that are sent out.
 2. Aggregate of each batch of messages that is sent to the full
    subscriber list (not help requests, for example)
 
-Messages in the Sent folder are never modified
+Messages in the Sent folder are never modified, and flags have no
+meaning in this folder.
 
+Inbox folder
 -------------
+Messages in the Inbox folders have these types
+
+1. Incoming commands
+2. Pending master data
+
+  a. Subscription requests
+  b. Publication requests
+
+3. Current master data
+
+  a. Subscription requests
+  b. Publication requests
+
 
 
 
