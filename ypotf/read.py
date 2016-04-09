@@ -16,7 +16,7 @@ def subscribers(M):
     '''
     :returns: Iterable of subscriber email addresses
     '''
-    nums = _search('ANSWERED HEADER X-Ypotf-Kind Subscription', M)
+    nums = _search(M, 'ANSWERED HEADER X-Ypotf-Kind Subscription')
     x = 'BODY.PEEK[HEADER.FIELDS (SUBJECT)]'
     headers = (_parse_headers(m) for _, m in _fetch(x, M, nums))
     return set(m['SUBJECT'] for m in headers)
@@ -28,7 +28,7 @@ def subscription_ypotf_id(M, address):
     e = email_address(address)
 
     s = 'ANSWERED HEADER X-Ypotf-Kind Subscription Subject "%s"'
-    nums = _search(q % s, M)
+    nums = _search(M, q % s)
 
     f = 'BODY.PEEK[HEADER.FIELDS (X-Ypotf-Id Subject)]'
     for _, m in _fetch(f, M, nums):
@@ -37,10 +37,19 @@ def subscription_ypotf_id(M, address):
             return m['X-Ypotf-Id']
 
 def is_subscribed(M, address):
+    '''
+    :returns: Whether the address is subscribed
+    :rtype: bool
+    '''
     return subscription_ypotf_id(address) != None
 
+def from_ypotf_id(M, x):
+    q = 'ANSWERED HEADER X-Ypotf-Kind Subscription X-Ypotf-Id "%s"'
+    num = search_one(M, q % x)
 
-
+    f = 'BODY.PEEK[HEADER.FIELDS (X-Ypotf-Id Subject)]'
+    data = r(M.fetch(num, f))
+    
 
 
 
@@ -57,7 +66,7 @@ def is_subscribed(M, address):
         '''
         Search for just-received emails.
         '''
-        nums = _search('UNSEEN UNANSWERED', M)
+        nums = _search(M, 'UNSEEN UNANSWERED')
         message_parts = 'BODY.PEEK[HEADER.FIELDS (FROM SUBJECT MESSAGE-ID)]'
         for num, m in _fetch(message_parts, M, nums):
             h = _parse_headers(m)

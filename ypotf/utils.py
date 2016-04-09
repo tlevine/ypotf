@@ -47,5 +47,5 @@ def _fetch(fetch, M, nums):
         yield num, r(M.fetch(num, fetch))
 
 def fetch_one(M, num):
-    data = r(M.fetch(num, '(RFC822)')
+    data = r(M.fetch(num, fetch)
     return email.utils.message_from_bytes(data[0][1])
