@@ -73,7 +73,7 @@ Subject: %(SUBJECT)s
             logger.warning('Message %s is missing headers, skipping' %
                            num.decode('ascii'))
 
-def commands_archive(M, matchers):
+def archive(M, matchers):
     '''
     :returns: Iterable of subscriber email addresses
     '''
