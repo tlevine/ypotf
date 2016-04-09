@@ -15,9 +15,19 @@ meaning in this folder.
 
 Inbox folder
 -------------
-Messages in the Inbox folders have these types
+Messages in the Inbox folders have these types, which are organized as
+primary and secondary types. Primary types are encoded in flags, and
+secondary types are encoded in headers.
 
 1. Incoming commands
+
+  a. help
+  b. list-archive
+  c. subscribe
+  d. unsubscribe
+  e. list-confirm
+  f. message
+
 2. Pending master data
 
   a. Subscription requests
