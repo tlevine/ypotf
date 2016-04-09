@@ -118,7 +118,8 @@ class Writer(object):
         publication = to_addresses != None
 
         if publication:
-            msg2 = set_publication_batch_headers(deepcopy(msg), to_addresses)
+            fn = templates.set_publication_batch_headers
+            msg2 = fn(deepcopy(msg), to_addresses)
             self._append('Sent', '\\SEEN', msg2)
         else:
             to_addresses = [msg['To']]

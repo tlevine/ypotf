@@ -13,7 +13,7 @@ MATCHERS = {k: re.compile(v, flags=re.IGNORECASE) for (k,v) in [
     ('subscribe', r'^subscribe$'),
     ('unsubscribe', r'^unsubscribe$'),
     ('confirm', r'.*{([a-z0-9]{32})}.*'),
-    ('archive', r'^list-archive'),
+    ('archive', r'^list-archive *(.*)'),
     ('help', r'^help$'),
 ]}
 
@@ -33,15 +33,14 @@ def process(list_address, S, M, num, m):
             t.send(templates.help(list_address, m))
 
         elif action == 'archive':
-            x = 'List archives are not implemented yet.'
-            t.send(templates.error(list_address, m, x))
+            t.send(templates.archive(list_address, m, subjects))
 
         elif action == 'publication':
             if read.is_subscribed(M, m['From']):
                 # Skip confirmation if this is "From" a subscriber
                 # Rely on the email provider to have SPF, DKIM,
                 # and spam filtering.
-                m = templates.publication_ok(m)
+                m = templates.publication_ok(list_address, m)
                 to_addresses = read.subscribers(M)
                 t.send(m, to_addresses)
             else:

@@ -56,6 +56,19 @@ def subscribe_ok(list_address, m_in, code):
     m.set_payload('Reply to verify your email address and finish subscribing.')
     return m
 
+def archive(list_address, m_in, subjects):
+    m = _set_list_headers(list_address, Message())
+    m = _set_reply_headers(list_address, m_in, m)
+    m['Subject'] = 'List Archive'
+    subjects_str = '\n  '.join(subjects)
+    m.set_payload('''
+Here are the subject lines of the past few messages.
+
+  %s
+
+I might improve this list archives feature eventually.''' % subjects_str)
+    return m
+
 def help(list_address, m_in):
     m = _set_list_headers(list_address, Message())
     m = _set_reply_headers(list_address, m_in, m)
