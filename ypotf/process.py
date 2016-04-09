@@ -4,6 +4,7 @@ import logging
 import datetime
 import string
 from functools import partial
+from copy import deepcopy
 
 from email.message import Message
 from email import message_from_bytes
@@ -36,7 +37,7 @@ send_tpl = '''Sending this message to %s
 ----------------------------------------
 %s
 ----------------------------------------'''
-list_address = '_@dada.pink'
+from .templates import list_address
 
 class Transaction(object):
     def __init__(self, S, M):
@@ -69,12 +70,18 @@ class Transaction(object):
         return r(self.M.store(num, action, flags))
 
     def send(self, msg, *to_addresses):
-        'This is not reverted.'
+        msg2 = deepcopy(msg) # sent message kind 2
+
         logger.info('Sending to %d addresses' % len(to_addresses))
+        if msg['To'].lower() == list_address:
+
         for to_address in to_addresses:
-            logger.debug(send_tpl % (to_address, msg))
-            self.append('Sent', '\\SEEN', msg)
-            self.S.send_message(msg, list_address, [to_address])
+            msg1 = deepcopy(msg) # sent message kind 1
+            msg1['
+
+            logger.debug(send_tpl % (to_address, msg1))
+            self.append('Sent', '\\SEEN', msg1)
+            self.S.send_message(msg1, list_address, [to_address])
 
     def append(self, box, flags, m):
         'This is not reverted.'

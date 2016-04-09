@@ -176,9 +176,12 @@ because the first kind has a "Bcc" header and the second does not.
 Copies of individual sends
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 The first kind of message is an exact copy of the message that is passed
-to the SMTP server. It includes the "X-Ypotf-Id" flag, which is just a
-random number; as we'll see shortly, ypotf needs this because all of the
-copies have the same message-id.
+to the SMTP server. It includes the following ypotf-specific flags
+
+X-Ypotf-Id
+    A random number that we need because sent messages share message-ids.
+X-Ypotf-Date
+    The date at which Ypotf sent the message
 
 This kind of message is stored only for record-keeping; aside from
 saving them, ypotf ignores these messages.
@@ -216,9 +219,9 @@ any message of the first kind and making the following changes.
 * Add a "Bcc" header listing all of the present subscribers, that is,
   all of the people who were supposed to receive the message, regardless
   of whether the SMTP sending in fact succeeded.
-* Remove the "X-Ypotf-Id" header.
-* Change the "Date" header; the second kind of message is sent before
-  the first kind of message is.
+* Generate a new "X-Ypotf-Id" header.
+* Change the "X-Ypotf-Date" header; the second kind of message is sent
+  before the first kind of message is.
 
 Again, this message is *not* sent to the SMTP server.
 
