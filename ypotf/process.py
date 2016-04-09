@@ -65,18 +65,13 @@ class Transaction(object):
         r(self._M.close())
 
     def applied(self, num):
-        flags = '\\ANSWERED \\SEEN'
-        self._revert.append((self._store, (num, '-FLAGS', flags)))
-        return self._store(num, '+FLAGS', flags)
+        return self.store(num, '+FLAGS', '\\ANSWERED \\SEEN')
 
-    def pending(self, num, *flags):
-        flags = '\\ANSWERED'
-        self._revert.append((self._store, (num, '-FLAGS', flags)))
-        return self._store(num, '-FLAGS', flags)
+    def pending(self, num):
+        return self.store(num, '-FLAGS', '\\ANSWERED')
 
     def deleted(self, num, *flags):
-        self._revert.append((self._store, (num, '+FLAGS', flags)))
-        return self._store(num, '-FLAGS', flags)
+        return self.store(num, '+FLAGS', '\\DELETED')
 
     def store(self, num, action, flags):
         actions = {
