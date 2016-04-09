@@ -162,8 +162,8 @@ they don't require the aforementioned confirmation procedure.
 
 Sending messages
 ^^^^^^^^^^^^^^^^^^^^
-ypotf sends messages to one recipient at a time. It can store the
-following records of sent messages, and it stores both by default.
+ypotf sends messages to one recipient at a time. It stores the following
+records of sent messages.
 
 1. A copy of every message that is sent
 2. An additional copy for every message sent to the full subscription
@@ -201,36 +201,38 @@ sending partially sent batches of messages.
 
 Additional message-type batch copy
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The second is a record of each batch of messages that was sent; it has
-nothing to do with what was sent to the SMTP server.
+The second kind of message in the Sent folder is a record of each batch
+of messages that was sent. Ypotf references this kind of message in
+response to list-archive queries.
 
-modified to have a "Bcc" header listing
-all of the present subscribers. To be clear, this message is *not* sent
-to the SMTP server; messages are sent one at a time to individual
-members, and this message 
+It is saved before all messages of the first kind are saved, so it is a
+record of what was supposed to happen rather than what really happened.
+It has nothing to do with what was sent to the SMTP server.
+
+That said, its format is easier explained as a modification of a message
+of the first kind; you can create this sort of message by starting with
+any message of the first kind and making the following changes.
+
+* Add a "Bcc" header listing all of the present subscribers, that is,
+  all of the people who were supposed to receive the message, regardless
+  of whether the SMTP sending in fact succeeded.
+* Remove the "X-Ypotf-Id" header.
+* Change the "Date" header; the second kind of message is sent before
+  the first kind of message is.
+
+Again, this message is *not* sent to the SMTP server.
+
 The list-archive feature doesn't need to know what the list members
-were, but I thought it would be nice to have
+were, but I thought it would be nice to have them in here anyway.
 
-* It is a concise version of the first type of message; the only
-  thing that it lacks is the exact dates of sending.
-* It provides a record of the historical subscriber list that is easy to
-  view in a mail user agent.
-* It provides the full list of recipients that were intended in the
-  batch, whereas the first kind of message includes only the ones for
-  whom sending was successful.
-  
-if sending fails on the seventh of 12 recipients, this can help
-  you see who
-
-aggregation of the first type of message. Note that this does not have
-all of the information that the first sort of message does; the exact
-dates are missing, and this message is saved regardless of whether the
-SMTP sending succeeds.
-
-ypotf stores both of the above sorts of information about sent messages
-by default, but they can be disabled.
-
-*
+* With the list of present subscribers, this kind of message becomes a
+  concise version of the first type of message; the only thing that it
+  lacks is the exact dates of sending.
+* The list of present subscribers functions as a record of the
+  historical subscriber list that is easy to view in a mail user agent.
+* This list includes the full list of recipients that were intended in
+  the batch, whereas the first kind of message includes only the ones
+  for whom sending was successful.
 
 Logs
 ^^^^^
@@ -239,7 +241,7 @@ ypotf retains all messages that it ever creates. This includes
 * All messages that ever arrive in the inbox
 * All versions of all messages that it creates in the inbox
 * All messages that it ever sends, one copy per recipient
-* One message for each batch of mail sent
+* All records of sent messages
 
 When it is finished processing an incoming message, ypotf flags that
 message as "Seen" and "Answered". When it is finished processing a
@@ -251,12 +253,14 @@ For large mailing lists, it may be helpful to add a flag for at least
 batch deletes from the inbox directory; it would be safe to delete all
 messages all "Answered" messages, as those are already ignored anyway.
 
+    C: A003 SELECT INBOX
+    C: A004 SEARCH ANSWERED
 
-to delete these messages is with the "Delete" flag;
+It could also be helpful, for large mailing lists, to delete copies of
+the individual message sends (kind 1). Almost all of the information in
+these messages is in the additional per-batch message (kind 2), and
+I save the first kind of message only for debugging failed messages.
+It would be safe to delete all messages in Sent that lack a Bcc.
 
-and the storage of  only their
-
-ypotf refrains from conceptually deleting things
-
-Invalidation of temporary files
-
+    C: A003 SELECT Sent
+    C: A004 SEARCH NOT BCC ""
