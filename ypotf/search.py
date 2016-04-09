@@ -65,6 +65,32 @@ class sent(object):
         return len(_search(criterion, M).split())
 
 class inbox(object):
+    '''
+    Flags
+
+    New message
+        UNSEEN UNANSWERED UNDELETED
+    Effectively deleted
+        ANSWERED
+    Pending subscription
+        SEEN FLAGGED DRAFT
+    Current subscription
+        SEEN FLAGGED
+    Pending message to list members
+        SEEN UNANSWERED
+
+    Transitions between states
+
+    New message
+
+    Pending: +FLAGS \FLAGGED \SEEN \DRAFT
+    Pending -> Current: -FLAGS \DRAFT
+    Current -> Unsubscribed: +FLAGS \ANSWERED
+
+    Confirmation codes are stored in "X-Ypotf-Confirmation".
+    Subscriber email addresses are stored in "Subject".
+    '''
+
     @staticmethod
     def subscribers(M):
         '''
@@ -89,15 +115,11 @@ class inbox(object):
         '''
         e = email_address(address)
         nums = _search('%s FLAGGED FROM "%s"' % (extra_flags, e), M)
-        x = 'BODY.PEEK[HEADER.FIELDS (FROM SUBJECT)]'
+        x = 'BODY.PEEK[HEADER.FIELDS (SUBJECT X-Ypotf-Confirmation)]'
         for num, m in _fetch(x, M, nums):
             h = _parse_headers(m)
-            if email_address(h['FROM']) == e:
-                return h['SUBJECT']
-
-    # Pending: +FLAGS \FLAGGED \SEEN \DRAFT
-    # Pending -> Current: -FLAGS \DRAFT
-    # Current -> Unsubscribed: +FLAGS \ANSWERED
+            if email_address(h['SUBJECT']) == e:
+                return h['X-Ypotf-Confirmation']
 
     @staticmethod
     def current(M, address):
