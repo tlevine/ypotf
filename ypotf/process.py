@@ -146,21 +146,20 @@ def process(S, M, num, from_address, subject, message_id):
                    from_address)
 
         elif action == 'subscribe':
-            draft_num = search.inbox.pending_subscriber(M, from_address)
-
-            if draft_num:
-                logger.debug('Reusing existing pending confirmation')
-            elif search.inbox.subscriber(M, from_address):
+            if is_subscribed(from_address):
                 logger.debug('Already subscribed')
                 raise NotImplementedError
             else:
-                logger.debug('Creating a new pending confirmation')
-                code = _confirmation_code()
-                m = templates.i_subscriber(from_address, code)
-                t.append('Inbox', flags, m)
-
-            t.send(templates.confirmation(action, from_address, code),
-                   from_address)
+                code = search.inbox.pending_subscribe(M, from_address)
+                if code:
+                    logger.debug('Reusing existing pending confirmation')
+                else:
+                    logger.debug('Creating a new pending confirmation')
+                    code = _confirmation_code()
+                    m = templates.i_subscriber(from_address, code)
+                    t.append('Inbox', flags, m)
+                t.send(templates.confirmation(action, from_address, code),
+                       from_address)
 
         elif action == 'unsubscribe':
             draft_num, code = search.inbox.subscriber(M, from_address)

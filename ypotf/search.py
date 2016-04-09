@@ -83,29 +83,29 @@ class inbox(object):
         return set(m['TO'] for m in headers)
 
     @staticmethod
-    def _subscriber_code(M, from_field, extra_flags):
+    def _subscriber_code(M, address, extra_flags):
         '''
         " and \ are not allowed in email addresses, so this is safe.
         '''
-        e = email_address(from_field)
+        e = email_address(address)
         nums = _search('%s FLAGGED FROM "%s"' % (extra_flags, e), M)
         x = 'BODY.PEEK[HEADER.FIELDS (FROM SUBJECT)]'
         for num, m in _fetch(x, M, nums):
             h = _parse_headers(m)
             if email_address(h['FROM']) == e:
-                return num, h['SUBJECT']
+                return h['SUBJECT']
 
     @staticmethod
-    def current_subscriber(M, from_field):
-        return inbox._subscriber_code(M, from_field, 'UNDRAFT')
+    def is_subscribed(M, address):
+        return inbox._subscriber_code(M, address, 'UNDRAFT SEEN') != None
 
     @staticmethod
-    def pending_subscriber(M, from_field):
-        return inbox._subscriber(M, from_field, 'DRAFT SEEN')
+    def pending_subscribe(M, address):
+        return inbox._subscriber_code(M, address, 'DRAFT SEEN')
 
     @staticmethod
-    def pending_unsubscriber(M, from_field):
-        return inbox._subscriber(M, from_field, 'UNDRAFT UNSEEN')
+    def pending_unsubscribe(M, address):
+        return inbox._subscriber_code(M, address, 'UNDRAFT UNSEEN')
 
     @staticmethod
     def new_orders(M):
