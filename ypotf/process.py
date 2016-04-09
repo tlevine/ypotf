@@ -44,7 +44,7 @@ def process(S, M, num, from_address, subject, message_id):
     with Transaction(S, M) as t:
         t.store_current(num)
         if action == 'help':
-            t.send(templates.help(from_address), from_address)
+            t.send(templates.help(from_address))
 
         elif action == 'list-archive':
             x = 'List archives are not implemented yet.'
@@ -57,14 +57,13 @@ def process(S, M, num, from_address, subject, message_id):
                 # and spam filtering.
                 m = templates.envelope.message(fetch_num(num))
                 to_addresses = search.subscribers(M)
-                t.send(m, *to_addresses)
+                t.send(m, to_addresses)
             else:
-                t.send(templates.not_a_member(from_address), from_address)
+                t.send(templates.not_a_member(from_address))
 
         elif action == 'subscribe':
             if search.is_subscribed(from_address):
-                t.send(templates.error('You are already subscribed.'),
-                       from_address)
+                t.send(templates.new.subscribe_fail_already_member(from_address))
             else:
                 code = search.subscription_ypotf_id(M, from_address)
                 if code:
@@ -73,17 +72,16 @@ def process(S, M, num, from_address, subject, message_id):
                     logger.debug('Creating a new pending subscription')
                     m = templates.new.subscription(from_address, code)
                     t.append_pending(m)
-                t.send(templates.subscribe_confirm(from_address, code),
-                       from_address)
+                t.send(templates.new.subscribe_ok(from_address, code))
 
         elif action == 'unsubscribe':
             code = search.subscription_ypotf_id(from_address)
             if code:
                 sub_num = search.ypotf_id_num(M, code)
                 t.store_deleted(sub_num)
-                t.send(templates.unsubscribe(from_address), from_address)
+                t.send(templates.unsubscribe_ok(from_address))
             else:
-                t.send(templates.not_a_member(from_address), from_address)
+                t.send(templates.unsubscribe_fail_not_member(from_address))
 
         elif action == 'confirm':
             code = re.match(MATCHERS['confirm'], subject).group(1)
