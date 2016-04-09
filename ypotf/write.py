@@ -2,8 +2,7 @@ import sys
 import imaplib
 import logging
 
-from . import search
-from . import quota
+from . import quota, read
 from .process import process
 from .utils import r, email_address
 
@@ -38,12 +37,11 @@ def ypotf(password, *quotas, n:int=0, list_subscribers=False):
     S = quota.LimitedSMTP(N, host=smtp_host)
     S.login(smtp_username, smtp_password)
 
-    orders = search.inbox.new_orders(M)
-    for i, (num, from_address, subject, message_id) in enumerate(orders):
+    orders = read.new_orders(M)
+    for i, (num, m) in enumerate(orders):
         if n and i < n:
-            logger.info('Processing message from %s' % from_address)
-            e = email_address(from_address)
-            process(S, M, num, e, subject, message_id)
+            logger.info('Processing message from %(From)s' % m)
+            process(S, M, m)
         else:
             logger.info('Processed %d messages' % n)
             break
@@ -51,7 +49,7 @@ def ypotf(password, *quotas, n:int=0, list_subscribers=False):
 
 def subscribers(M):
     r(M.select('Inbox'))
-    xs = search.inbox.subscribers(M)
+    xs = read.subscribers(M)
 
     if len(xs):
         sys.stdout.write('\n'.join(sorted(xs)) + '\n')
