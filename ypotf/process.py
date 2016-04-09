@@ -129,6 +129,8 @@ def process(S, M, num, from_address, subject, message_id):
             break
     else:
         action = 'message'
+
+    logging.debug('"%s" request from "%s"' % (action, from_address))
     
     with Transaction(S, M) as t:
         t.plus_flags(num, '\\SEEN')
@@ -146,15 +148,15 @@ def process(S, M, num, from_address, subject, message_id):
                    from_address)
 
         elif action == 'subscribe':
-            if is_subscribed(from_address):
+            if current_subscriber(from_address):
                 logger.debug('Already subscribed')
                 raise NotImplementedError
             else:
                 code = search.inbox.pending_subscribe(M, from_address)
                 if code:
-                    logger.debug('Reusing existing pending confirmation')
+                    logger.debug('Reusing existing pending subscription')
                 else:
-                    logger.debug('Creating a new pending confirmation')
+                    logger.debug('Creating a new pending subscription')
                     code = _confirmation_code()
                     m = templates.i_subscriber(from_address, code)
                     t.append('Inbox', flags, m)
@@ -162,13 +164,8 @@ def process(S, M, num, from_address, subject, message_id):
                        from_address)
 
         elif action == 'unsubscribe':
-            draft_num, code = search.inbox.subscriber(M, from_address)
-            if draft_num and code:
-                # Add confirmation code to unsubscribe message.
-                m = templates.subscriber(from_address, code)
-                t.append('Inbox', '\\FLAGGED \\SEEN', m)
-                t.plus_flags(draft_num, '\\ANSWERED')
-
+            code = current_subscriber(from_address):
+            if code:
                 t.send(templates.confirmation(action, from_address, code),
                        from_address)
             else:

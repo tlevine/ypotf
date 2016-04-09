@@ -83,7 +83,7 @@ class inbox(object):
         return set(m['TO'] for m in headers)
 
     @staticmethod
-    def _subscriber_code(M, address, extra_flags):
+    def _subscriber(M, address, extra_flags):
         '''
         " and \ are not allowed in email addresses, so this is safe.
         '''
@@ -93,19 +93,20 @@ class inbox(object):
         for num, m in _fetch(x, M, nums):
             h = _parse_headers(m)
             if email_address(h['FROM']) == e:
-                return h['SUBJECT']
+                return num, h['SUBJECT']
+        return None, None
 
     @staticmethod
-    def is_subscribed(M, address):
-        return inbox._subscriber_code(M, address, 'UNDRAFT SEEN') != None
+    def current_subscriber_num(M, address):
+        return inbox._subscriber(M, address, 'UNDRAFT SEEN')[0]
 
     @staticmethod
-    def pending_subscribe(M, address):
-        return inbox._subscriber_code(M, address, 'DRAFT SEEN')
+    def pending_subscribe_code(M, address):
+        return inbox._subscriber(M, address, 'DRAFT SEEN')[1]
 
     @staticmethod
-    def pending_unsubscribe(M, address):
-        return inbox._subscriber_code(M, address, 'UNDRAFT UNSEEN')
+    def pending_unsubscribe_code(M, address):
+        return inbox._subscriber(M, address, 'UNDRAFT UNSEEN')[1]
 
     @staticmethod
     def new_orders(M):
