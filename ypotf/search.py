@@ -66,22 +66,45 @@ class sent(object):
 
 class inbox(object):
     '''
-    All messages must have one of the following flag settings.
+    IMAP provides for six flags.
+
+    * \Seen
+    * \Answered
+    * \Flagged
+    * \Deleted
+    * \Draft
+    * \Recent
+
+    Seen is too easy to change by accident in a mail user agent,
+    and recent can be set by the mail server in such ways to make
+    it not helpful for my purposes. That leaves me with four flags;
+    this is how I interpret them.
 
     New command
-        UNSEEN UNDRAFT UNFLAGGED
+        UNANSWERED UNSEEN UNDRAFT UNFLAGGED
     Pending subscription
-        SEEN   UNDRAFT UNFLAGGED
+        UNANSWERED SEEN   UNDRAFT UNFLAGGED
     Current subscription
-        SEEN   UNDRAFT   FLAGGED
+        UNANSWERED SEEN   UNDRAFT   FLAGGED
     Pending message to list members
-        SEEN     DRAFT UNFLAGGED
+        UNANSWERED SEEN     DRAFT UNFLAGGED
     Sent message to list members
-        SEEN     DRAFT   FLAGGED
+        UNANSWERED SEEN     DRAFT   FLAGGED
+    Error (These states should not occur.)
+        UNANSWERED UNSEEN UNDRAFT   FLAGGED,
+        UNANSWERED UNSEEN   DRAFT UNFLAGGED,
+        UNANSWERED UNSEEN   DRAFT   FLAGGED
+    Ignored
+        ANSWERED
+        
+    Four flags is enough to distinguish among sixteen categories
+    if I really needed; I only really need three flags, but I used
+    more in order to integrate with existing mail user agents (MUAs).
 
-    Note: There are five categories of method (four explicitly
-    and one for everything else). Three flags is enough to distinguish
-    among eight categories if I really needed.
+    * Most MUAs display FLAGGED and SEEN messages very prominently,
+      so I wanted those to display the most distinguishing information.
+    * It is very easy to set something as seen in most MUAs.
+      I thus wanted to use SEEN for
 
     Transitions between states
 
