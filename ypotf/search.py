@@ -71,15 +71,15 @@ class inbox(object):
     more distinguishing flags.
 
     New command
-        UNANSWERED 
+        UNANSWERED UNSEEN
     Pending subscription
         ANSWERED   UNFLAGGED
     Current subscription
         ANSWERED   FLAGGED
     Pending message to list members
-        UNANSWERED DRAFT      UNFLAGGED
+        ANSWERED   DRAFT      UNFLAGGED
     Sent message to list members
-        UNANSWERED DRAFT      FLAGGED
+        ANSWERED   DRAFT      FLAGGED
 
     Note: There are five categories of method (four explicitly
     and one for everything else). Three flags is enough to distinguish
