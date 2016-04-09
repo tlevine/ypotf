@@ -97,16 +97,21 @@ class inbox(object):
     Ignored
         ANSWERED
         
+    Why these categories
+    ^^^^^^^^^^^^^^^^^^^^^
     Four flags is enough to distinguish among sixteen categories
     if I really needed; I only really need three flags, but I used
     more in order to integrate with existing mail user agents (MUAs).
 
-    * Most MUAs display FLAGGED and SEEN messages very prominently,
-      so I wanted those to display the most distinguishing information.
-    * It is very easy to set something as seen in most MUAs.
-      I thus wanted to use SEEN for
+    Most MUAs display FLAGGED and SEEN messages very prominently,
+    so I wanted those to display the most distinguishing information.
+
+    It is very easy to accidentally set something as SEEN in most MUAs,
+    so I wanted it to be easy to revert that.
+      I thus wanted it 
 
     Transitions between states
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     New message: +FLAGS \SEEN \FLAGGED
     New message -> Sent message: +FLAGS \ANSWERED
