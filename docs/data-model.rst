@@ -37,9 +37,7 @@ Secondary and tertiary types are encoded in headers.
   2. Pending subscriptions (X-Ypotf-Kind is "Subscription".)
   3. Pending publications (X-Ypotf-Kind is "Publication".)
 
-2. Pending unsubscriptions (Flagged ANSWERED UNSEEN)
-
-3. Applied commands/data (Flagged ANSWERED SEEN)
+2. Applied commands/data (Flagged ANSWERED SEEN)
 
   1. Applied commands (X-Ypotf-Kind is not set.)
   2. Current subscriptions (X-Ypotf-Kind is "Subscription".)
