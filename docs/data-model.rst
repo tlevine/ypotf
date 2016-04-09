@@ -15,12 +15,11 @@ meaning in this folder.
 
 Inbox folder
 -------------
-Messages in the Inbox folders have two primary types, which are
+Messages in the Inbox folders have these primary types, which are
 encoded as flags.
 
-1. Pending (Flagged UNANSWERED)
-2. Pending unsubscriptions (Flagged ANSWERED UNSEEN)
-3. Applied commands/data (Flagged ANSWERED SEEN)
+1. Pending (Flags: UNANSWERED (OR SEEN UNSEEN))
+2. Applied commands/data (Flags: ANSWERED SEEN)
 
 Secondary and tertiary types are encoded in headers.
 

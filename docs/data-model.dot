@@ -1,17 +1,23 @@
 digraph ypotf {
-  "Incoming commands (1.1.1)" -> "Applied commands (3.1)";
-  "Incoming commands (1.1.2)" -> "Applied commands (3.1)";
-  "Incoming commands (1.1.3)" -> "Applied commands (3.1)";
-  "Incoming commands (1.1.4)" -> "Applied commands (3.1)";
-  "Incoming commands (1.1.5)" -> "Applied commands (3.1)";
-  "Incoming commands (1.1.6)" -> "Applied commands (3.1)";
+  "Incoming commands (1.1.1)" -> "Applied commands (2.1)";
+  "Incoming commands (1.1.2)" -> "Applied commands (2.1)";
+  "Incoming commands (1.1.3)" -> "Applied commands (2.1)";
+  "Incoming commands (1.1.4)" -> "Applied commands (2.1)";
+  "Incoming commands (1.1.5)" -> "Applied commands (2.1)";
+  "Incoming commands (1.1.6)" -> "Applied commands (2.1)";
 
-  "Incoming commands (1.3)" -> "Pending subscriptions (1.2)" [style=dotted];
-  "Incoming commands (1.4)" -> "Pending unsubscriptions (2)" [style=dotted];
-  "Incoming commands (1.6)" -> "Pending publications (1.3)" [style=dotted];
+  "Pending subscriptions (1.1.2)" -> "Current subscriptions (2.2)" ->
+    "Deleted subscriptions";
+  "Pending publications (1.1.3)" -> "Current publications (2.3)";
 
-  "Incoming commands (1.5)" -> "Current subscriptions (3.2)" [style=dotted];
-  "Incoming commands (1.5)" -> "Current publications (3.3)" [style=dotted];
+  "Incoming commands (1.1.3)" -> "Pending subscriptions (1.2)" [style=dotted];
+  "Incoming commands (1.1.6)" -> "Pending publications (1.3)" [style=dotted];
 
-  "Incoming commands (1.5)" -> "Current subscriptions (3.2)" [style=dotted];
+  "Incoming commands (1.1.5)" -> "Current subscriptions (2.2)" [style=dotted];
+  "Incoming commands (1.1.5)" -> "Current publications (2.3)" [style=dotted];
+  "Incoming commands (1.1.5)" -> "Deleted subscription" [style=dotted];
+
+// Results in sent emails
+//"Incoming commands (1.4)" -> "" [style=dotted];
+
 }
