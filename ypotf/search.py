@@ -102,6 +102,8 @@ class inbox(object):
         accidentally read a new command in a MUA and then flagged it;
         UNSEEN UNANSWERED UNDRAFT FLAGGED might occur because someone
         accidentally flagged a new command in a MUA.
+        All other combinations with UNSEEN might occur because someone
+        accidentally marked a message as unread in an MUA.
         
     Final sent message to list members go in Sent, not Inbox.
 
