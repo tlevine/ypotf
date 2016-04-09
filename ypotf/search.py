@@ -96,6 +96,11 @@ class inbox(object):
                 return num, h['SUBJECT']
         return None, None
 
+    # Pending subscribe: +FLAGS \FLAGGED \SEEN \DRAFT
+    # Pending subscribe -> Current: -FLAGS \DRAFT
+    # Current -> Pending unsubscribe: +FLAGS \SEEN
+    # Pending unsubscribe -> gone: +FLAGS \ANSWERED
+
     @staticmethod
     def current_subscriber(M, address):
         return inbox._subscriber(M, address, 'UNDRAFT SEEN')

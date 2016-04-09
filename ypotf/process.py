@@ -180,17 +180,13 @@ def process(S, M, num, from_address, subject, message_id):
                     m = search.fetch_num(draft_num)
                     to_addresses = search.inbox.subscribers(M)
                     t.plus_flags(draft_num, '\\ANSWERED')
-                    t.plus_flags(num, '\\ANSWERED')
                     t.send(m, *to_addresses)
 
                 elif draft_action == 'subscribe':
-                    m = search.fetch_num(draft_num)
-                    del(m['TO'])
-                    t.plus_flags(draft_num, '\\DELETED')
-                    t.append('Inbox', '\\FLAGGED \\SEEN', m)
+                    t.minus_flags(draft_num, '\\DRAFT')
 
-                elif c_action == 'unsubscribe':
-                    t.minus_flags(c_num, '\\FLAGGED')
+                elif draft_action == 'unsubscribe':
+                    t.minus_flags(draft_num, '\\ANSWERED')
 
                 else:
                     raise ValueError
