@@ -1,0 +1,7 @@
+digraph ypotf {
+  "Incoming commands (1.1)" -> "Applied commands (3.1)";
+
+  "Incoming commands (1.1)" -> "Pending subscriptions (1.2)" [style=dotted];
+  "Incoming commands (1.1)" -> "Pending unsubscriptions (2)" [style=dotted];
+  "Incoming commands (1.1)" -> "Current subscriptions (3.2)" [style=dotted];
+}

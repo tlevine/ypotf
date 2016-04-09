@@ -18,13 +18,13 @@ Inbox folder
 Messages in the Inbox folders have two primary types, which are
 encoded as flags.
 
-1. Pending commands and subscriptions (UNANSWERED)
-2. Pending unsubscriptions (ANSWERED UNSEEN)
-3. Applied commands/data (ANSWERED SEEN)
+1. Pending commands and subscriptions (Flagged UNANSWERED)
+2. Pending unsubscriptions (Flagged ANSWERED UNSEEN)
+3. Applied commands/data (Flagged ANSWERED SEEN)
 
 Secondary and tertiary types are encoded in headers.
 
-1. Pending commands/data
+1. Incoming commands and pending subscriptions (Flagged UNANSWERED)
 
   1. Incoming commands (X-Ypotf-Subscription is absent)
 
@@ -37,9 +37,13 @@ Secondary and tertiary types are encoded in headers.
 
   2. Pending subscriptions (X-Ypotf-Subscription is set.)
 
-2. Pending unsubscriptions
+2. Pending unsubscriptions (Flagged ANSWERED UNSEEN)
 
-3. Applied commands/data
+3. Applied commands/data (Flagged ANSWERED SEEN)
 
   1. Applied commands (X-Ypotf-Subscription is not set.)
   2. Current subscriptions (X-Ypotf-Subscription is set.)
+
+Messages take one of the following paths through these states.
+
+
