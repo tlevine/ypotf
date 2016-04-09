@@ -8,12 +8,12 @@ FORWARDED_HEADERS = {
     'message-id', 'in-reply-to', 'references',
 }
 LIST_HEADERS = {
-    'List-Id': '_.dada.pink',
-    'List-Unsubscribe': 'mailto:_@dada.pink?subject=unsubscribe',
-    'List-Archive': 'mailto:_@dada.pink?subject=list-archive',
-    'List-Post': 'mailto:_@dada.pink',
-    'List-Help': 'mailto:_@dada.pink?subject=help',
-    'List-Subscribe': 'mailto:_@dada.pink?subject=subscribe',
+    'List-Id': list_address.replace('@', '.'),
+    'List-Unsubscribe': 'mailto:%s?subject=unsubscribe' % list_address,
+    'List-Archive': 'mailto:%s?subject=list-archive' % list_address,
+    'List-Post': 'mailto:%s' % list_address,
+    'List-Help': 'mailto:%s?subject=help' % list_address,
+    'List-Subscribe': 'mailto:%s?subject=subscribe' % list_address,
 }
 def _set_list_headers(msg):
     for header in msg:
@@ -29,6 +29,7 @@ def _set_list_headers(msg):
 def confirmation(action, to_address, code):
     m = _set_list_headers(Message())
     m['To'] = to_address
+    m['From'] = list_address
     m['Subject'] = 'Verify your email address {%s}' % code
     tpl = 'Reply to verify your email address and %s.'
     _desc = {
@@ -42,6 +43,7 @@ def confirmation(action, to_address, code):
 def help(to_address):
     m = _set_list_headers(Message())
     m['To'] = to_address
+    m['From'] = list_address
     m['Subject'] = 'List help'
     m.set_payload('Documentation will eventually go here.')
     return m
@@ -55,5 +57,5 @@ def subscriber(**headers):
 def message(msg):
     m = _set_list_headers(msg)
     del(msg['To'])
-    msg['To'] = '_@dada.pink'
+    msg['To'] = list_address
     return msg
