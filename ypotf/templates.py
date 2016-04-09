@@ -1,3 +1,4 @@
+import re
 import email
 import datetime
 
@@ -41,7 +42,7 @@ def _set_reply_headers(list_address, m_in, m_out):
     e = email_address(m_in['From'])
     m_out['To'] = e
     m_out['From'] = list_address
-    m_out['Subject'] = 'Re: %(Subject)s' % m_in
+    m_out['Subject'] =  'Re: ' + re.sub(r'^ *Re: *', '', m_in['Subject'])
     rs = (m_in.get('References', ''), m_in.get('Message-Id'))
     m_out['References'] = ''.join(rs).strip()
     m_out['Date'] = _now()
@@ -77,10 +78,11 @@ def publication_ok(list_address, msg):
     msg['To'] = list_address
     return msg
 
-def subscription(m):
+def subscription(m_in):
     m = Message()
-    m['Subject'] = email_address(m['From'])
+    m['Subject'] = email_address(m_in['From'])
     m['X-Ypotf-Id'] = uuid()
+    m['X-Ypotf-Subscription'] = ''
     return m
 
 def confirm_ok(list_address, m_in):

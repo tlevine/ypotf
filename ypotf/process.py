@@ -71,14 +71,15 @@ def process(list_address, S, M, num, m):
                 t.send(templates.unsubscribe_fail_not_member(list_address, m))
 
         elif action == 'confirm':
-            code = re.match(MATCHERS['confirm'], subject).group(1)
+            code = re.match(MATCHERS['confirm'], m['Subject']).group(1)
             sub_num = read.ypotf_id_num(M, code)
             if sub_num:
                 t.store_current(draft_num)
                 t.send(templates.confirm_ok(list_address, sub_m))
             else:
-                t.send(templates.error('Invalid confirmation code'),
-                       m['From'])
+                text = 'Invalid confirmation code'
+                t.send(templates.error(list_address, m, text))
+                    
 
         else:
             logger.error('Bad action')

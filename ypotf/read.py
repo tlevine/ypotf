@@ -41,15 +41,17 @@ def is_subscribed(M, address):
     return subscription_ypotf_id(M, address) != None
 
 def ypotf_id_num(M, x):
-    q = 'ANSWERED HEADER X-Ypotf-Kind Subscription X-Ypotf-Id "%s"'
-    nums = search(M, q % x)
+    q = 'ANSWERED HEADER "X-Ypotf-Subscription" "" HEADER "X-Ypotf-Id" "%s"'
+    criterion = q % x
+    nums = search(M, criterion)
     xs = nums[0].split()
     if len(xs) == 1:
         return xs[0]
     elif len(xs) == 0:
-        raise ValueError('No messages match "%s"' % criterion)
+        logger.debug('No messages match "%s"' % criterion)
     else:
-        raise ValueError('Multiple messages match "%s"' % criterion)
+        logger.warning('Multiple messages match "%s"' % criterion)
+        return xs[0]
     
 def new_orders(M):
     '''
