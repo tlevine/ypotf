@@ -74,11 +74,11 @@ class inbox(object):
     New message
         **UNSEEN**
     Pending message to list members
-        **SEEN**
+        SEEN **UNFLAGGED**
     Pending subscription
-        **SEEN** **FLAGGED** **DRAFT**
+        SEEN FLAGGED **DRAFT**
     Current subscription
-        **SEEN** **FLAGGED**
+        SEEN FLAGGED **UNDRAFT**
 
     Transitions between states
 
