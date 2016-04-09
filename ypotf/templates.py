@@ -65,3 +65,8 @@ def subscriber(address):
     m['Subject'] = address
     m['X-Ypotf-Id'] = _uuid()
     return m
+
+def publication_batch(list_address, m, to_addresses):
+    m = publication(list_address, m)
+    m['Bcc'] = ', '.join(to_addresses)
+    return m

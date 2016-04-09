@@ -101,16 +101,17 @@ class Mail(object):
         num = search.get_num(M, query)
         self._store(num, '+FLAGS', '\\DELETED')
 
-    def send(self, msg, *to_addresses):
+    def send(self, msg, to_addresses=None):
         logger.info('Sending to %d addresses' % len(to_addresses))
-        msg2 = _prepare_send(msg) # sent message kind 2
 
-        if msg2['To'].lower() == self._list_address:
-            msg2['Bcc'] = ', '.join(to_addresses)
+        if to_addresses:
+            msg2 = templates.publication_batch(deepcopy(msg))
             self._append('Sent', '\\SEEN', msg2)
+        else:
+            to_addresses = [msg['To']]
 
         for to_address in to_addresses:
-            msg1 = _prepare_send(msg) # sent message kind 1
+            msg1 = templates.publication(msg) # sent message kind 1
             logger.debug(log_tpl % ('Sending', to_address, msg1))
             self._append('Sent', '\\SEEN', msg1)
             self.S.send_message(msg1, self._list_address, [to_address])
