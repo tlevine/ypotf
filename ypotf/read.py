@@ -56,20 +56,16 @@ def new_orders(M):
     Search for just-received emails.
     '''
     nums = search(M, 'UNSEEN UNANSWERED')
-    message_parts = 'BODY.PEEK[HEADER.FIELDS (FROM SUBJECT MESSAGE-ID)]'
-    for num, m in _fetch(message_parts, M, nums):
-        message_from_bytes(m)
+    for num, m in _fetch('(RFC822)', M, nums):
         if {'FROM', 'SUBJECT'}.issubset(h):
             logger.debug('''Found a new order
 
 From: %(FROM)s
 Subject: %(SUBJECT)s
-Message-id: %(MESSAGE-ID)s
 ''' % h)
-            e = email_address(h['FROM'])
-            yield num, e, h['SUBJECT'], h['MESSAGE-ID']
+            yield num, m
         else:
-            logger.warning('Message %s is missing headers' %
+            logger.warning('Message %s is missing headers, skipping' %
                            num.decode('ascii'))
 
 
