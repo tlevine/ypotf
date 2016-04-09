@@ -15,23 +15,9 @@ def subscribers(M):
     '''
     :returns: Iterable of subscriber email addresses
     '''
-    nums = search(M, 'ANSWERED HEADER X-Ypotf-Kind Subscription')
+    nums = search(M, 'ANSWERED HEADER X-Ypotf-Subscription ""')
     x = 'BODY.PEEK[HEADER.FIELDS (SUBJECT)]'
     return set(m['SUBJECT'] for _, m in _fetch(x, M, nums))
-
-def subscription_ypotf_id(M, address):
-    '''
-    :returns: Ypotf ID for a particular subscription
-    '''
-    e = email_address(address)
-
-    s = 'HEADER X-Ypotf-Kind Subscription Subject "%s"'
-    nums = search(M, s % address)
-
-    f = 'BODY.PEEK[HEADER.FIELDS (X-Ypotf-Id Subject)]'
-    for _, m in _fetch(f, M, nums):
-        if email_address(m['Subject']) == e:
-            return m['X-Ypotf-Id']
 
 def is_subscribed(M, address):
     '''
@@ -40,9 +26,23 @@ def is_subscribed(M, address):
     '''
     e = email_address(address)
 
-    s = 'ANSWERED HEADER X-Ypotf-Kind Subscription Subject "%s"'
-    print(search(M, s % address), 8888)
-    return search(M, s % address) != ''
+    s = 'ANSWERED HEADER X-Ypotf-Subscription ""'
+    print(search(M, s), 8888)
+    return search(M, s) != ''
+
+def subscription_ypotf_id(M, address):
+    '''
+    :returns: Ypotf ID for a particular subscription
+    '''
+    e = email_address(address)
+
+    s = 'HEADER X-Ypotf-Kind Subscription "%s"'
+    nums = search(M, s % address)
+
+    f = 'BODY.PEEK[HEADER.FIELDS (X-Ypotf-Id Subject)]'
+    for _, m in _fetch(f, M, nums):
+        if email_address(m['Subject']) == e:
+            return m['X-Ypotf-Id']
 
 def ypotf_id_num(M, x):
     q = 'HEADER "X-Ypotf-Subscription" "" HEADER "X-Ypotf-Id" "%s"'
