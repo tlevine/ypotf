@@ -68,8 +68,9 @@ class Writer(object):
         }
         if action in actions:
             anti_action = actions[action]
-            self._revert.append((self._store, (num, anti_action, flags)))
-            return self._revert_store(num, action, flags)
+            self._revert.append((self._revert_store,
+                (num, anti_action, flags)))
+            return r(self._M.store(num, action, flags))
         else:
             raise ValueError('Bad action: %s' % action)
 
