@@ -25,7 +25,7 @@ def subscription_ypotf_id(M, address):
     '''
     e = email_address(address)
 
-    s = 'ANSWERED HEADER X-Ypotf-Kind Subscription Subject "%s"'
+    s = 'HEADER X-Ypotf-Kind Subscription Subject "%s"'
     nums = search(M, s % address)
 
     f = 'BODY.PEEK[HEADER.FIELDS (X-Ypotf-Id Subject)]'
@@ -38,10 +38,14 @@ def is_subscribed(M, address):
     :returns: Whether the address is subscribed
     :rtype: bool
     '''
-    return subscription_ypotf_id(M, address) != None
+    e = email_address(address)
+
+    s = 'ANSWERED HEADER X-Ypotf-Kind Subscription Subject "%s"'
+    print(search(M, s % address), 8888)
+    return search(M, s % address) != ''
 
 def ypotf_id_num(M, x):
-    q = 'ANSWERED HEADER "X-Ypotf-Subscription" "" HEADER "X-Ypotf-Id" "%s"'
+    q = 'HEADER "X-Ypotf-Subscription" "" HEADER "X-Ypotf-Id" "%s"'
     criterion = q % x
     nums = search(M, criterion)
     xs = nums[0].split()
@@ -57,7 +61,7 @@ def new_orders(M):
     '''
     Search for just-received emails.
     '''
-    nums = search(M, 'UNANSWERED')
+    nums = search(M, 'UNANSWERED NOT HEADER X-Ypotf-Subscription ""')
     for num, m in _fetch('(RFC822)', M, nums):
         if 'From' in m and 'Subject' in m:
             logger.debug('''Found a new order

@@ -90,7 +90,16 @@ def confirm_ok(list_address, m_in):
     m = _set_reply_headers(list_address, m_in, m)
     m['From'] = list_address
     x = 'Your email address, %s, has been added to the %s list.'
-    m.set_payload(x % (email_address(m_in['From']), list_address))
+    m.set_payload(x % email_address(m_in['From']))
+    return m
+
+def confirm_fail_already_confirmed(list_address, m_in, from_addr):
+    m = _set_list_headers(list_address, Message())
+    m = _set_reply_headers(list_address, m_in, m)
+    m['To'] = from_addr
+    x = '''Your email address, %s, had already been confirmed;
+this confirmation command did nothing.'''
+    m.set_payload(x % email_address(m_in['From']))
     return m
 
 def unsubscribe_ok(list_address, m_in):

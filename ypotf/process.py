@@ -74,8 +74,12 @@ def process(list_address, S, M, num, m):
             code = re.match(MATCHERS['confirm'], m['Subject']).group(1)
             sub_num = read.ypotf_id_num(M, code)
             if sub_num:
-                t.store_current(draft_num)
-                t.send(templates.confirm_ok(list_address, sub_m))
+                if read.is_subscribed(M, m['From']):
+                    fn = templates.confirm_fail_already_confirmed
+                    t.send(fn(list_address, m, m['From']))
+                else:
+                    t.store_current(sub_num)
+                    t.send(templates.confirm_ok(list_address, sub_m))
             else:
                 text = 'Invalid confirmation code'
                 t.send(templates.error(list_address, m, text))
