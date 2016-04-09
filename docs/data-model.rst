@@ -18,6 +18,9 @@ Inbox folder
 Messages in the Inbox folders have three primary types, which are
 encoded as flags.
 
+1. Pending commands/data (UNSEEN)
+2. Applied commands/data (SEEN)
+
 1. Incoming commands (UNSEEN UNANSWERED UNDRAFT UNFLAGGED)
 2. Processed commands (SEEN ANSWERED DRAFT UNFLAGGED)
 3. Pending master data (SEEN ANSWERED UNDRAFT FLAGGED)
