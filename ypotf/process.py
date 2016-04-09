@@ -64,14 +64,23 @@ class Transaction(object):
                 f(*args)
         r(self._M.close())
 
-    def applied(self, num):
+    def store_applied(self, num):
         return self.store(num, '+FLAGS', '\\ANSWERED \\SEEN')
 
-    def pending(self, num):
+    def store_pending(self, num):
         return self.store(num, '-FLAGS', '\\ANSWERED')
 
-    def deleted(self, num, *flags):
+    def store_deleted(self, num, flags):
         return self.store(num, '+FLAGS', '\\DELETED')
+
+    def append_applied(self, m):
+        return self.append('Inbox', '\\ANSWERED \\SEEN', m)
+
+    def append_pending(self, m):
+        return self.append('Inbox', '\\SEEN', m)
+
+    def append_sent(self, m):
+        return self.append('Sent', '\\SEEN', m)
 
     def store(self, num, action, flags):
         actions = {
