@@ -75,28 +75,28 @@ class inbox(object):
     * \Draft
     * \Recent
 
-    Seen is too easy to change by accident in a mail user agent,
-    and recent can be set by the mail server in such ways to make
-    it not helpful for my purposes. That leaves me with four flags;
-    this is how I interpret them.
+    A server or mail user agent may expunge DELETED messages, so I don't
+    want to use it, and and RECENT can be set by the mail server in such
+    ways to make it not helpful for my purposes. That leaves me with
+    four flags; this is how I interpret them.
 
     New command
-        UNANSWERED UNSEEN UNDRAFT UNFLAGGED
+        UNSEEN UNANSWERED UNDRAFT UNFLAGGED
     Pending subscription
-        UNANSWERED SEEN   UNDRAFT UNFLAGGED
+        SEEN   UNANSWERED UNDRAFT UNFLAGGED
     Current subscription
-        UNANSWERED SEEN   UNDRAFT   FLAGGED
+        SEEN   UNANSWERED   DRAFT   FLAGGED
     Pending message to list members
-        UNANSWERED SEEN     DRAFT UNFLAGGED
-    Sent message to list members
-        UNANSWERED SEEN     DRAFT   FLAGGED
+        SEEN     ANSWERED UNDRAFT UNFLAGGED
     Error (These states should not occur.)
         UNANSWERED UNSEEN UNDRAFT   FLAGGED,
         UNANSWERED UNSEEN   DRAFT UNFLAGGED,
         UNANSWERED UNSEEN   DRAFT   FLAGGED
     Ignored
-        ANSWERED
+        SEEN
         
+    Final sent message to list members go in Sent, not Inbox.
+
     Why these categories
     ^^^^^^^^^^^^^^^^^^^^^
     Four flags is enough to distinguish among sixteen categories
