@@ -43,12 +43,9 @@ def is_subscribed(M, address):
     '''
     return subscription_ypotf_id(address) != None
 
-def from_ypotf_id(M, x):
+def ypotf_id_num(M, x):
     q = 'ANSWERED HEADER X-Ypotf-Kind Subscription X-Ypotf-Id "%s"'
-    num = search_one(M, q % x)
-
-    f = 'BODY.PEEK[HEADER.FIELDS (X-Ypotf-Id Subject)]'
-    data = r(M.fetch(num, f))
+    return search_one(M, q % x)
     
 
 

@@ -79,22 +79,18 @@ def process(S, M, num, from_address, subject, message_id):
         elif action == 'unsubscribe':
             code = search.subscription_ypotf_id(from_address)
             if code:
-                t.send(templates.unsubscribe_confirm(from_address, code),
-                       from_address)
+                sub_num = search.ypotf_id_num(M, code)
+                t.store_deleted(sub_num)
+                t.send(templates.unsubscribe(from_address), from_address)
             else:
                 t.send(templates.not_a_member(from_address), from_address)
 
-        elif action == 'list-confirm':
-            code = re.match(MATCHERS['list-confirm'], subject).group(1)
-            draft_num, draft_action = search.from_ypotf_id(M, code)
-            if draft_num and draft_action:
-                if draft_action == 'subscribe':
-                    t.store_current(draft_num)
-                elif draft_action == 'unsubscribe':
-                    t.store_deleted(draft_num)
-                else:
-                    x = 'I can confirm only subscribe and unsubscribe.'
-                    logger.error(x)
+        elif action == 'confirm':
+            code = re.match(MATCHERS['confirm'], subject).group(1)
+            sub_num = search.ypotf_id_num(M, code)
+            if sub_num:
+                t.store_current(draft_num)
+                t.send(templates.subscribe(from_address), from_address)
             else:
                 t.send(templates.error('Invalid confirmation code'),
                        from_address)
