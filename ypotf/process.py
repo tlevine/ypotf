@@ -163,8 +163,8 @@ def process(S, M, num, from_address, subject, message_id):
             # XXX skip confirmation if this is from a subscriber with
             # good SFP.
             code = _uuid()
-            m = templates.i_message_confirmation(fetch_num(num), code)
-            t.append('Inbox', '\\SEEN \\DRAFT', m)
+            XXX m = templates.i_message_confirmation(fetch_num(num), code)
+            t.append_pending(m)
             t.send(templates.message_confirm(from_address, code),
                    from_address)
 
@@ -180,7 +180,7 @@ def process(S, M, num, from_address, subject, message_id):
                     logger.debug('Creating a new pending subscription')
                     code = _uuid()
                     m = templates.i_subscriber(from_address, code)
-                    t.append('Inbox', '\\FLAGGED \\SEEN \\DRAFT', m)
+                    t.append_pending(m)
                 t.send(templates.subscribe_confirm(from_address, code),
                        from_address)
 
@@ -199,14 +199,14 @@ def process(S, M, num, from_address, subject, message_id):
                 if draft_action == 'message':
                     m = search.fetch_num(draft_num)
                     to_addresses = search.inbox.subscribers(M)
-                    t.plus_flags(draft_num, '\\ANSWERED')
+                    t.store_deleted(draft_num)
                     t.send(m, *to_addresses)
 
                 elif draft_action == 'subscribe':
-                    t.minus_flags(draft_num, '\\DRAFT')
+                    t.store_current(draft_num)
 
                 elif draft_action == 'unsubscribe':
-                    t.plus_flags(draft_num, '\\ANSWERED')
+                    t.store_deleted(draft_num)
 
                 else:
                     raise ValueError
