@@ -4,26 +4,36 @@ import subprocess, os
 def subscribe(m):
     '''
     '''
-    a = _question('Review request from %(From)s' % m)
-
+    x = ['Approve', 'Read', 'Confiration email']
+    while True:
+        y = _question('Review request from "%(From)s"' % m, x, 2)
+        if y == 'Read':
+            _pager(m.as_string())
+        else:
+            return y == 'Approve'
 
 def _question(text, choices, default=0):
     if len(set(c[0] for c in choices)) != len(choices):
         raise ValueError('Choices conflict.')
 
     original_choices = list(choices)
-    short_options = set(c[0].lower() for c in original_choices)
+    short_options = [c[0].lower() for c in original_choices]
     long_options = [c.lower() for c in original_choices]
     default_choices = [long_options[0].title()] + long_options[1:]
 
     p = '/'.join('[%s]%s' % (c[0], c[1:]) for c in default_choices)
-    y = input('%s (%s)? ' % (text, p)).lower()
-    if y in short_options:
-        i = short_options.index(y)
-    elif y in long_options:
-        i = long_options.index(y)
-    else:
-        i = default
+    while True:
+        y = input('%s (%s): ' % (text, p)).lower()
+        if y == '':
+            i = default
+        elif y in short_options:
+            i = short_options.index(y)
+        elif y in long_options:
+            i = long_options.index(y)
+        else:
+            continue
+        break
+
 
     return original_choices[i]
 
