@@ -48,11 +48,14 @@ def help(to_address):
     m.set_payload('Documentation will eventually go here.')
     return m
 
-def subscriber(**headers):
+def envelope(**headers):
     m = Message()
     for key, value in headers.items():
         m[key] = value
     return m
+
+def subscriber(address, code):
+    return envelope(To=address, Subject=code)
 
 def message(msg):
     m = _set_list_headers(msg)

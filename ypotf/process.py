@@ -132,7 +132,7 @@ def process(S, M, num, from_address, subject, message_id):
     
     with Transaction(S, M) as t:
         if action == 'help':
-            t.plus_flags(num, '\\SEEN \\ANSWERED')
+            t.plus_flags(num, '\\SEEN')
             t.send(templates.help(from_address), from_address)
 
         elif action == 'list-archive':
@@ -147,7 +147,7 @@ def process(S, M, num, from_address, subject, message_id):
             t.send(templates.confirmation(action, from_address, code),
                    from_address)
             t.append('Inbox', '\\SEEN \\DRAFT', m)
-            t.plus_flags(num, '\\SEEN \\ANSWERED')
+            t.plus_flags(num, '\\SEEN')
 
         elif action == 'subscribe':
             flags = '\\FLAGGED \\DRAFT \\SEEN'
@@ -162,25 +162,26 @@ def process(S, M, num, from_address, subject, message_id):
             else:
                 logger.debug('Creating a new pending confirmation')
                 code = _confirmation_code()
-                m = templates.subscriber(to=code, subject=from_address)
+                m = templates.subscriber(from_address, code)
                 t.append('Inbox', flags, m)
 
             t.send(templates.confirmation(action, from_address, code),
                    from_address)
-            t.plus_flags(num, '\\SEEN \\ANSWERED')
+            t.plus_flags(num, '\\SEEN')
 
         elif action == 'unsubscribe':
             draft_num, code = search.inbox.subscriber(M, from_address)
             if draft_num and code:
                 # Add confirmation code to unsubscribe message.
-                m = _message(to=code, subject=from_address)
+                m = templates.subscriber(from_address, code)
                 t.append('Inbox', '\\FLAGGED \\SEEN', m)
+                t.plus_flags(draft_num, '\\ANSWERED')
+
                 t.send(templates.confirmation(action, from_address, code),
                        from_address)
-                t.plus_flags(draft_num, '\\ANSWERED')
             else:
                 t.send(templates.not_a_member(from_address), from_address)
-            t.plus_flags(num, '\\SEEN \\ANSWERED')
+            t.plus_flags(num, '\\SEEN')
 
         elif action == 'list-confirm':
             code = re.match(MATCHERS['list-confirm'], subject).group(1)
