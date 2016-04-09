@@ -26,7 +26,7 @@ def subscription_ypotf_id(M, address):
     e = email_address(address)
 
     s = 'ANSWERED HEADER X-Ypotf-Kind Subscription Subject "%s"'
-    nums = search(M, q % s)
+    nums = search(M, s % address)
 
     f = 'BODY.PEEK[HEADER.FIELDS (X-Ypotf-Id Subject)]'
     for _, m in _fetch(f, M, nums):

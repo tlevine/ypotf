@@ -14,7 +14,7 @@ def uuid():
     return uuid.uuid1().hex
 
 def email_address(x):
-    return email.utils.parse_addr(x)[1].lower()
+    return email.utils.parseaddr(x)[1].lower()
 
 def search(M, criterion):
     x = 'UNDELETED ' + criterion

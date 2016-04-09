@@ -31,10 +31,7 @@ class Writer(object):
             self._switched_box = True
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        if exc_type is None:
-            for f, args in self._finalize:
-                f(*args)
-        else:
+        if exc_type is not None:
             logger.error('Exception occurred in transaction, aborting.')
             for f, args in self._revert:
                 f(*args)
@@ -68,13 +65,12 @@ class Writer(object):
         }
         if action in actions:
             anti_action = actions[action]
-            self._revert.append((self._revert_store,
-                (num, anti_action, flags)))
-            return r(self._M.store(num, action, flags))
+            self._revert.append((self._base_store, (num, anti_action, flags)))
+            return self._base_store(num, action, flags)
         else:
             raise ValueError('Bad action: %s' % action)
 
-    def _revert_store(self, num, action, flags):
+    def _base_store(self, num, action, flags):
         '''
         :param args: Tuple of num, action, flags
         '''
