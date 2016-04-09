@@ -1,11 +1,9 @@
-Ypotf stores its data in IMAP in a form that can be replayed. Ypotf
-stores messages in the Inbox and Sent folders and never modifies the
-messages themselves; it records changes in state only by appending new
-messages or manipulating the IMAP flags.
+Ypotf stores its data in IMAP as a log that can be replayed.
+It records changes in state only by appending new messages or
+manipulating IMAP flags.
 
-Ypotf never edits messages after 
-
-After adding a message to the mailbox, ypotf may edit flags
+Ypotf stores messages in the Inbox and Sent folders and never modifies
+the messages themselves
 
 Sent folder
 -------------
