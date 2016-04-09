@@ -2,7 +2,7 @@ import logging
 from copy import deepcopy
 import datetime
 
-from .utils import r, uuid, get_num
+from .utils import r, uuid, search
 from . import templates
 
 logger = logging.getLogger(__name__)
@@ -24,13 +24,6 @@ class Writer(object):
         self._box = box
         self._switched_box = False
         return self
-
-    def _select(self, box):
-        if self._box != box:
-            self._box = box
-            r(self._M.select(self._box))
-            logger.debug('Selected box %s' % self._box)
-            self._switched_box = True
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if exc_type is not None:
@@ -111,10 +104,19 @@ class Writer(object):
 
     def _revert_append(self, box, append_id):
         query = 'HEADER X-Ypotf-Append %s' % append_id
-        self._select(box)
-        
-        num = get_num(self._M, query)
+
+        if self._box != box:
+            r(self._M.close())
+            r(self._M.select(box))
+
+        logger.debug('Selected box %s' % box)
+
+        num = search(self._M, query)[0]
         self._store(num, '+FLAGS', '\\DELETED')
+
+        if self._box != box:
+            self._switched_box = True
+            self._box = box
 
     def send(self, msg, to_addresses=None):
         publication = to_addresses != None

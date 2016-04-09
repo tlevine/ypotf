@@ -26,12 +26,3 @@ def search(M, criterion):
 
     logger.debug('%d results' % n)
     return nums
-
-def get_num(M, criterion):
-    ns = search(M, criterion)[0].split()
-    if len(ns) == 0:
-        raise ValueError('No results')
-    elif len(ns) == 1:
-        return ns[0]
-    else:
-        raise ValueError('%d results' % len(ns))
