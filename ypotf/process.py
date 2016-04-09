@@ -59,7 +59,12 @@ def process(list_address, S, M, num, m):
                     j = templates.subscription(m)
                     t.append_pending(j)
                     code = j['X-Ypotf-Id']
-                t.send(templates.subscribe_ok(list_address, m, code))
+
+                if interactive.subscribe(m):
+                    t.store_current(read.ypotf_id_num(M, code))
+                    t.send(templates.confirm_ok(list_address, m))
+                else:
+                    t.send(templates.subscribe_ok(list_address, m, code))
 
         elif action == 'unsubscribe':
             code = read.subscription_ypotf_id(M, m['From'])
