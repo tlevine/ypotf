@@ -11,7 +11,7 @@ from .utils import r, email_address
 logger = logging.getLogger(__name__)
 
 def ypotf(password, *quotas, n:int=0, list_subscribers=False,
-          v:horetu.Count=0):
+          v:horetu.COUNT=0):
     '''
     Process mailing list commands.
 

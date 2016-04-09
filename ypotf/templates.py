@@ -56,6 +56,14 @@ def subscribe_ok(list_address, m_in, code):
     m.set_payload('Reply to verify your email address and finish subscribing.')
     return m
 
+def subscribe_fail_already_member(list_address, m_in):
+    m = _set_list_headers(list_address, Message())
+    m = _set_reply_headers(list_address, m_in, m)
+    x = '''Your email address, %s, is already subscribed;
+this subscription command did nothing.'''
+    m.set_payload(x % email_address(m_in['From']))
+    return m
+
 def archive(list_address, m_in, subjects):
     m = _set_list_headers(list_address, Message())
     m = _set_reply_headers(list_address, m_in, m)
@@ -101,14 +109,14 @@ def subscription(m_in):
 def confirm_ok(list_address, m_in):
     m = _set_list_headers(list_address, Message())
     m = _set_reply_headers(list_address, m_in, m)
-    m['From'] = list_address
     x = 'Your email address, %s, has been added to the %s list.'
-    m.set_payload(x % email_address(m_in['From']))
+    m.set_payload(x % (email_address(m_in['From']), list_address))
     return m
 
 def confirm_fail_already_confirmed(list_address, m_in, from_addr):
     m = _set_list_headers(list_address, Message())
     m = _set_reply_headers(list_address, m_in, m)
+    del(m['To'])
     m['To'] = from_addr
     x = '''Your email address, %s, had already been confirmed;
 this confirmation command did nothing.'''

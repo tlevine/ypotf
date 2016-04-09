@@ -6,7 +6,7 @@ def subscribe(m):
     '''
     x = ['Approve', 'Read', 'Confiration email']
     while True:
-        y = _question('Review request from "%(From)s"' % m, x, 2)
+        y = _question('Review request from "%(From)s"?' % m, x, 2)
         if y == 'Read':
             _pager(m.as_string())
         else:
@@ -19,11 +19,12 @@ def _question(text, choices, default=0):
     original_choices = list(choices)
     short_options = [c[0].lower() for c in original_choices]
     long_options = [c.lower() for c in original_choices]
-    default_choices = [long_options[0].title()] + long_options[1:]
+    default_choices = list(long_options)
+    default_choices[default] = default_choices[default].title()
 
     p = '/'.join('[%s]%s' % (c[0], c[1:]) for c in default_choices)
     while True:
-        y = input('%s (%s): ' % (text, p)).lower()
+        y = input('%s\n(%s): ' % (text, p)).lower()
         if y == '':
             i = default
         elif y in short_options:

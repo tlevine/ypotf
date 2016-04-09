@@ -25,9 +25,8 @@ def is_subscribed(M, address):
     :rtype: bool
     '''
     e = email_address(address)
-
-    s = 'ANSWERED HEADER X-Ypotf-Subscription ""'
-    return search(M, s) != ''
+    s = 'ANSWERED HEADER X-Ypotf-Subscription "" SUBJECT %s' % e
+    return search(M, s) != [b'']
 
 def subscription_ypotf_id(M, address):
     '''
@@ -35,8 +34,8 @@ def subscription_ypotf_id(M, address):
     '''
     e = email_address(address)
 
-    s = 'HEADER X-Ypotf-Kind Subscription "%s"'
-    nums = search(M, s % address)
+    s = 'HEADER X-Ypotf-Subscription "" HEADER SUBJECT "%s"'
+    nums = search(M, s % e)
 
     f = 'BODY.PEEK[HEADER.FIELDS (X-Ypotf-Id Subject)]'
     for _, m in _fetch(f, M, nums):

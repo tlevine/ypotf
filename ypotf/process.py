@@ -6,6 +6,7 @@ from functools import partial
 
 from . import read, templates
 from .write import Writer
+from . import interactive
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +50,8 @@ def process(list_address, S, M, num, m):
 
         elif action == 'subscribe':
             if read.is_subscribed(M, m['From']):
-                t.send(templates.subscribe_fail_already_member(m))
+                print(333)
+                t.send(templates.subscribe_fail_already_member(list_address, m))
             else:
                 code = read.subscription_ypotf_id(M, m['From'])
                 if code:
