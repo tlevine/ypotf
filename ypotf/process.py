@@ -2,7 +2,6 @@ from random import sample
 import re
 import logging
 import datetime
-import string
 from functools import partial
 from copy import deepcopy
 
@@ -23,12 +22,10 @@ MATCHERS = {k: re.compile(v, flags=re.IGNORECASE) for (k,v) in [
     ('help', r'^help$'),
 ]}
 
-CHARACTERS = string.ascii_lowercase + string.digits
-
 _now = datetime.datetime.now
 
 def _confirmation_code():
-    return ''.join(sample(CHARACTERS, 32))
+    return uuid.uuid1().hex
 
 def _prepare_send(msg):
     m = deepcopy(msg)
@@ -91,8 +88,6 @@ class Transaction(object):
 
         for to_address in to_addresses:
             msg1 = _prepare_send(msg) # sent message kind 1
-            msg1['To']
-
             logger.debug(send_tpl % (to_address, msg1))
             self.append('Sent', '\\SEEN', msg1)
             self.S.send_message(msg1, list_address, [to_address])
