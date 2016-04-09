@@ -61,24 +61,14 @@ class sent(object):
         :returns: The number of messages
         :rtype: int
         '''
-        criterion = 'SENTSINCE "%s"' % dt.strftime('%d-%b-%Y')
+        criterion = 'SENTSINCE "%s" NOT BCC ""' % dt.strftime('%d-%b-%Y')
         return len(_search(criterion, M).split())
 
 class inbox(object):
 
     @staticmethod
     def subscribers(M):
-        '''
-        Search the Inbox folder for the subject fields of messages with the
-        Flagged flag and without the Draft flag; these are the current
-        subscribers.
-
-        :param imaplib.IMAP4_SSL M: A mailbox
-        :returns: Set of str email addresses of subscribers
-        :rtype: set
-        '''
-        r(M.select('Inbox'))
-        nums = _search('FLAGGED UNDRAFT', M)
+        nums = _search('FLAGGED UNDRAFT HEADER X-Ypotf-Kind Subscription', M)
         x = 'BODY.PEEK[HEADER.FIELDS (SUBJECT)]'
         headers = (_parse_headers(m) for _, m in _fetch(x, M, nums))
         return set(m['SUBJECT'] for m in headers)
@@ -109,8 +99,8 @@ class inbox(object):
         '''
         Search for just-received emails.
         '''
-        nums = _search('UNSEEN UNFLAGGED', M)
-        message_parts = 'BODY.PEEK[HEADER.FIELDS (FROM SUBJECT)]'
+        nums = _search('UNSEEN UNANSWERED', M)
+        message_parts = 'BODY.PEEK[HEADER.FIELDS (FROM SUBJECT MESSAGE-ID)]'
         for num, m in _fetch(message_parts, M, nums):
             h = _parse_headers(m)
             if {'FROM', 'SUBJECT'}.issubset(h):
@@ -128,16 +118,6 @@ class inbox(object):
 
     @staticmethod
     def confirmation(M, code):
-        '''
-        Search for Draft (confirmation)
-
-        FLAGGED DRAFT SEEN
-            Subscription confirmation
-        FLAGGED UNDRAFT UNSEEN
-            Unsubscription confirmation
-        UNFLAGGED DRAFT
-            Message confirmation
-        '''
         criterion = re.sub(r'[\n ]+', ' ', '''
           SUBJECT "%s"
           ( OR
