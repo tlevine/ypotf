@@ -160,6 +160,46 @@ Archive requests, help requests, and erroneous messages do not require
 confirmation, so those requests are handled in one email response;
 they don't require the aforementioned confirmation procedure.
 
+Sending messages
+^^^^^^^^^^^^^^^^^^^^
+ypotf sends messages to one recipient at a time. It can store
+
+1. A copy of every message that is sent
+2. An additional copy for every message sent to the full subscription
+   list ("message"-type messages rather than "help", "confirm", or
+   "list-archive" messages)
+
+It stores both of these in the "Sent" folder. We can tell them apart
+because the first kind has a "Bcc" header and the second does not.
+
+The first is an exact copy of the exact message that is passed to the
+SMTP server. It is stored only for record-keeping; aside from saving
+them, ypotf ignores these messages.
+
+The second is a record of each batch of messages that was sent; it has
+nothing to do with what was sent to the SMTP server.
+
+modified to have a "Bcc" header listing
+all of the present subscribers. To be clear, this message is *not* sent
+to the SMTP server; messages are sent one at a time to individual
+members, and this message 
+The list-archive feature doesn't need to know what the list members
+were, but I thought it would be nice to have
+
+* It is a concise version of the first type of message; the only
+  thing that it lacks is the exact dates of sending.
+* It provides a record of the historical subscriber list that is easy to
+  view in a mail user agent.
+aggregation of the first type of message. Note that this does not have
+all of the information that the first sort of message does; the exact
+dates are missing, and this message is saved regardless of whether the
+SMTP sending succeeds.
+
+ypotf stores both of the above sorts of information about sent messages
+by default, but they can be disabled.
+
+*
+
 Logs
 ^^^^^
 ypotf retains all messages that it ever creates. This includes
