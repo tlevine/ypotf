@@ -144,7 +144,7 @@ def process(S, M, num, from_address, subject, message_id):
             code = _confirmation_code()
             m = templates.i_message_confirmation(fetch_num(num), code)
             t.append('Inbox', '\\SEEN \\DRAFT', m)
-            t.send(templates.confirmation(action, from_address, code),
+            t.send(templates.message_confirm(from_address, code),
                    from_address)
 
         elif action == 'subscribe':
@@ -160,14 +160,14 @@ def process(S, M, num, from_address, subject, message_id):
                     code = _confirmation_code()
                     m = templates.i_subscriber(from_address, code)
                     t.append('Inbox', flags, m)
-                t.send(templates.confirmation(action, from_address, code),
+                t.send(templates.subscribe_confirm(from_address, code),
                        from_address)
 
         elif action == 'unsubscribe':
             draft_num, code = current_subscriber(from_address):
             if draft_num and code:
                 t.minus_flags(draft_num, '\\SEEN')
-                t.send(templates.confirmation(action, from_address, code),
+                t.send(templates.unsubscribe_confirm(from_address, code),
                        from_address)
             else:
                 t.send(templates.not_a_member(from_address), from_address)

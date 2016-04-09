@@ -1,4 +1,5 @@
 from email.message import Message
+from functools import partial
 
 list_address = '_@dada.pink'
 FORWARDED_HEADERS = {
@@ -26,7 +27,7 @@ def _set_list_headers(msg):
         msg[k] = v
     return msg
 
-def confirmation(action, to_address, code):
+def _confirmation(action, to_address, code):
     m = _set_list_headers(Message())
     m['To'] = to_address
     m['From'] = list_address
@@ -40,6 +41,10 @@ def confirmation(action, to_address, code):
     m.set_payload(tpl % _desc[action])
     return m
 
+subscribe = partial(_confirmation, 'subscribe')
+unsubscribe = partial(_confirmation, 'unsubscribe')
+message_confirm = partial(_confirmation, 'message')
+
 def help(to_address):
     m = _set_list_headers(Message())
     m['To'] = to_address
@@ -48,19 +53,19 @@ def help(to_address):
     m.set_payload('Documentation will eventually go here.')
     return m
 
-def envelope(**headers):
-    m = Message()
-    for key, value in headers.items():
-        m[key] = value
-    return m
-
-def message(msg):
+def message_send(msg):
     m = _set_list_headers(msg)
     del(msg['To'])
     msg['To'] = list_address
     return msg
 
 # Internal emails
+def envelope(**headers):
+    m = Message()
+    for key, value in headers.items():
+        m[key] = value
+    return m
+
 def i_subscriber(address, code):
     return envelope(To=address, Subject=code)
 
