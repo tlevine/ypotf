@@ -3,8 +3,8 @@ digraph ypotf {
   node [shape="note"];
 
   // Clusters
-  subgraph cluster_0 {
-    label="Incoming commands";
+//subgraph cluster_0 {
+//////bel="Incoming commands";
 
     "help (1.1.1)";
     "list-archive (1.1.2)";
@@ -15,7 +15,7 @@ digraph ypotf {
 
     "Pending subscriptions (1.2)";
     "Pending publications (1.3)";
-  };
+//};
   subgraph cluster_1 {
     label="Applied commands/data";
 
@@ -23,20 +23,22 @@ digraph ypotf {
     "Current subscriptions (2.2)";
     "Current publications (2.3)";
   };
+  subgraph cluster_2 {
   "Sent messages" [shape=diamond];
   "Deleted subscriptions";
+  };
 
   // Direct links
-  "help (1.1.1)" -> "Applied commands (2.1)";
-  "list-archive (1.1.2)" -> "Applied commands (2.1)";
-  "subscribe (1.1.3)" -> "Applied commands (2.1)";
-  "unsubscribe (1.1.4)" -> "Applied commands (2.1)";
-  "list-confirm (1.1.5)" -> "Applied commands (2.1)";
-  "message (1.1.6)" -> "Applied commands (2.1)";
+  "help (1.1.1)" -> "Applied commands (2.1)" [label="+ANSWERED\n+SEEN"];
+  "list-archive (1.1.2)" -> "Applied commands (2.1)" [label="+ANSWERED\n+SEEN"];
+  "subscribe (1.1.3)" -> "Applied commands (2.1)" [label="+ANSWERED\n+SEEN"];
+  "unsubscribe (1.1.4)" -> "Applied commands (2.1)" [label="+ANSWERED\n+SEEN"];
+  "list-confirm (1.1.5)" -> "Applied commands (2.1)" [label="+ANSWERED\n+SEEN"];
+  "message (1.1.6)" -> "Applied commands (2.1)" [label="+ANSWERED\n+SEEN"];
 
-  "Pending subscriptions (1.2)" -> "Current subscriptions (2.2)" ->
-    "Deleted subscriptions";
-  "Pending publications (1.3)" -> "Current publications (2.3)";
+  "Pending subscriptions (1.2)" -> "Current subscriptions (2.2)" [label="+ANSWERED\n+SEEN"];
+  "Current subscriptions (2.2)" -> "Deleted subscriptions" [label="+ANSWERED\n+SEEN"];
+  "Pending publications (1.3)" -> "Current publications (2.3)" [label="+ANSWERED\n+SEEN"];
 
   // Indirect links
   "subscribe (1.1.3)" -> "Pending subscriptions (1.2)" [style=dotted];
@@ -46,10 +48,10 @@ digraph ypotf {
   "list-confirm (1.1.5)" -> "Current publications (2.3)" [style=dotted];
   "list-confirm (1.1.5)" -> "Deleted subscriptions" [style=dotted];
 
-  "help (1.1.1)" -> "Sent messages";
-  "list-archive (1.1.2)" -> "Sent messages";
-  "subscribe (1.1.3)" -> "Sent messages";
-  "unsubscribe (1.1.4)" -> "Sent messages";
-  "list-confirm (1.1.5)" -> "Sent messages";
-  "message (1.1.6)" -> "Sent messages";
+  "help (1.1.1)" -> "Sent messages" [style=dotted];
+  "list-archive (1.1.2)" -> "Sent messages" [style=dotted];
+  "subscribe (1.1.3)" -> "Sent messages" [style=dotted];
+  "unsubscribe (1.1.4)" -> "Sent messages" [style=dotted];
+  "list-confirm (1.1.5)" -> "Sent messages" [style=dotted];
+  "message (1.1.6)" -> "Sent messages" [style=dotted];
 }

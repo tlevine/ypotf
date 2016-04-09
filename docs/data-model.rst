@@ -45,4 +45,6 @@ Secondary and tertiary types are encoded in headers.
 
 Messages take one of the following paths through these states.
 
+Messages take the following paths among states.
 
+.. graphviz:: flow.dot
