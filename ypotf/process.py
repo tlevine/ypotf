@@ -30,7 +30,6 @@ def _prepare_send(msg):
     m['X-Ypotf-Date'] = email.utils.format_datetime(_now())
     return m
 
-from .templates import list_address
 
 def process(S, M, num, from_address, subject, message_id):
     for k, v in MATCHERS.items():
@@ -51,8 +50,11 @@ def process(S, M, num, from_address, subject, message_id):
             raise NotImplementedError
 
         elif action == 'message':
-            # XXX skip confirmation if this is from a subscriber with
-            # good SFP.
+            if search.is_subscribed(M, from_address):
+                # Skip confirmation if this is "From" a subscriber
+                # Rely on the email provider to have SPF, DKIM,
+                # and spam filtering.
+                m = read.pending_publication(
             code = _uuid()
             XXX m = templates.i_message_confirmation(fetch_num(num), code)
             t.append_pending(m)
