@@ -44,13 +44,13 @@ class Writer(object):
             sys.exit(1)
 
     def store_current(self, num):
-        return self.store(num, '+FLAGS', '\\ANSWERED \\SEEN')
+        return self._store(num, '+FLAGS', '\\ANSWERED \\SEEN')
 
     def store_pending(self, num):
-        return self.store(num, '-FLAGS', '\\ANSWERED')
+        return self._store(num, '-FLAGS', '\\ANSWERED')
 
     def store_deleted(self, num, flags):
-        return self.store(num, '+FLAGS', '\\DELETED')
+        return self._store(num, '+FLAGS', '\\DELETED')
 
     def append_current(self, m):
         return self._append('Inbox', '\\ANSWERED \\SEEN', m)
@@ -73,12 +73,13 @@ class Writer(object):
         else:
             raise ValueError('Bad action: %s' % action)
 
-    def _revert_store(self, *args):
+    def _revert_store(self, num, action, flags):
         '''
         :param args: Tuple of num, action, flags
         '''
-        logger.debug('STORE %d %s (%s)' % args)
-        return r(self._M.store(*args))
+        args = num.decode('ascii'), action, flags
+        logger.debug('STORE %s %s (%s)' % args)
+        return r(self._M.store(num, action, flags))
 
     def _append(self, box, flags, m):
         '''

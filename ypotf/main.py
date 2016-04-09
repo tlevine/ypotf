@@ -42,7 +42,7 @@ def ypotf(password, *quotas, n:int=0, list_subscribers=False):
     for i, (num, m) in enumerate(orders):
         if n <= 0 or i < n:
             logger.info('Processing message from %(From)s' % m)
-            process(list_address, S, M, m)
+            process(list_address, S, M, num, m)
         else:
             logger.info('Processed %d messages' % n)
             break

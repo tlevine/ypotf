@@ -19,7 +19,7 @@ MATCHERS = {k: re.compile(v, flags=re.IGNORECASE) for (k,v) in [
 
 _now = datetime.datetime.now
 
-def process(list_address, S, M, m):
+def process(list_address, S, M, num, m):
     for k, v in MATCHERS.items():
         if re.match(v, m['Subject']):
             action = k
@@ -29,7 +29,7 @@ def process(list_address, S, M, m):
 
     logging.debug('"%s" request from "%s"' % (action, m['From']))
 
-    with Writer(S, M, list_address) as t:
+    with Writer(list_address, S, M) as t:
         t.store_current(num)
         if action == 'help':
             t.send(templates.help(m['From'], message_id))
