@@ -10,7 +10,7 @@ from email import message_from_bytes
 
 from . import templates
 from . import search
-from .utils import r
+from .utils import r, _uuid
 
 logger = logging.getLogger(__name__)
 
@@ -24,12 +24,9 @@ MATCHERS = {k: re.compile(v, flags=re.IGNORECASE) for (k,v) in [
 
 _now = datetime.datetime.now
 
-def _confirmation_code():
-    return uuid.uuid1().hex
-
 def _prepare_send(msg):
     m = deepcopy(msg)
-    m['X-Ypotf-Id'] = _confirmation_code()
+    m['X-Ypotf-Id'] = _uuid()
     m['X-Ypotf-Date'] = email.utils.format_datetime(_now())
     return m
 
@@ -105,7 +102,7 @@ class Transaction(object):
             raise ValueError('"\\Seen" must be a flag.')
         logger.debug(log_tpl % ('Appending', to_address, msg1))
 
-        append_id = _confirmation_code()
+        append_id = _uuid()
         m['X-Ypotf-Append'] = append_id
 
         # Reverting an append may require a switch of box.
@@ -143,7 +140,7 @@ def process(S, M, num, from_address, subject, message_id):
         elif action == 'message':
             # XXX skip confirmation if this is from a subscriber with
             # good SFP.
-            code = _confirmation_code()
+            code = _uuid()
             m = templates.i_message_confirmation(fetch_num(num), code)
             t.append('Inbox', '\\SEEN \\DRAFT', m)
             t.send(templates.message_confirm(from_address, code),
@@ -159,7 +156,7 @@ def process(S, M, num, from_address, subject, message_id):
                     logger.debug('Reusing existing pending subscription')
                 else:
                     logger.debug('Creating a new pending subscription')
-                    code = _confirmation_code()
+                    code = _uuid()
                     m = templates.i_subscriber(from_address, code)
                     t.append('Inbox', '\\FLAGGED \\SEEN \\DRAFT', m)
                 t.send(templates.subscribe_confirm(from_address, code),

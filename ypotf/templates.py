@@ -67,8 +67,8 @@ def envelope(**headers):
     return m
 
 def i_subscriber(address, code):
-    return envelope(To=address, Subject=code)
+    return i_message_confirmation(envelope(Subject=address), code)
 
 def i_message_confirmation(m, code):
-    m['TO'] = code
+    m['X-Ypotf-Confirmation'] = code
     return m
