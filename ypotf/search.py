@@ -74,17 +74,18 @@ class inbox(object):
     New message
         **UNSEEN**
     Pending message to list members
-        SEEN **UNFLAGGED**
+        SEEN FLAGGED
     Pending subscription
-        SEEN FLAGGED **DRAFT**
+        SEEN UNFLAGGED DRAFT
     Current subscription
-        SEEN FLAGGED **UNDRAFT**
+        SEEN UNFLAGGED UNDRAFT
 
     Transitions between states
 
-    New message
+    New message: +FLAGS \SEEN \FLAGGED
+    New message -> Sent message: +FLAGS \ANSWERED
 
-    Pending: +FLAGS \FLAGGED \SEEN \DRAFT
+    Pending subscription: +FLAGS \SEEN \DRAFT
     Pending -> Current: -FLAGS \DRAFT
     Current -> Unsubscribed: +FLAGS \ANSWERED
 
