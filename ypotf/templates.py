@@ -43,8 +43,8 @@ def _set_reply_headers(list_address, m_in, m_out):
     m_out['To'] = e
     m_out['From'] = list_address
     m_out['Subject'] =  'Re: ' + re.sub(r'^ *Re: *', '', m_in['Subject'])
-    rs = (m_in.get('References', ''), m_in.get('Message-Id'))
-    m_out['References'] = ''.join(rs).strip()
+    rs = (m_in.get('References', ''), m_in.get('Message-Id', ''))
+    m_out['References'] = ' '.join(rs).strip()
     m_out['Date'] = _now()
     return m_out
 
