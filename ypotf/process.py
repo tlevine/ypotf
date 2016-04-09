@@ -141,6 +141,8 @@ def process(S, M, num, from_address, subject, message_id):
             raise NotImplementedError
 
         elif action == 'message':
+            # XXX skip confirmation if this is from a subscriber with
+            # good SFP.
             code = _confirmation_code()
             m = templates.i_message_confirmation(fetch_num(num), code)
             t.append('Inbox', '\\SEEN \\DRAFT', m)
@@ -148,11 +150,11 @@ def process(S, M, num, from_address, subject, message_id):
                    from_address)
 
         elif action == 'subscribe':
-            if is_subscriber(from_address):
+            if search.inbox.current(from_address):
                 logger.debug('Already subscribed')
                 raise NotImplementedError
             else:
-                code = search.inbox.pending_subscribe(M, from_address)
+                code = search.inbox.pending(M, from_address)
                 if code:
                     logger.debug('Reusing existing pending subscription')
                 else:
@@ -164,8 +166,8 @@ def process(S, M, num, from_address, subject, message_id):
                        from_address)
 
         elif action == 'unsubscribe':
-            code = current_subscriber(from_address)
-            if draft_num and code:
+            code = search.inbox.current(from_address)
+            if code:
                 t.send(templates.unsubscribe_confirm(from_address, code),
                        from_address)
             else:
@@ -185,7 +187,7 @@ def process(S, M, num, from_address, subject, message_id):
                     t.minus_flags(draft_num, '\\DRAFT')
 
                 elif draft_action == 'unsubscribe':
-                    t.minus_flags(draft_num, '\\ANSWERED')
+                    t.plus_flags(draft_num, '\\ANSWERED')
 
                 else:
                     raise ValueError
