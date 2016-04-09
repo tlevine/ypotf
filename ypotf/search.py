@@ -66,20 +66,18 @@ class sent(object):
 
 class inbox(object):
     '''
-    All messages must have one of the following flag settings;
-    other flag configurations are ignored. Bold indicates the
-    more distinguishing flags.
+    All messages must have one of the following flag settings.
 
     New command
-        UNANSWERED UNSEEN (FLAGGED/UNFLAGGED)
+        UNSEEN UNDRAFT UNFLAGGED
     Pending subscription
-        UNANSWERED UNDRAFT UNFLAGGED
+        SEEN   UNDRAFT UNFLAGGED
     Current subscription
-        UNANSWERED UNDRAFT   FLAGGED
+        SEEN   UNDRAFT   FLAGGED
     Pending message to list members
-        UNANSWERED DRAFT   UNFLAGGED
+        SEEN     DRAFT UNFLAGGED
     Sent message to list members
-        UNANSWERED DRAFT     FLAGGED
+        SEEN     DRAFT   FLAGGED
 
     Note: There are five categories of method (four explicitly
     and one for everything else). Three flags is enough to distinguish
