@@ -15,65 +15,29 @@ meaning in this folder.
 
 Inbox folder
 -------------
-Messages in the Inbox folders have three primary types, which are
+Messages in the Inbox folders have two primary types, which are
 encoded as flags.
 
-1. Pending commands/data (UNSEEN)
-2. Applied commands/data (SEEN)
+1. Pending commands/data (UNANSWERED)
+2. Applied commands/data (ANSWERED)
 
-1. Incoming commands (UNSEEN UNANSWERED UNDRAFT UNFLAGGED)
-2. Processed commands (SEEN ANSWERED DRAFT UNFLAGGED)
-3. Pending master data (SEEN ANSWERED UNDRAFT FLAGGED)
-4. Current master data (SEEN ANSWERED UNDRAFT UNFLAGGED)
+Secondary and tertiary types are encoded in headers; in the outline
+below, the headers in parantheses distinguish among the sub-types.
 
+1. Pending commands/data (X-Ypotf-Subscription)
 
-these types, which are organized as
-primary and secondary types. Primary types are encoded in flags, and
-secondary types are encoded in headers.
+  1. Incoming commands (Subject)
 
-1. Incoming commands
+    1. help
+    2. list-archive
+    3. subscribe
+    4. unsubscribe
+    5. list-confirm
+    6. message
 
-  a. help
-  b. list-archive
-  c. subscribe
-  d. unsubscribe
-  e. list-confirm
-  f. message
+  2. Pending subscriptions 
 
-2. Pending master data
+2. Applied commands/data (X-Ypotf-Subscription)
 
-  a. Subscription requests
-  b. Publication requests
-
-3. Current master data
-
-  a. Subscription requests
-  b. Publication requests
-
-
-
-
-    New command
-        UNSEEN UNANSWERED UNDRAFT UNFLAGGED
-    Pending subscription/message
-        SEEN   UNANSWERED DRAFT   FLAGGED
-    Manually cancelled pending subscription/message
-        SEEN   UNANSWERED DRAFT   UNFLAGGED
-    Current subscription/message
-        SEEN   ANSWERED   UNDRAFT FLAGGED
-    Manually cancelled current subscription/message
-        SEEN   ANSWERED   UNDRAFT UNFLAGGED
-    Commands that have completed
-        SEEN   ANSWERED   DRAFT   UNFLAGGED
-    Unused (I might use it for a blacklist.)
-        SEEN   ANSWERED   DRAFT   FLAGGED
-    Possible mistakes (ypotf will prompt for corrections.)
-        SEEN UNANSWERED   UNDRAFT UNFLAGGED might occur because someone
-        accidentally read a new command in a MUA;
-        SEEN UNANSWERED   UNDRAFT FLAGGED might occurr because someone
-        accidentally read a new command in a MUA and then flagged it;
-        UNSEEN UNANSWERED UNDRAFT FLAGGED might occur because someone
-        accidentally flagged a new command in a MUA.
-        All other combinations with UNSEEN might occur because someone
-        accidentally marked a message as unread in an MUA.
-        
+  1. Applied commands
+  2. Current subscriptions
