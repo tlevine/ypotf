@@ -1,5 +1,6 @@
 import logging
 from copy import deepcopy
+import datetime
 
 from .utils import r, uuid, get_num
 from . import templates
@@ -42,21 +43,27 @@ class Writer(object):
             sys.exit(1)
 
     def store_current(self, num):
-        return self._store(num, '+FLAGS', '\\ANSWERED \\SEEN')
+        logger.debug('Storing message %s as current' % num.decode('ascii'))
+        return self._store(num, '+FLAGS', '\\ANSWERED')
 
     def store_pending(self, num):
+        logger.debug('Storing message %s as pending' % num.decode('ascii'))
         return self._store(num, '-FLAGS', '\\ANSWERED')
 
     def store_deleted(self, num, flags):
+        logger.debug('Deleting message %s' % num.decode('ascii'))
         return self._store(num, '+FLAGS', '\\DELETED')
 
     def append_current(self, m):
+        logger.debug('Appending new current message %(message-id)s' % m)
         return self._append('Inbox', '\\ANSWERED \\SEEN', m)
 
     def append_pending(self, m):
+        logger.debug('Appending new pending message %(message-id)s' % m)
         return self._append('Inbox', '\\SEEN', m)
 
     def append_sent(self, m):
+        logger.debug('Appending new sent message %(message-id)s' % m)
         return self._append('Sent', '\\SEEN', m)
 
     def _store(self, num, action, flags):
@@ -91,7 +98,7 @@ class Writer(object):
 
         m['X-Ypotf-Append'] = uuid()
 
-        d = tuple(_now().timetuple())
+        d = tuple(datetime.datetime.now().timetuple())
         l = m.as_bytes()
         y = r(self._M.append(box, flags, d, l))
 
@@ -126,4 +133,4 @@ class Writer(object):
                 msg1 = msg
             logger.debug(log_tpl % ('Sending', to_address, msg1))
             self._append('Sent', '\\SEEN', msg1)
-            self.S.send_message(msg1, self._list_address, [to_address])
+            self._S.send_message(msg1, self._list_address, [to_address])

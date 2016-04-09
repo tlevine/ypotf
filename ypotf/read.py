@@ -55,7 +55,7 @@ def new_orders(M):
     '''
     Search for just-received emails.
     '''
-    nums = search(M, 'UNSEEN UNANSWERED')
+    nums = search(M, 'UNANSWERED')
     for num, m in _fetch('(RFC822)', M, nums):
         if 'From' in m and 'Subject' in m:
             logger.debug('''Found a new order

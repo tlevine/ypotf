@@ -28,7 +28,7 @@ def search(M, criterion):
     return nums
 
 def get_num(M, criterion):
-    ns = nums[0].split()
+    ns = search(M, criterion)[0].split()
     if len(ns) == 0:
         raise ValueError('No results')
     elif len(ns) == 1:

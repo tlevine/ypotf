@@ -41,23 +41,18 @@ def _set_reply_headers(list_address, m_in, m_out):
     e = email_address(m_in['From'])
     m_out['To'] = e
     m_out['From'] = list_address
-    m_out['Subject'] = 'Re: %(Subject)ss' % m_in
-    m_out['References'] = ('%(References)s %(Message-Id)s' % m_in).strip()
+    m_out['Subject'] = 'Re: %(Subject)s' % m_in
+    rs = (m_in.get('References', ''), m_in.get('Message-Id'))
+    m_out['References'] = ''.join(rs).strip()
     m_out['Date'] = _now()
     return m_out
 
-def confirm_ok(action, list_address, to_address, code):
+def subscribe_ok(list_address, m, code):
     m = _set_list_headers(list_address, Message())
-    m['To'] = to_address
+    m['To'] = email_address(m['From'])
     m['From'] = list_address
     m['Subject'] = 'Verify your email address {%s}' % code
-    tpl = 'Reply to verify your email address and %s.'
-    _desc = {
-        'subscribe': 'finish subscribing',
-        'unsubscribe': 'unsubscribe',
-        'message': 'publish the message you just sent',
-    }
-    m.set_payload(tpl % _desc[action])
+    m.set_payload('Reply to verify your email address and finish subscribing.')
     return m
 
 def help(list_address, m_in):
@@ -88,6 +83,14 @@ def subscription(m):
     m['X-Ypotf-Id'] = uuid()
     return m
 
+def confirm_ok(list_address, m_in):
+    m = _set_list_headers(list_address, Message())
+    m = _set_reply_headers(list_address, m_in, m)
+    m['From'] = list_address
+    x = 'Your email address, %s, has been added to the %s list.'
+    m.set_payload(x % (email_address(m_in['From']), list_address))
+    return m
+
 def unsubscribe_ok(list_address, m_in):
     m = _set_list_headers(list_address, Message())
     m = _set_reply_headers(list_address, m_in, m)
@@ -100,7 +103,13 @@ def unsubscribe_fail_not_member(list_address, m_in):
     m = _set_list_headers(list_address, Message())
     m = _set_reply_headers(list_address, m_in, m)
     e = email_address(m_in['From'])
-    m['Subject'] = 'Re: %(Subject)s' % m_in
     m.set_payload('''Your email address, %s, is already not on this
 mailing list; your unsubscribe command did nothing.''' % e)
+    return m
+
+def error(list_address, m_in, text):
+    m = _set_list_headers(list_address, Message())
+    m = _set_reply_headers(list_address, m_in, m)
+    e = email_address(m_in['From'])
+    m.set_payload(text)
     return m

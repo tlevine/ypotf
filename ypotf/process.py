@@ -17,8 +17,6 @@ MATCHERS = {k: re.compile(v, flags=re.IGNORECASE) for (k,v) in [
     ('help', r'^help$'),
 ]}
 
-_now = datetime.datetime.now
-
 def process(list_address, S, M, num, m):
     for k, v in MATCHERS.items():
         if re.match(v, m['Subject']):
@@ -36,7 +34,7 @@ def process(list_address, S, M, num, m):
 
         elif action == 'archive':
             x = 'List archives are not implemented yet.'
-            t.send(templates.error(x, m['From'], message_id))
+            t.send(templates.error(list_address, m, x))
 
         elif action == 'publication':
             if read.is_subscribed(M, m['From']):
@@ -58,8 +56,10 @@ def process(list_address, S, M, num, m):
                     logger.debug('Reusing existing pending subscription')
                 else:
                     logger.debug('Creating a new pending subscription')
-                    t.append_pending(templates.subscription(m))
-                t.send(templates.subscribe_ok(m['From'], code))
+                    j = templates.subscription(m)
+                    t.append_pending(j)
+                    code = j['X-Ypotf-Id']
+                t.send(templates.subscribe_ok(list_address, m, code))
 
         elif action == 'unsubscribe':
             code = read.subscription_ypotf_id(M, m['From'])
@@ -75,7 +75,7 @@ def process(list_address, S, M, num, m):
             sub_num = read.ypotf_id_num(M, code)
             if sub_num:
                 t.store_current(draft_num)
-                t.send(templates.subscribe(m['From']), from_address)
+                t.send(templates.confirm_ok(list_address, sub_m))
             else:
                 t.send(templates.error('Invalid confirmation code'),
                        m['From'])
