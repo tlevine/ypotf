@@ -13,6 +13,7 @@ class DB(object):
     def __init__(self, S, M, list_address):
         self._S = S
         self._M = M
+        self._list_address
 
     def __enter__(self, box='Inbox'):
         self._finalize = []
@@ -77,7 +78,7 @@ class DB(object):
         logger.info('Sending to %d addresses' % len(to_addresses))
         msg2 = _prepare_send(msg) # sent message kind 2
 
-        if msg2['To'].lower() == list_address:
+        if msg2['To'].lower() == self._list_address:
             msg2['Bcc'] = ', '.join(to_addresses)
             self.append('Sent', '\\SEEN', msg2)
 
@@ -85,7 +86,7 @@ class DB(object):
             msg1 = _prepare_send(msg) # sent message kind 1
             logger.debug(log_tpl % ('Sending', to_address, msg1))
             self.append('Sent', '\\SEEN', msg1)
-            self.S.send_message(msg1, list_address, [to_address])
+            self.S.send_message(msg1, self._list_address, [to_address])
 
     def append(self, box, flags, m):
         '''
