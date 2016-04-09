@@ -50,7 +50,7 @@ def process(list_address, S, M, num, m):
                 t.send(templates.publication_not_a_member(m))
 
         elif action == 'subscribe':
-            if read.is_subscribed(m['From']):
+            if read.is_subscribed(M, m['From']):
                 t.send(templates.subscribe_fail_already_member(m))
             else:
                 code = read.subscription_ypotf_id(M, m['From'])
@@ -62,7 +62,7 @@ def process(list_address, S, M, num, m):
                 t.send(templates.subscribe_ok(m['From'], code))
 
         elif action == 'unsubscribe':
-            code = read.subscription_ypotf_id(m['From'])
+            code = read.subscription_ypotf_id(M, m['From'])
             if code:
                 sub_num = read.ypotf_id_num(M, code)
                 t.store_deleted(sub_num)
