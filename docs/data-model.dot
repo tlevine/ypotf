@@ -1,5 +1,8 @@
 digraph ypotf {
   rankdir=LR;
+  node [shape="note"];
+
+  // Clusters
   subgraph cluster_0 {
     label="Incoming commands";
 
@@ -20,7 +23,10 @@ digraph ypotf {
     "Current subscriptions (2.2)";
     "Current publications (2.3)";
   };
+  "Sent messages" [shape=diamond];
+  "Deleted subscriptions";
 
+  // Direct links
   "help (1.1.1)" -> "Applied commands (2.1)";
   "list-archive (1.1.2)" -> "Applied commands (2.1)";
   "subscribe (1.1.3)" -> "Applied commands (2.1)";
@@ -32,6 +38,7 @@ digraph ypotf {
     "Deleted subscriptions";
   "Pending publications (1.3)" -> "Current publications (2.3)";
 
+  // Indirect links
   "subscribe (1.1.3)" -> "Pending subscriptions (1.2)" [style=dotted];
   "message (1.1.6)" -> "Pending publications (1.3)" [style=dotted];
 
@@ -39,7 +46,10 @@ digraph ypotf {
   "list-confirm (1.1.5)" -> "Current publications (2.3)" [style=dotted];
   "list-confirm (1.1.5)" -> "Deleted subscriptions" [style=dotted];
 
-// Results in sent emails
-//"Incoming commands (1.4)" -> "" [style=dotted];
-
+  "help (1.1.1)" -> "Sent messages";
+  "list-archive (1.1.2)" -> "Sent messages";
+  "subscribe (1.1.3)" -> "Sent messages";
+  "unsubscribe (1.1.4)" -> "Sent messages";
+  "list-confirm (1.1.5)" -> "Sent messages";
+  "message (1.1.6)" -> "Sent messages";
 }
