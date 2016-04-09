@@ -97,8 +97,12 @@ class inbox(object):
         return None, None
 
     @staticmethod
-    def current_subscriber_num(M, address):
-        return inbox._subscriber(M, address, 'UNDRAFT SEEN')[0]
+    def current_subscriber(M, address):
+        return inbox._subscriber(M, address, 'UNDRAFT SEEN')
+
+    @staticmethod
+    def is_subscriber(M, address):
+        return inbox._subscriber(M, address, 'UNDRAFT SEEN')[0] != None
 
     @staticmethod
     def pending_subscribe_code(M, address):
