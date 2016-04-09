@@ -33,15 +33,11 @@ def _prepare_send(msg):
     m['X-Ypotf-Date'] = email.utils.format_datetime(_now())
     return m
 
-append_tpl = '''Appending this message to %s
+log_tpl = '''%s this message to %s
 ----------------------------------------
 %s
 ----------------------------------------''' 
 
-send_tpl = '''Sending this message to %s
-----------------------------------------
-%s
-----------------------------------------'''
 from .templates import list_address
 
 class Transaction(object):
@@ -52,10 +48,14 @@ class Transaction(object):
     def __enter__(self, box='Inbox'):
         self._finalize = []
         self._revert = []
-        self._box = box
-
-        r(self._M.select(self._box))
+        self._select(box)
         return self
+
+    def _select(self, box):
+        if self._box != box:
+            self._box = box
+            r(self._M.select(self._box))
+            logger.debug('Selected box %s' % self._box)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if exc_type is None:
@@ -75,8 +75,12 @@ class Transaction(object):
         self._revert.append((self._store, (num, '+FLAGS', flags)))
         return self._store(num, '-FLAGS', flags)
 
-    def _store(self, num, action, flags):
-        return r(self._M.store(num, action, flags))
+    def _store(self, *args):
+        '''
+        :param args: Tuple of num, action, flags
+        '''
+        logger.debug('STORE %d %s (%s)' % *args)
+        return r(self._M.store(*args))
 
     def send(self, msg, *to_addresses):
         logger.info('Sending to %d addresses' % len(to_addresses))
@@ -88,7 +92,7 @@ class Transaction(object):
 
         for to_address in to_addresses:
             msg1 = _prepare_send(msg) # sent message kind 1
-            logger.debug(send_tpl % (to_address, msg1))
+            logger.debug(log_tpl % ('Sending', to_address, msg1))
             self.append('Sent', '\\SEEN', msg1)
             self.S.send_message(msg1, list_address, [to_address])
 
@@ -99,7 +103,7 @@ class Transaction(object):
         '''
         if 'seen' not in flags.lower():
             raise ValueError('"\\Seen" must be a flag.')
-        logger.debug(append_tpl % (box, m))
+        logger.debug(log_tpl % ('Appending', to_address, msg1))
 
         append_id = _confirmation_code()
         m['X-Ypotf-Append'] = append_id
@@ -113,10 +117,7 @@ class Transaction(object):
 
     def _revert_append(box, append_id):
         query = 'HEADER X-Ypotf-Append %s' % append_id))
-
-        if self._box != box:
-            self._M.select(box)
-        self._box = box
+        self._select(box)
         
         num = search.get_num(M, query)
         self._store(num, '+FLAGS', '\\DELETED')
