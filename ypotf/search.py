@@ -78,23 +78,30 @@ class inbox(object):
     A server or mail user agent may expunge DELETED messages, so I don't
     want to use it, and and RECENT can be set by the mail server in such
     ways to make it not helpful for my purposes. That leaves me with
-    four flags; this is how I interpret them.
+    four flags, which give me 16 possible states; this is how I
+    interpret them.
 
     New command
         UNSEEN UNANSWERED UNDRAFT UNFLAGGED
-    Pending subscription
-        SEEN   UNANSWERED   DRAFT   FLAGGED
-    Current subscription
-        SEEN   UNANSWERED   DRAFT UNFLAGGED
-    Pending message to list members
-        SEEN     ANSWERED UNDRAFT   FLAGGED
-    Ignored
-        SEEN     ANSWERED UNDRAFT UNFLAGGED
-    Errors
-        UNSEEN with any of ANSWERED, UNDRAFT, AND UNFLAGGED
-        should not occur.
-    Ignored
-        SEEN
+    Pending subscription/message
+        SEEN   UNANSWERED DRAFT   FLAGGED
+    Manually cancelled pending subscription/message
+        SEEN   UNANSWERED DRAFT   UNFLAGGED
+    Current subscription/message
+        SEEN   ANSWERED   UNDRAFT FLAGGED
+    Manually cancelled current subscription/message
+        SEEN   ANSWERED   UNDRAFT UNFLAGGED
+    Commands that have completed
+        SEEN   ANSWERED   DRAFT   UNFLAGGED
+    Unused (I might use it for a blacklist.)
+        SEEN   ANSWERED   DRAFT   FLAGGED
+    Possible mistakes (ypotf will prompt for corrections.)
+        SEEN UNANSWERED   UNDRAFT UNFLAGGED might occur because someone
+        accidentally read a new command in a MUA;
+        SEEN UNANSWERED   UNDRAFT FLAGGED might occurr because someone
+        accidentally read a new command in a MUA and then flagged it;
+        UNSEEN UNANSWERED UNDRAFT FLAGGED might occur because someone
+        accidentally flagged a new command in a MUA.
         
     Final sent message to list members go in Sent, not Inbox.
 
