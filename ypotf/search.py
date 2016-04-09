@@ -93,29 +93,19 @@ class inbox(object):
         for num, m in _fetch(x, M, nums):
             h = _parse_headers(m)
             if email_address(h['FROM']) == e:
-                return num, h['SUBJECT']
-        return None, None
+                return h['SUBJECT']
 
-    # Pending subscribe: +FLAGS \FLAGGED \SEEN \DRAFT
-    # Pending subscribe -> Current: -FLAGS \DRAFT
-    # Current -> Pending unsubscribe: +FLAGS \SEEN
-    # Pending unsubscribe -> gone: +FLAGS \ANSWERED
+    # Pending: +FLAGS \FLAGGED \SEEN \DRAFT
+    # Pending -> Current: -FLAGS \DRAFT
+    # Current -> Unsubscribed: +FLAGS \ANSWERED
 
     @staticmethod
-    def current_subscriber(M, address):
+    def current(M, address):
         return inbox._subscriber(M, address, 'UNDRAFT SEEN')
 
     @staticmethod
-    def is_subscriber(M, address):
-        return inbox._subscriber(M, address, 'UNDRAFT SEEN')[0] != None
-
-    @staticmethod
-    def pending_subscribe_code(M, address):
-        return inbox._subscriber(M, address, 'DRAFT SEEN')[1]
-
-    @staticmethod
-    def pending_unsubscribe_code(M, address):
-        return inbox._subscriber(M, address, 'UNDRAFT UNSEEN')[1]
+    def pending(M, address):
+        return inbox._subscriber(M, address, 'DRAFT SEEN')
 
     @staticmethod
     def new_orders(M):

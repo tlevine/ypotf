@@ -164,9 +164,8 @@ def process(S, M, num, from_address, subject, message_id):
                        from_address)
 
         elif action == 'unsubscribe':
-            draft_num, code = current_subscriber(from_address):
+            code = current_subscriber(from_address)
             if draft_num and code:
-                t.minus_flags(draft_num, '\\SEEN')
                 t.send(templates.unsubscribe_confirm(from_address, code),
                        from_address)
             else:
