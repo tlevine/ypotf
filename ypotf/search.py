@@ -66,18 +66,19 @@ class sent(object):
 
 class inbox(object):
     '''
-    Flags
+    Messages flagged \ANSWERED or \DELETED are ignored.
+    All other messages should have one of the following
+    flag settings; other states are considered errors.
+    Bold indicates the more distinguishing flags.
 
     New message
-        UNSEEN UNANSWERED UNDELETED
-    Effectively deleted
-        ANSWERED
-    Pending subscription
-        SEEN FLAGGED DRAFT
-    Current subscription
-        SEEN FLAGGED
+        **UNSEEN**
     Pending message to list members
-        SEEN UNANSWERED
+        **SEEN**
+    Pending subscription
+        **SEEN** **FLAGGED** **DRAFT**
+    Current subscription
+        **SEEN** **FLAGGED**
 
     Transitions between states
 
