@@ -131,8 +131,8 @@ def process(S, M, num, from_address, subject, message_id):
         action = 'message'
     
     with Transaction(S, M) as t:
+        t.plus_flags(num, '\\SEEN')
         if action == 'help':
-            t.plus_flags(num, '\\SEEN')
             t.send(templates.help(from_address), from_address)
 
         elif action == 'list-archive':
@@ -141,20 +141,16 @@ def process(S, M, num, from_address, subject, message_id):
         elif action == 'message':
             code = _confirmation_code()
             m = templates.i_message_confirmation(fetch_num(num), code)
-
+            t.append('Inbox', '\\SEEN \\DRAFT', m)
             t.send(templates.confirmation(action, from_address, code),
                    from_address)
-            t.append('Inbox', '\\SEEN \\DRAFT', m)
-            t.plus_flags(num, '\\SEEN')
 
         elif action == 'subscribe':
-            flags = '\\FLAGGED \\DRAFT \\SEEN'
-            draft_num, code = search.inbox.subscriber(M, from_address)
+            draft_num = search.inbox.pending_subscriber(M, from_address)
 
-            if draft_num and code:
+            if draft_num:
                 logger.debug('Reusing existing pending confirmation')
-                t.plus_flags(draft_num, flags)
-            elif draft_num:
+            elif search.inbox.subscriber(M, from_address):
                 logger.debug('Already subscribed')
                 raise NotImplementedError
             else:
@@ -165,7 +161,6 @@ def process(S, M, num, from_address, subject, message_id):
 
             t.send(templates.confirmation(action, from_address, code),
                    from_address)
-            t.plus_flags(num, '\\SEEN')
 
         elif action == 'unsubscribe':
             draft_num, code = search.inbox.subscriber(M, from_address)
@@ -179,7 +174,6 @@ def process(S, M, num, from_address, subject, message_id):
                        from_address)
             else:
                 t.send(templates.not_a_member(from_address), from_address)
-            t.plus_flags(num, '\\SEEN')
 
         elif action == 'list-confirm':
             code = re.match(MATCHERS['list-confirm'], subject).group(1)
@@ -205,7 +199,6 @@ def process(S, M, num, from_address, subject, message_id):
                     raise ValueError
             else:
                 logger.warning('Invalid confirmation code')
-            t.plus_flags(num, '\\SEEN')
 
         else:
             raise ValueError('Bad action')
