@@ -1,6 +1,8 @@
 from email.message import Message
 from functools import partial
 
+from .utils import email_address
+
 FORWARDED_HEADERS = {
     'from',
     'subject', 'date', 'user-agent',
@@ -29,6 +31,15 @@ def _set_list_headers(list_address, msg):
         msg[k] = v
     return msg
 
+def _set_reply_headers(list_address, m_in, m_out):
+    e = email_address(m_in['From'])
+    m_out['To'] = e
+    m_out['From'] = list_address
+    m_out['Subject'] = 'Re: %(Subject)ss' % m_in
+    m_out['References'] = ('%(References)s %(Message-Id)s' % m_in).strip()
+    m_out['Date'] = email.utils.format_datetime(_now())
+    return m_out
+
 def confirm_ok(action, list_address, to_address, code):
     m = _set_list_headers(list_address, Message())
     m['To'] = to_address
@@ -45,10 +56,8 @@ def confirm_ok(action, list_address, to_address, code):
 
 def help(list_address, to_address):
     m = _set_list_headers(list_address, Message())
-    m['To'] = to_address
-    m['From'] = list_address
+    m = _set_reply_headers(list_address, m_in, m)
     m['Subject'] = 'List help'
-    m['Date'] = email.utils.format_datetime(_now())
     m.set_payload('Documentation will eventually go here.')
     return m
 
@@ -69,4 +78,21 @@ def subscriber(address):
 def publication_batch(list_address, m, to_addresses):
     m = publication(list_address, m)
     m['Bcc'] = ', '.join(to_addresses)
+    return m
+
+def unsubscribe_ok(list_address, m_in):
+    m = _set_list_headers(list_address, Message())
+    m = _set_reply_headers(list_address, m_in, m)
+    m['From'] = list_address
+    x = 'Your email address, %s, has been removed from this mailing list.'
+    m.set_payload(x % e)
+    return m
+
+def unsubscribe_fail_not_member(list_address, m_in):
+    m = _set_list_headers(list_address, Message())
+    m = _set_reply_headers(list_address, m_in, m)
+    e = email_address(m_in['From'])
+    m['Subject'] = 'Re: %(Subject)s' % m_in
+    m.set_payload('''Your email address, %s, is already not on this
+mailing list; your unsubscribe command did nothing.''' % e)
     return m
