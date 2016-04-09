@@ -4,9 +4,10 @@ import subprocess, os
 def subscribe(m):
     '''
     '''
+    a = _question('Review request from %(From)s' % m)
 
 
-def _question(text, choices):
+def _question(text, choices, default=0):
     if len(set(c[0] for c in choices)) != len(choices):
         raise ValueError('Choices conflict.')
 
@@ -16,16 +17,13 @@ def _question(text, choices):
     default_choices = [long_options[0].title()] + long_options[1:]
 
     p = '/'.join('[%s]%s' % (c[0], c[1:]) for c in default_choices)
-    y = None
-    while y not in short_options and y not in long_options:
-        y = input('%s (%s)? ' % (text, p)).lower()
-    
+    y = input('%s (%s)? ' % (text, p)).lower()
     if y in short_options:
         i = short_options.index(y)
     elif y in long_options:
         i = long_options.index(y)
     else:
-        raise ValueError(y)
+        i = default
 
     return original_choices[i]
 
