@@ -17,12 +17,10 @@ def _parse_flags(x):
     if m:
         return set(n.upper() for n in m.group(1).split())
 
-def _block(x):
-    return '\n%s\n' % textwrap.indent(textwrap.fill(x.strip(), 50), '  ')
-
 def _search(criterion, M):
-    x = 'UNANSWERED UNDELETED ' + criterion
-    logger.debug('Searching:\n%s' % _block(x))
+    x = 'UNDELETED ' + criterion
+    y = '\n%s\n' % textwrap.indent(textwrap.fill(x.strip(), 50), '  ')
+    logger.debug('Searching:\n%s' % y)
 
     nums = r(M.search(None, x))
     n = (nums[0].count(b' ')+1) if nums[0] else 0
@@ -30,11 +28,7 @@ def _search(criterion, M):
     logger.debug('%d results' % n)
     return nums
 
-def _fetch(fetch, M, nums):
-    for num in nums[0].split():
-        yield num, r(M.fetch(num, fetch))
-
-def get_num(M, criterion):
+def search_one(M, criterion):
     nums = _search(criterion, M)
     xs = nums[0].split()
     if len(xs) == 1:
@@ -44,25 +38,13 @@ def get_num(M, criterion):
     else:
         raise ValueError('Multiple messages match "%s"' % criterion)
 
-def fetch_num(M, num):
+def _fetch(fetch, M, nums):
+    for num in nums[0].split():
+        yield num, r(M.fetch(num, fetch))
+
+def fetch_one(M, num):
     data = r(M.fetch(num, '(RFC822)')
     return message_from_bytes(data[0][1])
-
-class sent(object):
-    @staticmethod
-    def n_sent(M, timedelta):
-        '''
-        Search the Sent folder with the SENTSINCE search key to assess
-        quotas (one search per quota).
-
-        :param imaplib.IMAP4_SSL M: A mailbox
-        :type timedelta: datetime.timedelta or int
-        :param timedelta: A time duration, integers interpreted as minutes
-        :returns: The number of messages
-        :rtype: int
-        '''
-        criterion = 'SENTSINCE "%s" NOT BCC ""' % dt.strftime('%d-%b-%Y')
-        return len(_search(criterion, M).split())
 
 class inbox(object):
 

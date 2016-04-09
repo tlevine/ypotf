@@ -1,7 +1,7 @@
 import smtplib
 import logging
 
-from . import search
+from .read import _search
 
 logger = logging.getLogger(__name__)
 
@@ -36,9 +36,23 @@ def quota(M, quotas):
     :rtype: int or NoneType
     '''
     N = None
-    for quota in quotas:
-        minutes, count = map(int, quota.split(':'))
-        n = count - search.n_sent(M, minutes)
+    for q in qs:
+        minutes, count = map(int, q.split(':'))
+        n = count - n_sent(M, minutes)
         if N == None or n < N:
             N = n
     return N
+
+def n_sent(M, timedelta):
+    '''
+    Search the Sent folder with the SENTSINCE search key to assess
+    quotas (one search per quota).
+
+    :param imaplib.IMAP4_SSL M: A mailbox
+    :type timedelta: datetime.timedelta or int
+    :param timedelta: A time duration, integers interpreted as minutes
+    :returns: The number of messages
+    :rtype: int
+    '''
+    criterion = 'SENTSINCE "%s" NOT BCC ""' % dt.strftime('%d-%b-%Y')
+    return len(_search(criterion, M).split())
