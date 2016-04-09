@@ -23,10 +23,10 @@ digraph ypotf {
     "Current subscriptions (2.2)";
     "Current publications (2.3)";
   };
-  subgraph cluster_2 {
-  "Sent messages" [shape=diamond];
+//subgraph cluster_2 {
+//"Sent messages" [shape=diamond];
   "Deleted subscriptions";
-  };
+//};
 
   // Direct links
   "help (1.1.1)" -> "Applied commands (2.1)" [label="+ANSWERED\n+SEEN"];
@@ -48,10 +48,12 @@ digraph ypotf {
   "list-confirm (1.1.5)" -> "Current publications (2.3)" [style=dotted];
   "list-confirm (1.1.5)" -> "Deleted subscriptions" [style=dotted];
 
+/*
   "help (1.1.1)" -> "Sent messages" [style=dotted];
   "list-archive (1.1.2)" -> "Sent messages" [style=dotted];
   "subscribe (1.1.3)" -> "Sent messages" [style=dotted];
   "unsubscribe (1.1.4)" -> "Sent messages" [style=dotted];
   "list-confirm (1.1.5)" -> "Sent messages" [style=dotted];
   "message (1.1.6)" -> "Sent messages" [style=dotted];
+*/
 }
