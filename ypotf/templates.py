@@ -109,7 +109,8 @@ def subscription(m_in):
 def confirm_ok(list_address, m_in):
     m = _set_list_headers(list_address, Message())
     m = _set_reply_headers(list_address, m_in, m)
-    x = 'Your email address, %s, has been added to the %s list.'
+    x = '''Your email address, %s, has been added
+to the %s list.'''
     m.set_payload(x % (email_address(m_in['From']), list_address))
     return m
 
@@ -126,7 +127,8 @@ this confirmation command did nothing.'''
 def unsubscribe_ok(list_address, m_in):
     m = _set_list_headers(list_address, Message())
     m = _set_reply_headers(list_address, m_in, m)
-    x = 'Your email address, %s, has been removed from this mailing list.'
+    x = '''Your email address, %s, has been
+removed from this mailing list.'''
     m.set_payload(x % e)
     return m
 
